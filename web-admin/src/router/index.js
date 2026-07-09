@@ -84,6 +84,36 @@ const routes = [
         name: 'StockFlow',
         component: () => import('../views/stock-flow/index.vue'),
         meta: { title: '库存流水' }
+      },
+      {
+        path: 'work-order',
+        name: 'WorkOrder',
+        component: () => import('../views/work-order/index.vue'),
+        meta: { title: '生产工单' }
+      },
+      {
+        path: 'production-progress',
+        name: 'ProductionProgress',
+        component: () => import('../views/production-progress/index.vue'),
+        meta: { title: '生产进度' }
+      },
+      {
+        path: 'process-config',
+        name: 'ProcessConfig',
+        component: () => import('../views/process-config/index.vue'),
+        meta: { title: '工艺配置' }
+      },
+      {
+        path: 'quality-record',
+        name: 'QualityRecord',
+        component: () => import('../views/quality-record/index.vue'),
+        meta: { title: '质检记录' }
+      },
+      {
+        path: 'exception-workbench',
+        name: 'ExceptionWorkbench',
+        component: () => import('../views/exception-workbench/index.vue'),
+        meta: { title: '异常处理' }
       }
     ]
   }
