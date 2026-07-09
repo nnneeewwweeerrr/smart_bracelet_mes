@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: smart-bracelet-mes
+  datasource:
+    url: jdbc:mysql://localhost:3306/smart_bracelet_mes?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      id-type: auto
+  mapper-locations: classpath:/mapper/**/*.xml
+  type-aliases-package: com.mes.entity
+
+jwt:
+  secret: smart-bracelet-mes-secret-key-2026
+  expiration: 86400000
