@@ -64,16 +64,22 @@ public class AuthController {
 
     @PostMapping("/init-password")
     public Result<Void> initPassword() {
-        SysUser admin = sysUserService.getByUsername("admin");
-        if (admin != null) {
-            admin.setPassword(passwordEncoder.encode("123456"));
-            sysUserService.updateById(admin);
-        }
-        SysUser worker = sysUserService.getByUsername("worker001");
-        if (worker != null) {
-            worker.setPassword(passwordEncoder.encode("123456"));
-            sysUserService.updateById(worker);
+        String[] usernames = {"admin", "order_clerk", "purchase_clerk", "warehouse_keeper",
+                "production_manager", "quality_inspector", "worker001", "worker002", "worker003"};
+        for (String username : usernames) {
+            SysUser user = sysUserService.getByUsername(username);
+            if (user != null) {
+                user.setPassword(passwordEncoder.encode("123456"));
+                sysUserService.updateById(user);
+            }
         }
         return Result.success();
+    }
+
+    @PostMapping("/init-data")
+    public Result<String> initData() {
+        // 用于演示环境一键初始化所有默认密码
+        initPassword();
+        return Result.success("默认账号: admin/123456, worker001/123456 等");
     }
 }
