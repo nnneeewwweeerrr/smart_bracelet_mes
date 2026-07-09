@@ -1,6 +1,6 @@
 <template>
   <el-container class="layout-container">
-    <el-aside width="200px" class="aside">
+    <el-aside width="210px" class="aside">
       <div class="logo">MES系统</div>
       <el-menu
         :default-active="route.path"
@@ -13,6 +13,38 @@
           <el-icon><HomeFilled /></el-icon>
           <span>首页</span>
         </el-menu-item>
+
+        <el-sub-menu index="business">
+          <template #title>
+            <el-icon><Document /></el-icon>
+            <span>业务管理</span>
+          </template>
+          <el-menu-item index="/order">订单管理</el-menu-item>
+          <el-menu-item index="/purchase">采购管理</el-menu-item>
+          <el-menu-item index="/supplier">供应商管理</el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="archive">
+          <template #title>
+            <el-icon><Folder /></el-icon>
+            <span>基础档案</span>
+          </template>
+          <el-menu-item index="/customer">客户档案</el-menu-item>
+          <el-menu-item index="/material">物料档案</el-menu-item>
+          <el-menu-item index="/product">产品档案</el-menu-item>
+          <el-menu-item index="/equipment">设备档案</el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="warehouse">
+          <template #title>
+            <el-icon><Box /></el-icon>
+            <span>仓储管理</span>
+          </template>
+          <el-menu-item index="/stock">库存查询</el-menu-item>
+          <el-menu-item index="/stock-in">入库记录</el-menu-item>
+          <el-menu-item index="/stock-out">出库记录</el-menu-item>
+          <el-menu-item index="/stock-flow">库存流水</el-menu-item>
+        </el-sub-menu>
       </el-menu>
     </el-aside>
     <el-container>
@@ -30,7 +62,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/user'
-import { HomeFilled } from '@element-plus/icons-vue'
+import { HomeFilled, Document, Folder, Box } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -48,6 +80,7 @@ const handleLogout = () => {
 }
 .aside {
   background: #304156;
+  overflow-y: auto;
 }
 .logo {
   height: 60px;
