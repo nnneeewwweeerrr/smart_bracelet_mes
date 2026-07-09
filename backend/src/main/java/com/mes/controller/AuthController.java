@@ -59,7 +59,14 @@ public class AuthController {
 
     @GetMapping("/info")
     public Result<SysUser> info() {
-        return Result.success(new SysUser());
+        org.springframework.security.core.context.SecurityContext ctx =
+                org.springframework.security.core.context.SecurityContextHolder.getContext();
+        String username = ctx.getAuthentication().getName();
+        SysUser user = sysUserService.getByUsername(username);
+        if (user != null) {
+            user.setPassword(null);
+        }
+        return Result.success(user);
     }
 
     @PostMapping("/init-password")
