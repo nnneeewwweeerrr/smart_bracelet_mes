@@ -1,3 +1,9 @@
+-- ============================================================
+-- 智能手环MES系统 - 初始化数据
+-- 默认密码（BCrypt加密后）: 123456
+-- ============================================================
+
+-- 1. 角色数据
 INSERT INTO `sys_role` (`id`, `role_name`, `role_code`, `description`) VALUES
 (1, '超级管理员', 'admin', '系统超级管理员，拥有所有权限'),
 (2, '订单专员', 'order_clerk', '负责订单管理相关工作'),
@@ -7,10 +13,21 @@ INSERT INTO `sys_role` (`id`, `role_name`, `role_code`, `description`) VALUES
 (6, '质检人员', 'quality_inspector', '负责质量管理相关工作'),
 (7, '一线工人', 'worker', '负责生产报工、异常上报');
 
+-- 2. 用户数据（默认密码: 123456，BCrypt加密）
+-- 启动后 DataInitializer 会自动检测并将密码更新为正确的BCrypt hash
+-- 也可调用 POST /api/auth/init-data 一键初始化
 INSERT INTO `sys_user` (`id`, `user_name`, `password`, `real_name`, `phone`, `email`, `role_id`, `status`) VALUES
-(1, 'admin', '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq', '管理员', '13800138000', 'admin@example.com', 1, 1),
-(2, 'worker001', '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq', '张三', '13800138001', 'worker001@example.com', 7, 1);
+(1, 'admin', '$2a$10$jQSvjCO.lRYeNPKg9wmYJ.vxn12P2A5PKbQ3PIw2jFvz7o8kXX5Tq', '系统管理员', '13800138000', 'admin@mes.com', 1, 1),
+(2, 'order_clerk', '$2a$10$jQSvjCO.lRYeNPKg9wmYJ.vxn12P2A5PKbQ3PIw2jFvz7o8kXX5Tq', '王订单', '13800138001', 'order@mes.com', 2, 1),
+(3, 'purchase_clerk', '$2a$10$jQSvjCO.lRYeNPKg9wmYJ.vxn12P2A5PKbQ3PIw2jFvz7o8kXX5Tq', '李采购', '13800138002', 'purchase@mes.com', 3, 1),
+(4, 'warehouse_keeper', '$2a$10$jQSvjCO.lRYeNPKg9wmYJ.vxn12P2A5PKbQ3PIw2jFvz7o8kXX5Tq', '张仓管', '13800138003', 'warehouse@mes.com', 4, 1),
+(5, 'production_manager', '$2a$10$jQSvjCO.lRYeNPKg9wmYJ.vxn12P2A5PKbQ3PIw2jFvz7o8kXX5Tq', '赵生产', '13800138004', 'production@mes.com', 5, 1),
+(6, 'quality_inspector', '$2a$10$jQSvjCO.lRYeNPKg9wmYJ.vxn12P2A5PKbQ3PIw2jFvz7o8kXX5Tq', '陈质检', '13800138005', 'quality@mes.com', 6, 1),
+(7, 'worker001', '$2a$10$jQSvjCO.lRYeNPKg9wmYJ.vxn12P2A5PKbQ3PIw2jFvz7o8kXX5Tq', '张三', '13800138006', 'worker001@mes.com', 7, 1),
+(8, 'worker002', '$2a$10$jQSvjCO.lRYeNPKg9wmYJ.vxn12P2A5PKbQ3PIw2jFvz7o8kXX5Tq', '李四', '13800138007', 'worker002@mes.com', 7, 1),
+(9, 'worker003', '$2a$10$jQSvjCO.lRYeNPKg9wmYJ.vxn12P2A5PKbQ3PIw2jFvz7o8kXX5Tq', '王五', '13800138008', 'worker003@mes.com', 7, 1);
 
+-- 3. 权限数据
 INSERT INTO `sys_permission` (`id`, `permission_name`, `permission_code`, `resource_type`, `resource_path`, `parent_id`) VALUES
 (1, '订单管理', 'order:manage', 'menu', '/order', NULL),
 (2, '订单列表', 'order:list', 'button', '/order/list', 1),
@@ -41,6 +58,7 @@ INSERT INTO `sys_permission` (`id`, `permission_name`, `permission_code`, `resou
 (27, '异常上报', 'exception:report', 'button', '/exception/report', 26),
 (28, '异常处理', 'exception:handle', 'button', '/exception/handle', 26);
 
+-- 4. 角色权限关联
 INSERT INTO `role_permission` (`role_id`, `permission_id`) VALUES
 (1, 1),(1, 2),(1, 3),(1, 4),(1, 5),(1, 6),(1, 7),(1, 8),(1, 9),(1, 10),
 (1, 11),(1, 12),(1, 13),(1, 14),(1, 15),(1, 16),(1, 17),(1, 18),(1, 19),
@@ -48,87 +66,124 @@ INSERT INTO `role_permission` (`role_id`, `permission_id`) VALUES
 (2, 1),(2, 2),(2, 3),(2, 4),
 (3, 5),(3, 6),(3, 7),
 (4, 8),(4, 9),(4, 10),(4, 11),
-(5, 12),(5, 13),(5, 14),
+(5, 12),(5, 13),(5, 14),(5, 15),(5, 19),(5, 20),(5, 21),
 (6, 16),(6, 17),(6, 18),
-(7, 15),(7, 27);
+(7, 12),(7, 14),(7, 15),(7, 26),(7, 27);
 
+-- 5. 数据字典 - 订单状态
 INSERT INTO `sys_dict` (`dict_type`, `dict_code`, `dict_value`, `sort_order`, `status`) VALUES
 ('order_status', '0', '待审批', 1, 1),
 ('order_status', '1', '已审批', 2, 1),
 ('order_status', '2', '生产中', 3, 1),
 ('order_status', '3', '已完成', 4, 1),
-('order_status', '4', '已取消', 5, 1),
+('order_status', '4', '已取消', 5, 1);
+
+-- 数据字典 - 采购状态
+INSERT INTO `sys_dict` (`dict_type`, `dict_code`, `dict_value`, `sort_order`, `status`) VALUES
 ('purchase_status', '0', '待审批', 1, 1),
 ('purchase_status', '1', '已审批', 2, 1),
 ('purchase_status', '2', '已到货', 3, 1),
-('purchase_status', '3', '已完成', 4, 1),
+('purchase_status', '3', '已完成', 4, 1);
+
+-- 数据字典 - 生产计划状态
+INSERT INTO `sys_dict` (`dict_type`, `dict_code`, `dict_value`, `sort_order`, `status`) VALUES
 ('plan_status', '0', '待执行', 1, 1),
 ('plan_status', '1', '执行中', 2, 1),
-('plan_status', '2', '已完成', 3, 1),
-('work_order_status', '0', '待派发', 1, 1),
-('work_order_status', '1', '执行中', 2, 1),
-('work_order_status', '2', '已完成', 3, 1),
-('quality_task_status', '0', '待处理', 1, 1),
-('quality_task_status', '1', '处理中', 2, 1),
-('quality_task_status', '2', '已完成', 3, 1),
+('plan_status', '2', '已完成', 3, 1);
+
+-- 数据字典 - 工单状态
+INSERT INTO `sys_dict` (`dict_type`, `dict_code`, `dict_value`, `sort_order`, `status`) VALUES
+('workorder_status', '0', '待派发', 1, 1),
+('workorder_status', '1', '执行中', 2, 1),
+('workorder_status', '2', '已完成', 3, 1);
+
+-- 数据字典 - 质检状态
+INSERT INTO `sys_dict` (`dict_type`, `dict_code`, `dict_value`, `sort_order`, `status`) VALUES
+('quality_status', '0', '待处理', 1, 1),
+('quality_status', '1', '处理中', 2, 1),
+('quality_status', '2', '已完成', 3, 1);
+
+-- 数据字典 - 质检结果
+INSERT INTO `sys_dict` (`dict_type`, `dict_code`, `dict_value`, `sort_order`, `status`) VALUES
+('quality_result', '0', '不合格', 1, 1),
+('quality_result', '1', '合格', 2, 1);
+
+-- 数据字典 - 设备状态
+INSERT INTO `sys_dict` (`dict_type`, `dict_code`, `dict_value`, `sort_order`, `status`) VALUES
 ('equipment_status', '0', '停用', 1, 1),
 ('equipment_status', '1', '运行', 2, 1),
-('equipment_status', '2', '维修', 3, 1),
+('equipment_status', '2', '维修', 3, 1);
+
+-- 数据字典 - 异常状态
+INSERT INTO `sys_dict` (`dict_type`, `dict_code`, `dict_value`, `sort_order`, `status`) VALUES
 ('exception_status', '0', '待处理', 1, 1),
 ('exception_status', '1', '处理中', 2, 1),
-('exception_status', '2', '已解决', 3, 1),
-('exception_type', 'equipment', '设备故障', 1, 1),
-('exception_type', 'material', '物料短缺', 2, 1),
-('exception_type', 'quality', '质量问题', 3, 1),
-('exception_type', 'other', '其他异常', 4, 1),
-('task_type', 'incoming', '来料检验', 1, 1),
-('task_type', 'process', '过程检验', 2, 1),
-('task_type', 'finished', '成品检验', 3, 1),
-('material_type', 'raw', '原材料', 1, 1),
-('material_type', 'component', '零部件', 2, 1),
-('material_type', 'finished', '成品', 3, 1),
-('product_type', 'sport', '运动手环', 1, 1),
-('product_type', 'health', '健康手环', 2, 1),
-('product_type', 'fashion', '时尚手环', 3, 1),
-('warehouse_type', 'raw_material', '原材料仓', 1, 1),
-('warehouse_type', 'workshop', '车间仓', 2, 1),
-('warehouse_type', 'finished', '成品仓', 3, 1);
+('exception_status', '2', '已解决', 3, 1);
 
-INSERT INTO `customer_info` (`customer_code`, `customer_name`, `contact_name`, `phone`, `status`) VALUES
-('CUS001', '北京科技有限公司', '李四', '13900139001', 1),
-('CUS002', '上海智能科技有限公司', '王五', '13900139002', 1);
+-- 数据字典 - 异常类型
+INSERT INTO `sys_dict` (`dict_type`, `dict_code`, `dict_value`, `sort_order`, `status`) VALUES
+('exception_type', 'quality', '质量问题', 1, 1),
+('exception_type', 'equipment', '设备故障', 2, 1),
+('exception_type', 'material', '物料不足', 3, 1),
+('exception_type', 'safety', '安全问题', 4, 1),
+('exception_type', 'other', '其他', 5, 1);
 
-INSERT INTO `supplier_info` (`supplier_name`, `contact_name`, `phone`, `address`, `status`) VALUES
-('深圳电子元件有限公司', '赵六', '13900139003', '深圳市南山区科技园', 1),
-('东莞塑胶制品有限公司', '孙七', '13900139004', '东莞市长安镇', 1);
+-- 数据字典 - 单位
+INSERT INTO `sys_dict` (`dict_type`, `dict_code`, `dict_value`, `sort_order`, `status`) VALUES
+('unit', 'pcs', '个', 1, 1),
+('unit', 'box', '箱', 2, 1),
+('unit', 'kg', '千克', 3, 1),
+('unit', 'm', '米', 4, 1),
+('unit', 'set', '套', 5, 1);
 
-INSERT INTO `product_info` (`product_code`, `product_name`, `product_type`, `specification`, `unit_price`, `status`) VALUES
-('PRD001', '智能运动手环A1', 'sport', '黑色/白色/蓝色', 199.00, 1),
-('PRD002', '健康监测手环H1', 'health', '心率监测/睡眠监测', 299.00, 1);
+-- 数据字典 - 通用状态
+INSERT INTO `sys_dict` (`dict_type`, `dict_code`, `dict_value`, `sort_order`, `status`) VALUES
+('common_status', '0', '禁用', 1, 1),
+('common_status', '1', '启用', 2, 1);
 
-INSERT INTO `material_info` (`material_code`, `material_name`, `material_type`, `unit`, `unit_price`, `safety_stock`, `status`) VALUES
-('MAT001', 'OLED显示屏', 'component', '个', 35.00, 100, 1),
-('MAT002', '锂电池', 'component', '个', 25.00, 200, 1),
-('MAT003', '塑胶外壳', 'component', '个', 15.00, 500, 1),
-('MAT004', 'PCB主板', 'component', '个', 45.00, 100, 1),
-('MAT005', '蓝牙模块', 'component', '个', 18.00, 150, 1);
+-- 6. 测试客户数据
+INSERT INTO `customer_info` (`id`, `customer_code`, `customer_name`, `contact_name`, `phone`, `email`, `address`, `status`) VALUES
+(1, 'C001', '华为技术有限公司', '张总', '13800000001', 'huawei@example.com', '深圳市龙岗区', 1),
+(2, 'C002', '小米通讯技术有限公司', '雷总', '13800000002', 'xiaomi@example.com', '北京市海淀区', 1),
+(3, 'C003', 'OPPO广东移动通信有限公司', '陈总', '13800000003', 'oppo@example.com', '东莞市长安镇', 1);
 
-INSERT INTO `warehouse_info` (`warehouse_name`, `warehouse_code`, `address`, `status`) VALUES
-('原材料仓', 'WH001', '厂区A栋1楼', 1),
-('车间仓', 'WH002', '厂区B栋2楼', 1),
-('成品仓', 'WH003', '厂区C栋1楼', 1);
+-- 7. 测试产品数据
+INSERT INTO `product_info` (`id`, `product_code`, `product_name`, `product_type`, `specification`, `unit_price`, `status`) VALUES
+(1, 'P001', '智能手环X1', '手环', '黑色/标准版', 299.00, 1),
+(2, 'P002', '智能手环X1 Pro', '手环', '黑色/尊享版', 499.00, 1),
+(3, 'P003', '智能手环S2', '手环', '蓝色/运动版', 399.00, 1);
 
-INSERT INTO `process_info` (`process_name`, `process_code`, `product_id`, `sort_order`) VALUES
-('SMT贴片', 'PROC001', 1, 1),
-('焊接组装', 'PROC002', 1, 2),
-('固件烧录', 'PROC003', 1, 3),
-('功能测试', 'PROC004', 1, 4),
-('外观检查', 'PROC005', 1, 5),
-('包装入库', 'PROC006', 1, 6);
+-- 8. 测试供应商数据
+INSERT INTO `supplier_info` (`id`, `supplier_name`, `contact_name`, `phone`, `address`, `status`) VALUES
+(1, '深圳鑫达电子有限公司', '王经理', '13900000001', '深圳市宝安区', 1),
+(2, '东莞精密塑胶制品厂', '李厂长', '13900000002', '东莞市长安镇', 1),
+(3, '上海芯片技术有限公司', '赵总', '13900000003', '上海市浦东新区', 1);
 
-INSERT INTO `equipment_info` (`equipment_code`, `equipment_name`, `equipment_type`, `status`, `location`, `purchase_date`) VALUES
-('EQ001', 'SMT贴片机', '生产设备', 1, 'B栋1线', '2024-01-15'),
-('EQ002', '回流焊', '生产设备', 1, 'B栋1线', '2024-01-15'),
-('EQ003', '焊接机器人', '生产设备', 1, 'B栋2线', '2024-02-20'),
-('EQ004', '测试治具', '检测设备', 1, 'B栋测试区', '2024-03-10'),
-('EQ005', '包装机', '包装设备', 1, 'C栋包装区', '2024-04-05');
+-- 9. 测试物料数据
+INSERT INTO `material_info` (`id`, `material_code`, `material_name`, `material_type`, `unit`, `unit_price`, `safety_stock`, `status`) VALUES
+(1, 'M001', '手环主板', '电子件', 'pcs', 50.00, 1000, 1),
+(2, 'M002', 'OLED屏幕', '电子件', 'pcs', 30.00, 1000, 1),
+(3, 'M003', '硅胶表带', '配件', 'pcs', 5.00, 5000, 1),
+(4, 'M004', '锂电池', '电子件', 'pcs', 15.00, 2000, 1),
+(5, 'M005', '传感器模组', '电子件', 'pcs', 20.00, 1500, 1);
+
+-- 10. 测试仓库数据
+INSERT INTO `warehouse_info` (`id`, `warehouse_name`, `warehouse_code`, `address`, `status`) VALUES
+(1, '主原料仓', 'WH001', '厂区A栋1楼', 1),
+(2, '成品仓', 'WH002', '厂区B栋1楼', 1),
+(3, '半成品仓', 'WH003', '厂区A栋2楼', 1);
+
+-- 11. 测试工序数据
+INSERT INTO `process_info` (`id`, `process_name`, `process_code`, `product_id`, `sort_order`) VALUES
+(1, '主板贴片', 'PR001', 1, 1),
+(2, '屏幕组装', 'PR002', 1, 2),
+(3, '外壳组装', 'PR003', 1, 3),
+(4, '功能测试', 'PR004', 1, 4),
+(5, '包装入库', 'PR005', 1, 5);
+
+-- 12. 测试设备数据
+INSERT INTO `equipment_info` (`id`, `equipment_code`, `equipment_name`, `equipment_type`, `status`, `location`, `purchase_date`) VALUES
+(1, 'EQ001', 'SMT贴片机', '贴片设备', 1, '车间A-01', '2024-01-15'),
+(2, 'EQ002', '回流焊炉', '焊接设备', 1, '车间A-02', '2024-01-20'),
+(3, 'EQ003', '自动测试仪', '测试设备', 1, '车间B-01', '2024-02-10'),
+(4, 'EQ004', '包装机', '包装设备', 1, '车间B-02', '2024-02-15');
