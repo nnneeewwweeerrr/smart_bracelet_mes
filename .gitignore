@@ -63,3 +63,7 @@ application-local.properties
 
 # UniApp
 unpackage/
+
+# Word 临时文件
+~$*.docx
+*.tmp
