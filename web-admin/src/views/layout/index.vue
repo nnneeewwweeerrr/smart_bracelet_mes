@@ -45,6 +45,25 @@
           <el-menu-item index="/stock-out">出库记录</el-menu-item>
           <el-menu-item index="/stock-flow">库存流水</el-menu-item>
         </el-sub-menu>
+
+        <el-sub-menu index="production">
+          <template #title>
+            <el-icon><Tools /></el-icon>
+            <span>生产管理</span>
+          </template>
+          <el-menu-item index="/work-order">生产工单</el-menu-item>
+          <el-menu-item index="/production-progress">生产进度</el-menu-item>
+          <el-menu-item index="/process-config">工艺配置</el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="quality">
+          <template #title>
+            <el-icon><CircleCheck /></el-icon>
+            <span>质量管理</span>
+          </template>
+          <el-menu-item index="/quality-record">质检记录</el-menu-item>
+          <el-menu-item index="/exception-workbench">异常处理</el-menu-item>
+        </el-sub-menu>
       </el-menu>
     </el-aside>
     <el-container>
@@ -62,7 +81,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/user'
-import { HomeFilled, Document, Folder, Box } from '@element-plus/icons-vue'
+import { HomeFilled, Document, Folder, Box, Tools, CircleCheck } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
