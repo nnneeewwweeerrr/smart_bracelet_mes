@@ -60,7 +60,14 @@ SmartBraceletMES/
 │   │   │   ├── StockController.java      # 库存查询接口（/api/stock）
 │   │   │   ├── StockInController.java    # 入库记录接口（/api/stock-in）
 │   │   │   ├── StockOutController.java   # 出库记录接口（/api/stock-out）
-│   │   │   └── StockFlowController.java  # 库存流水接口（/api/stock-flow）
+│   │   │   ├── StockFlowController.java  # 库存流水接口（/api/stock-flow）
+│   │   │   ├── ProductionPlanController.java   # 生产计划接口（/api/production-plan）
+│   │   │   ├── WorkOrderController.java        # 工单管理接口（/api/work-order）
+│   │   │   ├── ProductionReportController.java # 生产报工接口（/api/production-report）
+│   │   │   ├── ProcessController.java          # 工艺管理接口（/api/process）
+│   │   │   ├── QualityTaskController.java      # 质检任务接口（/api/quality-task）
+│   │   │   ├── QualityResultController.java    # 质检结果接口（/api/quality-result）
+│   │   │   └── ExceptionRecordController.java  # 异常记录接口（/api/exception）
 │   │   ├── service/                      # 业务逻辑层接口
 │   │   │   └── impl/                     # 业务逻辑层实现
 │   │   ├── mapper/                       # 数据访问层（MyBatis Mapper 接口）
@@ -80,7 +87,14 @@ SmartBraceletMES/
 │   │   │   ├── WarehouseInfo.java        # 仓库
 │   │   │   ├── StockInfo.java            # 库存
 │   │   │   ├── StockIn.java              # 入库单
-│   │   │   └── StockOut.java             # 出库单
+│   │   │   ├── StockOut.java             # 出库单
+│   │   │   ├── ProductionPlan.java       # 生产计划
+│   │   │   ├── WorkOrder.java            # 工单
+│   │   │   ├── ProductionReport.java     # 报工记录
+│   │   │   ├── ProcessInfo.java          # 工序
+│   │   │   ├── QualityTask.java          # 质检任务
+│   │   │   ├── QualityResult.java        # 质检结果
+│   │   │   └── ExceptionRecord.java      # 异常记录
 │   │   ├── dto/                          # 数据传输对象（请求参数封装）
 │   │   ├── vo/                           # 视图对象（返回前端的自定义结构）
 │   │   ├── filter/                       # 过滤器（如 JwtAuthenticationFilter）
@@ -117,7 +131,14 @@ SmartBraceletMES/
 │   │   │   ├── stock.js                  # 库存查询
 │   │   │   ├── stockIn.js                # 入库记录
 │   │   │   ├── stockOut.js               # 出库记录
-│   │   │   └── stockFlow.js              # 库存流水
+│   │   │   ├── stockFlow.js              # 库存流水
+│   │   │   ├── productionPlan.js         # 生产计划
+│   │   │   ├── workOrder.js              # 工单管理
+│   │   │   ├── productionReport.js       # 生产报工
+│   │   │   ├── process.js                # 工艺管理
+│   │   │   ├── qualityTask.js            # 质检任务
+│   │   │   ├── qualityResult.js          # 质检结果
+│   │   │   └── exception.js              # 异常记录
 │   │   ├── router/                       # 路由配置
 │   │   │   └── index.js                  # 路由表 + 路由守卫（未登录跳登录页）
 │   │   ├── stores/                       # Pinia 状态管理
@@ -139,7 +160,12 @@ SmartBraceletMES/
 │   │       ├── stock/                    # 库存查询页
 │   │       ├── stock-in/                 # 入库记录页
 │   │       ├── stock-out/                # 出库记录页
-│   │       └── stock-flow/               # 库存流水页
+│   │       ├── stock-flow/               # 库存流水页
+│   │       ├── work-order/               # 生产工单管理页
+│   │       ├── production-progress/      # 生产进度监控页
+│   │       ├── process-config/           # 工艺配置页
+│   │       ├── quality-record/           # 质检记录页
+│   │       └── exception-workbench/      # 异常处理工作台
 │   ├── public/                           # 静态资源
 │   ├── index.html                        # HTML 模板
 │   ├── vite.config.js                    # Vite 配置（代理 /api → 后端 8080）
@@ -207,7 +233,7 @@ mvn spring-boot:run
 cd web-admin
 npm install
 npm run dev
-# 访问地址: http://localhost:5173
+# 访问地址: http://localhost:5174
 ```
 
 ### 小程序端启动
