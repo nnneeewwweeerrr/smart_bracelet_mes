@@ -61,4 +61,19 @@ public class AuthController {
     public Result<SysUser> info() {
         return Result.success(new SysUser());
     }
+
+    @PostMapping("/init-password")
+    public Result<Void> initPassword() {
+        SysUser admin = sysUserService.getByUsername("admin");
+        if (admin != null) {
+            admin.setPassword(passwordEncoder.encode("123456"));
+            sysUserService.updateById(admin);
+        }
+        SysUser worker = sysUserService.getByUsername("worker001");
+        if (worker != null) {
+            worker.setPassword(passwordEncoder.encode("123456"));
+            sysUserService.updateById(worker);
+        }
+        return Result.success();
+    }
 }

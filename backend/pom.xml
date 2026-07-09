@@ -18,7 +18,7 @@
     <description>智能手环生产制造执行系统后端服务</description>
     
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
         <jjwt.version>0.11.5</jjwt.version>
     </properties>
@@ -58,6 +58,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version>
             <scope>runtime</scope>
         </dependency>
 
