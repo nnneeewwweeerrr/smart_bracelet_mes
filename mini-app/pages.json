@@ -1,0 +1,78 @@
+{
+  "pages": [
+    {
+      "path": "pages/workbench/index",
+      "style": {
+        "navigationBarTitleText": "工作台"
+      }
+    },
+    {
+      "path": "pages/scan/index",
+      "style": {
+        "navigationBarTitleText": "扫码"
+      }
+    },
+    {
+      "path": "pages/stock/index",
+      "style": {
+        "navigationBarTitleText": "仓储操作"
+      }
+    },
+    {
+      "path": "pages/production/index",
+      "style": {
+        "navigationBarTitleText": "生产报工"
+      }
+    },
+    {
+      "path": "pages/quality/index",
+      "style": {
+        "navigationBarTitleText": "质检录入"
+      }
+    },
+    {
+      "path": "pages/exception/index",
+      "style": {
+        "navigationBarTitleText": "异常上报"
+      }
+    },
+    {
+      "path": "pages/mine/index",
+      "style": {
+        "navigationBarTitleText": "个人中心"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#409EFF",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/workbench/index",
+        "text": "工作台",
+        "iconPath": "static/tab/workbench.png",
+        "selectedIconPath": "static/tab/workbench-active.png"
+      },
+      {
+        "pagePath": "pages/scan/index",
+        "text": "扫码",
+        "iconPath": "static/tab/scan.png",
+        "selectedIconPath": "static/tab/scan-active.png"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
+        "iconPath": "static/tab/mine.png",
+        "selectedIconPath": "static/tab/mine-active.png"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "智能手环MES",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f5f5f5"
+  }
+}

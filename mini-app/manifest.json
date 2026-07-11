@@ -1,0 +1,21 @@
+{
+  "name": "智能手环MES系统",
+  "appid": "__UNI__SMART_BRACELET_MES",
+  "description": "智能手环生产制造执行系统小程序端",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "h5": {
+    "title": "智能手环MES系统",
+    "router": {
+      "mode": "hash"
+    }
+  },
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false
+    },
+    "usingComponents": true
+  }
+}
