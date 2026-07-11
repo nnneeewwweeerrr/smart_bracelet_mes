@@ -1,5 +1,31 @@
 import request from './request'
 
-export const getList = (params) => {
-  return request.get('/stock/list', { params })
+export function getStockList(params) {
+  return request({
+    url: '/stock/list',
+    method: 'get',
+    params
+  })
+}
+
+export function getStockDetail(id) {
+  return request({
+    url: '/stock/' + id,
+    method: 'get'
+  })
+}
+
+export function getStockWarning() {
+  return request({
+    url: '/stock/warning',
+    method: 'get'
+  })
+}
+
+export function stockTakeStock(data) {
+  return request({
+    url: '/stock/take-stock',
+    method: 'post',
+    data
+  })
 }

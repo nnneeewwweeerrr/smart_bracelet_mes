@@ -1,17 +1,31 @@
 import request from './request'
 
-export const getList = (params) => {
-  return request.get('/stock-in/list', { params })
+export function getStockInList(params) {
+  return request({
+    url: '/stock-in/list',
+    method: 'get',
+    params
+  })
 }
 
-export const getById = (id) => {
-  return request.get('/stock-in/' + id)
+export function getStockInDetail(id) {
+  return request({
+    url: '/stock-in/' + id,
+    method: 'get'
+  })
 }
 
-export const save = (data) => {
-  return request.post('/stock-in/save', data)
+export function createStockIn(data) {
+  return request({
+    url: '/stock-in',
+    method: 'post',
+    data
+  })
 }
 
-export const remove = (id) => {
-  return request.delete('/stock-in/delete/' + id)
+export function approveStockIn(id) {
+  return request({
+    url: '/stock-in/' + id + '/approve',
+    method: 'post'
+  })
 }

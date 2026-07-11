@@ -1,17 +1,39 @@
 import request from './request'
 
-export const getList = () => {
-  return request.get('/warehouse/list')
+export function getWarehouseList(params) {
+  return request({
+    url: '/warehouse/list',
+    method: 'get',
+    params
+  })
 }
 
-export const save = (data) => {
-  return request.post('/warehouse/save', data)
+export function getWarehouseDetail(id) {
+  return request({
+    url: '/warehouse/' + id,
+    method: 'get'
+  })
 }
 
-export const update = (data) => {
-  return request.put('/warehouse/update', data)
+export function createWarehouse(data) {
+  return request({
+    url: '/warehouse',
+    method: 'post',
+    data
+  })
 }
 
-export const remove = (id) => {
-  return request.delete('/warehouse/delete/' + id)
+export function updateWarehouse(data) {
+  return request({
+    url: '/warehouse',
+    method: 'put',
+    data
+  })
+}
+
+export function deleteWarehouse(id) {
+  return request({
+    url: '/warehouse/' + id,
+    method: 'delete'
+  })
 }

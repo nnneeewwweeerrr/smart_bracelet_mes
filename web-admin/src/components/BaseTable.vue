@@ -1,55 +1,101 @@
 <template>
-  <el-table :data="data" v-loading="loading" border>
-    <slot />
-    <template #empty>
-      <el-empty description="暂无数据" />
-    </template>
-  </el-table>
-  <div class="pagination" v-if="showPagination">
-    <el-pagination
-      v-model:current-page="currentPage"
-      v-model:page-size="pageSize"
-      :total="total"
-      :page-sizes="[10, 20, 50]"
-      layout="total, sizes, prev, pager, next"
-      @size-change="handleChange"
-      @current-change="handleChange"
-    />
+  <div class="base-table">
+    <el-table
+      v-loading="loading"
+      :data="tableData"
+      border
+      stripe
+      style="width: 100%"
+    >
+      <el-table-column
+        v-if="showIndex"
+        type="index"
+        label="序号"
+        width="60"
+        align="center"
+      />
+      <slot></slot>
+    </el-table>
+
+    <div class="pagination-wrapper">
+      <el-pagination
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :page-sizes="[10, 20, 50, 100]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        background
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
-  data: { type: Array, default: () => [] },
-  total: { type: Number, default: 0 },
-  page: { type: Number, default: 1 },
-  size: { type: Number, default: 10 },
-  loading: { type: Boolean, default: false },
-  showPagination: { type: Boolean, default: true }
+  loading: {
+    type: Boolean,
+    default: false
+  },
+  tableData: {
+    type: Array,
+    default: () => []
+  },
+  total: {
+    type: Number,
+    default: 0
+  },
+  showIndex: {
+    type: Boolean,
+    default: true
+  },
+  page: {
+    type: Number,
+    default: 1
+  },
+  pageSize: {
+    type: Number,
+    default: 10
+  }
 })
 
-const emit = defineEmits(['update:page', 'update:size', 'change'])
+const emit = defineEmits(['update:page', 'update:pageSize', 'page-change', 'size-change'])
 
-const currentPage = computed({
-  get: () => props.page,
-  set: (val) => emit('update:page', val)
+const currentPage = ref(props.page)
+
+watch(() => props.page, (val) => {
+  currentPage.value = val
 })
 
-const pageSize = computed({
-  get: () => props.size,
-  set: (val) => emit('update:size', val)
+watch(() => props.pageSize, (val) => {
+  currentPageSize.value = val
 })
 
-const handleChange = () => {
-  emit('change', currentPage.value, pageSize.value)
+const currentPageSize = ref(props.pageSize)
+
+function handleSizeChange(size) {
+  currentPageSize.value = size
+  emit('update:pageSize', size)
+  emit('size-change', size)
+}
+
+function handleCurrentChange(page) {
+  currentPage.value = page
+  emit('update:page', page)
+  emit('page-change', page)
 }
 </script>
 
 <style scoped>
-.pagination {
-  margin-top: 16px;
+.base-table {
+  width: 100%;
+}
+
+.pagination-wrapper {
+  margin-top: 20px;
   display: flex;
   justify-content: flex-end;
 }

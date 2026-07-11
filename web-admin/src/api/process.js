@@ -1,25 +1,39 @@
 import request from './request'
 
-export const getList = (params) => {
-  return request.get('/process/list', { params })
+export function getProcessList(params) {
+  return request({
+    url: '/process/list',
+    method: 'get',
+    params
+  })
 }
 
-export const getById = (id) => {
-  return request.get('/process/' + id)
+export function getProcessDetail(id) {
+  return request({
+    url: '/process/' + id,
+    method: 'get'
+  })
 }
 
-export const getByProductId = (productId) => {
-  return request.get('/process/product/' + productId)
+export function createProcess(data) {
+  return request({
+    url: '/process',
+    method: 'post',
+    data
+  })
 }
 
-export const save = (data) => {
-  return request.post('/process/save', data)
+export function updateProcess(data) {
+  return request({
+    url: '/process',
+    method: 'put',
+    data
+  })
 }
 
-export const update = (data) => {
-  return request.put('/process/update', data)
-}
-
-export const remove = (id) => {
-  return request.delete('/process/delete/' + id)
+export function deleteProcess(id) {
+  return request({
+    url: '/process/' + id,
+    method: 'delete'
+  })
 }

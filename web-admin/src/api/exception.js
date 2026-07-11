@@ -1,33 +1,39 @@
 import request from './request'
 
-export const getList = (params) => {
-  return request.get('/exception/list', { params })
+export function getExceptionList(params) {
+  return request({
+    url: '/exception/list',
+    method: 'get',
+    params
+  })
 }
 
-export const getById = (id) => {
-  return request.get('/exception/' + id)
+export function getExceptionDetail(id) {
+  return request({
+    url: '/exception/' + id,
+    method: 'get'
+  })
 }
 
-export const save = (data) => {
-  return request.post('/exception/save', data)
+export function createException(data) {
+  return request({
+    url: '/exception',
+    method: 'post',
+    data
+  })
 }
 
-export const update = (data) => {
-  return request.put('/exception/update', data)
+export function handleException(id, data) {
+  return request({
+    url: '/exception/' + id + '/handle',
+    method: 'post',
+    data
+  })
 }
 
-export const remove = (id) => {
-  return request.delete('/exception/delete/' + id)
-}
-
-export const handle = (id) => {
-  return request.put('/exception/handle/' + id)
-}
-
-export const resolve = (id) => {
-  return request.put('/exception/resolve/' + id)
-}
-
-export const batchTrace = (workOrderId) => {
-  return request.get('/exception/batch-trace/' + workOrderId)
+export function closeException(id) {
+  return request({
+    url: '/exception/' + id + '/close',
+    method: 'post'
+  })
 }

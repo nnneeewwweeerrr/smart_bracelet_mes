@@ -1,33 +1,53 @@
 import request from './request'
 
-export const getList = (params) => {
-  return request.get('/work-order/list', { params })
+export function getWorkOrderList(params) {
+  return request({
+    url: '/work-order/list',
+    method: 'get',
+    params
+  })
 }
 
-export const getById = (id) => {
-  return request.get('/work-order/' + id)
+export function getWorkOrderDetail(id) {
+  return request({
+    url: '/work-order/' + id,
+    method: 'get'
+  })
 }
 
-export const save = (data) => {
-  return request.post('/work-order/save', data)
+export function createWorkOrder(data) {
+  return request({
+    url: '/work-order',
+    method: 'post',
+    data
+  })
 }
 
-export const update = (data) => {
-  return request.put('/work-order/update', data)
+export function updateWorkOrder(data) {
+  return request({
+    url: '/work-order',
+    method: 'put',
+    data
+  })
 }
 
-export const remove = (id) => {
-  return request.delete('/work-order/delete/' + id)
+export function deleteWorkOrder(id) {
+  return request({
+    url: '/work-order/' + id,
+    method: 'delete'
+  })
 }
 
-export const dispatch = (id) => {
-  return request.put('/work-order/dispatch/' + id)
+export function startWorkOrder(id) {
+  return request({
+    url: '/work-order/' + id + '/start',
+    method: 'post'
+  })
 }
 
-export const complete = (id) => {
-  return request.put('/work-order/complete/' + id)
-}
-
-export const generateFromPlan = (planId) => {
-  return request.post('/work-order/generate-from-plan/' + planId)
+export function finishWorkOrder(id) {
+  return request({
+    url: '/work-order/' + id + '/finish',
+    method: 'post'
+  })
 }

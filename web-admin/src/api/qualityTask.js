@@ -1,29 +1,39 @@
 import request from './request'
 
-export const getList = (params) => {
-  return request.get('/quality-task/list', { params })
+export function getQualityTaskList(params) {
+  return request({
+    url: '/quality-task/list',
+    method: 'get',
+    params
+  })
 }
 
-export const getById = (id) => {
-  return request.get('/quality-task/' + id)
+export function getQualityTaskDetail(id) {
+  return request({
+    url: '/quality-task/' + id,
+    method: 'get'
+  })
 }
 
-export const save = (data) => {
-  return request.post('/quality-task/save', data)
+export function createQualityTask(data) {
+  return request({
+    url: '/quality-task',
+    method: 'post',
+    data
+  })
 }
 
-export const update = (data) => {
-  return request.put('/quality-task/update', data)
+export function updateQualityTask(data) {
+  return request({
+    url: '/quality-task',
+    method: 'put',
+    data
+  })
 }
 
-export const remove = (id) => {
-  return request.delete('/quality-task/delete/' + id)
-}
-
-export const start = (id) => {
-  return request.put('/quality-task/start/' + id)
-}
-
-export const complete = (id) => {
-  return request.put('/quality-task/complete/' + id)
+export function deleteQualityTask(id) {
+  return request({
+    url: '/quality-task/' + id,
+    method: 'delete'
+  })
 }

@@ -1,21 +1,39 @@
 import request from './request'
 
-export const getSupplierList = (params) => {
-  return request.get('/supplier/list', { params })
+export function getSupplierList(params) {
+  return request({
+    url: '/supplier/list',
+    method: 'get',
+    params
+  })
 }
 
-export const getSupplierDetail = (id) => {
-  return request.get(`/supplier/${id}`)
+export function getSupplierDetail(id) {
+  return request({
+    url: '/supplier/' + id,
+    method: 'get'
+  })
 }
 
-export const saveSupplier = (data) => {
-  return request.post('/supplier/save', data)
+export function createSupplier(data) {
+  return request({
+    url: '/supplier',
+    method: 'post',
+    data
+  })
 }
 
-export const updateSupplier = (data) => {
-  return request.put('/supplier/update', data)
+export function updateSupplier(data) {
+  return request({
+    url: '/supplier',
+    method: 'put',
+    data
+  })
 }
 
-export const deleteSupplier = (id) => {
-  return request.delete(`/supplier/delete/${id}`)
+export function deleteSupplier(id) {
+  return request({
+    url: '/supplier/' + id,
+    method: 'delete'
+  })
 }

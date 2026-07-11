@@ -1,37 +1,46 @@
 import request from './request'
 
-export const getPurchaseList = (params) => {
-  return request.get('/purchase/list', { params })
+export function getPurchaseList(params) {
+  return request({
+    url: '/purchase/list',
+    method: 'get',
+    params
+  })
 }
 
-export const getPurchaseDetail = (id) => {
-  return request.get(`/purchase/${id}`)
+export function getPurchaseDetail(id) {
+  return request({
+    url: '/purchase/' + id,
+    method: 'get'
+  })
 }
 
-export const savePurchase = (data) => {
-  return request.post('/purchase/save', data)
+export function createPurchase(data) {
+  return request({
+    url: '/purchase',
+    method: 'post',
+    data
+  })
 }
 
-export const updatePurchase = (data) => {
-  return request.put('/purchase/update', data)
+export function updatePurchase(data) {
+  return request({
+    url: '/purchase',
+    method: 'put',
+    data
+  })
 }
 
-export const deletePurchase = (id) => {
-  return request.delete(`/purchase/delete/${id}`)
+export function deletePurchase(id) {
+  return request({
+    url: '/purchase/' + id,
+    method: 'delete'
+  })
 }
 
-export const auditPurchase = (id) => {
-  return request.put(`/purchase/audit/${id}`)
-}
-
-export const arrivePurchase = (id) => {
-  return request.put(`/purchase/arrive/${id}`)
-}
-
-export const completePurchase = (id) => {
-  return request.put(`/purchase/complete/${id}`)
-}
-
-export const cancelPurchase = (id) => {
-  return request.put(`/purchase/cancel/${id}`)
+export function approvePurchase(id) {
+  return request({
+    url: '/purchase/' + id + '/approve',
+    method: 'post'
+  })
 }

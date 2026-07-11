@@ -1,25 +1,49 @@
 <template>
-  <el-form :model="model" inline class="search-form">
-    <slot />
+  <el-form :model="formData" :inline="true" class="search-form">
+    <slot></slot>
     <el-form-item>
-      <el-button type="primary" @click="emit('search')">查询</el-button>
-      <el-button @click="emit('reset')">重置</el-button>
+      <el-button type="primary" @click="handleSearch">搜索</el-button>
+      <el-button @click="handleReset">重置</el-button>
+      <slot name="extra"></slot>
     </el-form-item>
   </el-form>
 </template>
 
 <script setup>
-defineProps({
-  model: { type: Object, default: () => ({}) }
+import { reactive, watch } from 'vue'
+
+const props = defineProps({
+  initialForm: {
+    type: Object,
+    default: () => ({})
+  }
 })
-const emit = defineEmits(['search', 'reset'])
+
+const emit = defineEmits(['search', 'reset', 'update:formData'])
+
+const formData = reactive({ ...props.initialForm })
+
+watch(() => props.initialForm, (val) => {
+  Object.assign(formData, val)
+}, { deep: true })
+
+function handleSearch() {
+  emit('search', { ...formData })
+}
+
+function handleReset() {
+  Object.assign(formData, props.initialForm)
+  emit('reset', { ...formData })
+}
+
+defineExpose({
+  formData,
+  reset: handleReset
+})
 </script>
 
 <style scoped>
 .search-form {
-  margin-bottom: 16px;
-  padding: 16px;
-  background: #fff;
-  border-radius: 4px;
+  margin-bottom: 20px;
 }
 </style>
