@@ -1,13 +1,24 @@
 import request from './request'
 
-export const getList = (params) => {
-  return request.get('/production-report/list', { params })
+export function getProductionReportList(params) {
+  return request({
+    url: '/production-report/list',
+    method: 'get',
+    params
+  })
 }
 
-export const save = (data) => {
-  return request.post('/production-report/save', data)
+export function getProductionReportDetail(id) {
+  return request({
+    url: '/production-report/' + id,
+    method: 'get'
+  })
 }
 
-export const remove = (id) => {
-  return request.delete('/production-report/delete/' + id)
+export function createProductionReport(data) {
+  return request({
+    url: '/production-report/save',
+    method: 'post',
+    data
+  })
 }

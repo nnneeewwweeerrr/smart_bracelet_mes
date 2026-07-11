@@ -1,25 +1,32 @@
 import request from './request'
 
-export const getList = (params) => {
-  return request.get('/quality-result/list', { params })
+export function getQualityResultList(params) {
+  return request({
+    url: '/quality-result/list',
+    method: 'get',
+    params
+  })
 }
 
-export const save = (data) => {
-  return request.post('/quality-result/save', data)
+export function getQualityResultDetail(id) {
+  return request({
+    url: '/quality-result/' + id,
+    method: 'get'
+  })
 }
 
-export const batchSave = (data) => {
-  return request.post('/quality-result/batch-save', data)
+export function createQualityResult(data) {
+  return request({
+    url: '/quality-result/save',
+    method: 'post',
+    data
+  })
 }
 
-export const update = (data) => {
-  return request.put('/quality-result/update', data)
-}
-
-export const remove = (id) => {
-  return request.delete('/quality-result/delete/' + id)
-}
-
-export const getReport = (taskId) => {
-  return request.get('/quality-result/report/' + taskId)
+export function updateQualityResult(data) {
+  return request({
+    url: '/quality-result/update',
+    method: 'put',
+    data
+  })
 }

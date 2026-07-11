@@ -1,0 +1,205 @@
+{
+  "pages": [
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/workbench/index",
+      "style": {
+        "navigationBarTitleText": "工作台"
+      }
+    },
+    {
+      "path": "pages/workbench/stats",
+      "style": {
+        "navigationBarTitleText": "生产统计"
+      }
+    },
+    {
+      "path": "pages/workbench/apps",
+      "style": {
+        "navigationBarTitleText": "应用中心"
+      }
+    },
+    {
+      "path": "pages/scan/index",
+      "style": {
+        "navigationBarTitleText": "扫码"
+      }
+    },
+    {
+      "path": "pages/stock/index",
+      "style": {
+        "navigationBarTitleText": "仓储操作"
+      }
+    },
+    {
+      "path": "pages/stock/scan-in",
+      "style": {
+        "navigationBarTitleText": "扫码入库"
+      }
+    },
+    {
+      "path": "pages/stock/scan-out",
+      "style": {
+        "navigationBarTitleText": "扫码出库"
+      }
+    },
+    {
+      "path": "pages/stock/material",
+      "style": {
+        "navigationBarTitleText": "物料查询"
+      }
+    },
+    {
+      "path": "pages/stock/check",
+      "style": {
+        "navigationBarTitleText": "库存盘点"
+      }
+    },
+    {
+      "path": "pages/stock/record",
+      "style": {
+        "navigationBarTitleText": "出入库记录"
+      }
+    },
+    {
+      "path": "pages/production/index",
+      "style": {
+        "navigationBarTitleText": "生产报工"
+      }
+    },
+    {
+      "path": "pages/production/workorder",
+      "style": {
+        "navigationBarTitleText": "我的工单"
+      }
+    },
+    {
+      "path": "pages/production/report",
+      "style": {
+        "navigationBarTitleText": "工序报工"
+      }
+    },
+    {
+      "path": "pages/production/sop",
+      "style": {
+        "navigationBarTitleText": "SOP查看"
+      }
+    },
+    {
+      "path": "pages/production/detail",
+      "style": {
+        "navigationBarTitleText": "工单详情"
+      }
+    },
+    {
+      "path": "pages/production/trace",
+      "style": {
+        "navigationBarTitleText": "追溯查询"
+      }
+    },
+    {
+      "path": "pages/quality/index",
+      "style": {
+        "navigationBarTitleText": "质检录入"
+      }
+    },
+    {
+      "path": "pages/quality/iqc",
+      "style": {
+        "navigationBarTitleText": "IQC检验录入"
+      }
+    },
+    {
+      "path": "pages/quality/task",
+      "style": {
+        "navigationBarTitleText": "质检任务"
+      }
+    },
+    {
+      "path": "pages/exception/index",
+      "style": {
+        "navigationBarTitleText": "异常管理"
+      }
+    },
+    {
+      "path": "pages/exception/create",
+      "style": {
+        "navigationBarTitleText": "异常上报"
+      }
+    },
+    {
+      "path": "pages/exception/pending",
+      "style": {
+        "navigationBarTitleText": "待处理异常"
+      }
+    },
+    {
+      "path": "pages/mine/index",
+      "style": {
+        "navigationBarTitleText": "个人中心"
+      }
+    },
+    {
+      "path": "pages/mine/todo",
+      "style": {
+        "navigationBarTitleText": "待办任务"
+      }
+    },
+    {
+      "path": "pages/mine/log",
+      "style": {
+        "navigationBarTitleText": "操作记录"
+      }
+    },
+    {
+      "path": "pages/mine/profile",
+      "style": {
+        "navigationBarTitleText": "个人信息"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#409EFF",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/workbench/index",
+        "text": "工作台",
+        "iconPath": "static/tab/workbench.png",
+        "selectedIconPath": "static/tab/workbench-active.png"
+      },
+      {
+        "pagePath": "pages/scan/index",
+        "text": "扫码",
+        "iconPath": "static/tab/scan.png",
+        "selectedIconPath": "static/tab/scan-active.png"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
+        "iconPath": "static/tab/mine.png",
+        "selectedIconPath": "static/tab/mine-active.png"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "智能手环MES",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#F0F2F5"
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^u-(.*)": "uview-plus/components/u-$1/u-$1.vue"
+    }
+  }
+}

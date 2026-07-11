@@ -1,192 +1,194 @@
 <template>
-  <div>
-    <el-tabs v-model="activeTab" @tab-change="handleTabChange">
-      <el-tab-pane label="IQC来料" name="IQC" />
-      <el-tab-pane label="IPQC工序" name="IPQC" />
-      <el-tab-pane label="OQC成品" name="OQC" />
-    </el-tabs>
+  <div class="page-container">
+    <el-row :gutter="20" class="stat-row">
+      <el-col :span="6" v-for="item in statCards" :key="item.title">
+        <el-card class="stat-card" shadow="hover">
+          <div class="stat-content">
+            <div class="stat-icon" :style="{ backgroundColor: item.color }">
+              <el-icon :size="28"><component :is="item.icon" /></el-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ item.value }}</div>
+              <div class="stat-label">{{ item.title }}</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
 
-    <el-form :model="query" inline class="search-form">
-      <el-form-item label="任务编号">
-        <el-input v-model="query.taskNo" placeholder="请输入任务编号" clearable @keyup.enter="handleSearch" />
-      </el-form-item>
-      <el-form-item label="状态">
-        <el-select v-model="query.status" placeholder="全部" clearable style="width: 140px">
-          <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button @click="handleReset">重置</el-button>
-        <el-button type="success" @click="handleAdd">新增任务</el-button>
-      </el-form-item>
-    </el-form>
-
-    <el-table :data="list" v-loading="loading" border>
-      <el-table-column prop="taskNo" label="任务编号" width="170" />
-      <el-table-column label="类型" width="100" align="center">
-        <template #default="{ row }">
-          <el-tag :type="taskTypeTag(row.taskType)">{{ row.taskType }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="sourceNo" label="来源单号" width="150" />
-      <el-table-column prop="inspector" label="检验员" width="100" align="center" />
-      <el-table-column label="状态" width="100" align="center">
-        <template #default="{ row }">
-          <el-tag :type="statusType(row.status)">{{ statusText(row.status) }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" width="170" align="center" />
-      <el-table-column label="操作" width="280" align="center" fixed="right">
-        <template #default="{ row }">
-          <el-button v-if="row.status === 0" link type="primary" @click="handleStart(row)">开始</el-button>
-          <el-button v-if="row.status === 1" link type="warning" @click="handleInputResult(row)">录入结果</el-button>
-          <el-button v-if="row.status === 1" link type="success" @click="handleComplete(row)">完成</el-button>
-          <el-button link type="info" @click="handleViewReport(row)">查看报告</el-button>
-          <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
-        </template>
-      </el-table-column>
-      <template #empty>
-        <el-empty description="暂无数据" />
-      </template>
-    </el-table>
-
-    <div class="pagination">
-      <el-pagination
-        v-model:current-page="query.page"
-        v-model:page-size="query.size"
-        :total="total"
-        :page-sizes="[10, 20, 50]"
-        layout="total, sizes, prev, pager, next"
-        @size-change="fetchList"
-        @current-change="fetchList"
-      />
-    </div>
-
-    <el-dialog v-model="dialogVisible" title="新增质检任务" width="500px">
-      <el-form :model="form" :rules="rules" ref="formRef" label-width="90px">
-        <el-form-item label="任务类型" prop="taskType">
-          <el-select v-model="form.taskType" style="width: 100%">
-            <el-option label="IQC来料" value="IQC" />
-            <el-option label="IPQC工序" value="IPQC" />
-            <el-option label="OQC成品" value="OQC" />
+    <el-card class="search-card" shadow="never">
+      <el-form :model="searchForm" :inline="true">
+        <el-form-item label="质检单号">
+          <el-input v-model="searchForm.qualityNo" placeholder="请输入质检单号" clearable style="width: 180px" />
+        </el-form-item>
+        <el-form-item label="工单号">
+          <el-input v-model="searchForm.workOrderNo" placeholder="请输入工单号" clearable style="width: 180px" />
+        </el-form-item>
+        <el-form-item label="产品名称">
+          <el-input v-model="searchForm.productName" placeholder="请输入产品名称" clearable style="width: 180px" />
+        </el-form-item>
+        <el-form-item label="质检类型">
+          <el-select v-model="searchForm.qualityType" placeholder="全部类型" clearable style="width: 140px">
+            <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="来源单号" prop="sourceNo">
-          <el-input v-model="form.sourceNo" placeholder="请输入来源单号" />
+        <el-form-item label="质检结果">
+          <el-select v-model="searchForm.result" placeholder="全部结果" clearable style="width: 140px">
+            <el-option v-for="item in resultOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
-        <el-form-item label="检验员" prop="inspector">
-          <el-input v-model="form.inspector" placeholder="请输入检验员" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" :rows="3" placeholder="请输入备注" />
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
-      </template>
-    </el-dialog>
+    </el-card>
 
-    <el-dialog v-model="resultDialogVisible" title="录入检验结果" width="700px">
-      <div class="result-toolbar">
-        <el-button type="primary" size="small" @click="handleAddResult">新增检验项</el-button>
+    <el-card class="table-card" shadow="never">
+      <div class="table-header">
+        <span class="table-title">质检记录列表</span>
+        <el-button type="primary" @click="handleAdd">
+          <el-icon><Plus /></el-icon>
+          新增质检
+        </el-button>
       </div>
-      <el-table :data="resultList" border>
-        <el-table-column prop="itemName" label="检验项目" min-width="140" />
-        <el-table-column prop="standard" label="检验标准" min-width="160" />
-        <el-table-column prop="result" label="检验结果" width="120" align="center">
+
+      <el-table v-loading="loading" :data="tableData" border stripe style="width: 100%">
+        <el-table-column type="index" label="序号" width="60" align="center" />
+        <el-table-column prop="qualityNo" label="质检单号" width="160" />
+        <el-table-column prop="workOrderNo" label="工单号" width="150" />
+        <el-table-column prop="productName" label="产品名称" min-width="180" />
+        <el-table-column prop="qualityType" label="质检类型" width="120" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.result === '合格' ? 'success' : 'danger'">{{ row.result }}</el-tag>
+            <el-tag v-if="row.qualityType === 1" type="primary" size="small">入库质检</el-tag>
+            <el-tag v-else-if="row.qualityType === 2" type="success" size="small">过程质检</el-tag>
+            <el-tag v-else-if="row.qualityType === 3" type="warning" size="small">成品质检</el-tag>
+            <el-tag v-else type="info" size="small">出货质检</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="remark" label="备注" min-width="120" />
-        <el-table-column label="操作" width="140" align="center">
-          <template #default="{ row, $index }">
-            <el-button link type="primary" @click="handleEditResult(row, $index)">编辑</el-button>
-            <el-button link type="danger" @click="handleDeleteResult($index)">删除</el-button>
+        <el-table-column prop="quantity" label="抽检数量" width="100" align="center" />
+        <el-table-column prop="qualifiedQuantity" label="合格数量" width="100" align="center" />
+        <el-table-column prop="unqualifiedQuantity" label="不合格数量" width="110" align="center" />
+        <el-table-column prop="result" label="质检结果" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.result === 1 ? 'success' : 'danger'" size="small">
+              {{ row.result === 1 ? '合格' : '不合格' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="inspector" label="质检员" width="100" align="center" />
+        <el-table-column prop="createTime" label="质检时间" width="170" />
+        <el-table-column label="操作" width="180" fixed="right" align="center">
+          <template #default="{ row }">
+            <el-button type="primary" link @click="handleView(row)">查看</el-button>
+            <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+            <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <template #footer>
-        <el-button @click="resultDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="resultSubmitting" @click="handleResultSubmit">保存</el-button>
-      </template>
-    </el-dialog>
 
-    <el-dialog v-model="reportDialogVisible" title="检验报告" width="700px">
-      <div v-if="reportData" class="report-content">
-        <div class="report-header">
-          <h3>质检报告</h3>
-          <div class="report-info">
-            <span>任务编号：{{ reportData.taskNo }}</span>
-            <span>检验员：{{ reportData.inspector }}</span>
-          </div>
-        </div>
-        <div class="report-summary">
-          <div class="summary-item">
-            <div class="label">合格率</div>
-            <div class="value" :class="reportData.passRate >= 90 ? 'pass' : 'fail'">
-              {{ reportData.passRate || 0 }}%
-            </div>
-          </div>
-          <div class="summary-item">
-            <div class="label">检验项总数</div>
-            <div class="value">{{ reportData.totalCount || 0 }}</div>
-          </div>
-          <div class="summary-item">
-            <div class="label">合格数</div>
-            <div class="value pass">{{ reportData.passCount || 0 }}</div>
-          </div>
-          <div class="summary-item">
-            <div class="label">不合格数</div>
-            <div class="value fail">{{ reportData.failCount || 0 }}</div>
-          </div>
-        </div>
-        <div class="report-conclusion">
-          <div class="conclusion-label">总体结论：</div>
-          <el-tag :type="reportData.conclusion === '合格' ? 'success' : 'danger'" size="large">
-            {{ reportData.conclusion || '待判定' }}
-          </el-tag>
-        </div>
-        <el-divider>检验明细</el-divider>
-        <el-table :data="reportData.items || []" border size="small">
-          <el-table-column prop="itemName" label="检验项目" min-width="140" />
-          <el-table-column prop="standard" label="检验标准" min-width="160" />
-          <el-table-column prop="result" label="检验结果" width="100" align="center">
-            <template #default="{ row }">
-              <el-tag :type="row.result === '合格' ? 'success' : 'danger'" size="small">{{ row.result }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="remark" label="备注" min-width="120" />
-        </el-table>
+      <div class="pagination-wrapper">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          background
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
       </div>
-      <template #footer>
-        <el-button @click="reportDialogVisible = false">关闭</el-button>
-      </template>
-    </el-dialog>
+    </el-card>
 
-    <el-dialog v-model="resultFormVisible" :title="resultForm.id ? '编辑检验项' : '新增检验项'" width="460px">
-      <el-form :model="resultForm" :rules="resultRules" ref="resultFormRef" label-width="90px">
-        <el-form-item label="检验项目" prop="itemName">
-          <el-input v-model="resultForm.itemName" placeholder="请输入检验项目" />
+    <el-dialog
+      v-model="dialogVisible"
+      :title="isView ? '质检详情' : (isEdit ? '编辑质检' : '新增质检')"
+      width="700px"
+      :close-on-click-modal="false"
+    >
+      <el-form
+        ref="qualityFormRef"
+        :model="qualityForm"
+        :rules="qualityRules"
+        label-width="120px"
+        :disabled="isView"
+      >
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="工单号" prop="workOrderId">
+              <el-select v-model="qualityForm.workOrderId" placeholder="请选择工单" style="width: 100%" @change="handleWorkOrderChange">
+                <el-option
+                  v-for="item in workOrderList"
+                  :key="item.id"
+                  :label="item.workOrderNo"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="质检类型" prop="qualityType">
+              <el-select v-model="qualityForm.qualityType" placeholder="请选择类型" style="width: 100%">
+                <el-option label="入库质检" :value="1" />
+                <el-option label="过程质检" :value="2" />
+                <el-option label="成品质检" :value="3" />
+                <el-option label="出货质检" :value="4" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="产品名称">
+              <el-input v-model="qualityForm.productName" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="质检员" prop="inspector">
+              <el-input v-model="qualityForm.inspector" placeholder="请输入质检员" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <el-form-item label="抽检数量" prop="quantity">
+              <el-input-number v-model="qualityForm.quantity" :min="1" :max="99999" style="width: 100%" @change="handleQuantityChange" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="合格数量" prop="qualifiedQuantity">
+              <el-input-number v-model="qualityForm.qualifiedQuantity" :min="0" :max="qualityForm.quantity" style="width: 100%" @change="handleQualifiedChange" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="不合格数量">
+              <el-input-number v-model="qualityForm.unqualifiedQuantity" :min="0" disabled style="width: 100%" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="质检结果" prop="result">
+          <el-radio-group v-model="qualityForm.result">
+            <el-radio :value="1">合格</el-radio>
+            <el-radio :value="0">不合格</el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="检验标准" prop="standard">
-          <el-input v-model="resultForm.standard" placeholder="请输入检验标准" />
+        <el-form-item label="不合格项" v-if="qualityForm.result === 0">
+          <el-checkbox-group v-model="qualityForm.unqualifiedItems">
+            <el-checkbox label="外观不良">外观不良</el-checkbox>
+            <el-checkbox label="尺寸超差">尺寸超差</el-checkbox>
+            <el-checkbox label="功能异常">功能异常</el-checkbox>
+            <el-checkbox label="包装缺陷">包装缺陷</el-checkbox>
+            <el-checkbox label="其他">其他</el-checkbox>
+          </el-checkbox-group>
         </el-form-item>
-        <el-form-item label="检验结果" prop="result">
-          <el-select v-model="resultForm.result" style="width: 100%">
-            <el-option label="合格" value="合格" />
-            <el-option label="不合格" value="不合格" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="resultForm.remark" type="textarea" :rows="2" placeholder="请输入备注" />
+        <el-form-item label="质检备注" prop="remark">
+          <el-input v-model="qualityForm.remark" type="textarea" :rows="4" placeholder="请输入质检备注" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="resultFormVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleResultFormSubmit">确定</el-button>
+        <el-button @click="dialogVisible = false">{{ isView ? '关闭' : '取消' }}</el-button>
+        <el-button v-if="!isView" type="primary" :loading="submitLoading" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -195,317 +197,479 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  getList, save, remove, start, complete
-} from '../../api/qualityTask'
-import {
-  getList as getResultList, batchSave, getReport
-} from '../../api/qualityResult'
 
-const statusOptions = [
-  { value: 0, label: '待处理' },
-  { value: 1, label: '处理中' },
-  { value: 2, label: '已完成' }
-]
-
-const statusText = (status) => {
-  const item = statusOptions.find(s => s.value === status)
-  return item ? item.label : '未知'
-}
-const statusType = (status) => {
-  const map = { 0: 'info', 1: 'warning', 2: 'success' }
-  return map[status] || 'info'
-}
-
-const taskTypeTag = (type) => {
-  const map = { IQC: 'primary', IPQC: 'warning', OQC: 'success' }
-  return map[type] || 'info'
-}
-
-const activeTab = ref('IQC')
-const query = reactive({ page: 1, size: 10, taskNo: '', status: '', taskType: 'IQC' })
-const list = ref([])
-const total = ref(0)
 const loading = ref(false)
-
-const fetchList = async () => {
-  loading.value = true
-  try {
-    const res = await getList({ ...query })
-    list.value = res.data.records || []
-    total.value = res.data.total || 0
-  } catch (e) {
-    console.error(e)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleTabChange = (tab) => {
-  query.taskType = tab
-  query.page = 1
-  fetchList()
-}
-
-const handleSearch = () => {
-  query.page = 1
-  fetchList()
-}
-
-const handleReset = () => {
-  query.taskNo = ''
-  query.status = ''
-  query.page = 1
-  fetchList()
-}
-
+const submitLoading = ref(false)
 const dialogVisible = ref(false)
-const submitting = ref(false)
-const formRef = ref()
-const form = reactive({
-  id: null,
-  taskType: 'IQC',
-  sourceNo: '',
-  inspector: '',
-  remark: ''
+const isEdit = ref(false)
+const isView = ref(false)
+const qualityFormRef = ref(null)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+
+const searchForm = reactive({
+  qualityNo: '',
+  workOrderNo: '',
+  productName: '',
+  qualityType: '',
+  result: ''
 })
 
-const rules = {
-  taskType: [{ required: true, message: '请选择任务类型', trigger: 'change' }],
-  sourceNo: [{ required: true, message: '请输入来源单号', trigger: 'blur' }]
+const qualityForm = reactive({
+  id: null,
+  qualityNo: '',
+  workOrderId: null,
+  workOrderNo: '',
+  productName: '',
+  qualityType: 2,
+  quantity: 1,
+  qualifiedQuantity: 0,
+  unqualifiedQuantity: 0,
+  result: 1,
+  inspector: '',
+  remark: '',
+  unqualifiedItems: []
+})
+
+const typeOptions = [
+  { label: '入库质检', value: 1 },
+  { label: '过程质检', value: 2 },
+  { label: '成品质检', value: 3 },
+  { label: '出货质检', value: 4 }
+]
+
+const resultOptions = [
+  { label: '合格', value: 1 },
+  { label: '不合格', value: 0 }
+]
+
+const qualityRules = {
+  workOrderId: [
+    { required: true, message: '请选择工单', trigger: 'change' }
+  ],
+  qualityType: [
+    { required: true, message: '请选择质检类型', trigger: 'change' }
+  ],
+  quantity: [
+    { required: true, message: '请输入抽检数量', trigger: 'blur' }
+  ],
+  result: [
+    { required: true, message: '请选择质检结果', trigger: 'change' }
+  ],
+  inspector: [
+    { required: true, message: '请输入质检员', trigger: 'blur' }
+  ]
 }
 
-const resetForm = () => {
-  form.id = null
-  form.taskType = activeTab.value
-  form.sourceNo = ''
-  form.inspector = ''
-  form.remark = ''
+const workOrderList = ref([
+  { id: 1, workOrderNo: 'WO-2024001', productName: '智能健康手环 Pro' },
+  { id: 2, workOrderNo: 'WO-2024002', productName: '智能运动手环 Lite' },
+  { id: 3, workOrderNo: 'WO-2024003', productName: '智能健康手环 Pro' },
+  { id: 4, workOrderNo: 'WO-2024004', productName: '智能运动手环 Lite' },
+  { id: 6, workOrderNo: 'WO-2024006', productName: '智能健康手环 Pro' }
+])
+
+const statCards = ref([
+  { title: '今日质检', value: 28, icon: 'CircleCheck', color: '#409EFF' },
+  { title: '合格数', value: 26, icon: 'SuccessFilled', color: '#67C23A' },
+  { title: '不合格数', value: 2, icon: 'CircleClose', color: '#F56C6C' },
+  { title: '合格率', value: '92.8%', icon: 'DataAnalysis', color: '#E6A23C' }
+])
+
+const mockData = ref([
+  {
+    id: 1,
+    qualityNo: 'QC-20240115001',
+    workOrderId: 1,
+    workOrderNo: 'WO-2024001',
+    productName: '智能健康手环 Pro',
+    qualityType: 2,
+    quantity: 50,
+    qualifiedQuantity: 48,
+    unqualifiedQuantity: 2,
+    result: 0,
+    inspector: '张质检',
+    createTime: '2024-01-15 10:30:00',
+    remark: '外观不良2件，已退回返工',
+    unqualifiedItems: ['外观不良']
+  },
+  {
+    id: 2,
+    qualityNo: 'QC-20240115002',
+    workOrderId: 1,
+    workOrderNo: 'WO-2024001',
+    productName: '智能健康手环 Pro',
+    qualityType: 3,
+    quantity: 100,
+    qualifiedQuantity: 100,
+    unqualifiedQuantity: 0,
+    result: 1,
+    inspector: '李质检',
+    createTime: '2024-01-15 14:00:00',
+    remark: '全部合格',
+    unqualifiedItems: []
+  },
+  {
+    id: 3,
+    qualityNo: 'QC-20240114001',
+    workOrderId: 2,
+    workOrderNo: 'WO-2024002',
+    productName: '智能运动手环 Lite',
+    qualityType: 3,
+    quantity: 80,
+    qualifiedQuantity: 80,
+    unqualifiedQuantity: 0,
+    result: 1,
+    inspector: '王质检',
+    createTime: '2024-01-14 16:30:00',
+    remark: '全部合格',
+    unqualifiedItems: []
+  },
+  {
+    id: 4,
+    qualityNo: 'QC-20240114002',
+    workOrderId: 4,
+    workOrderNo: 'WO-2024004',
+    productName: '智能运动手环 Lite',
+    qualityType: 2,
+    quantity: 30,
+    qualifiedQuantity: 29,
+    unqualifiedQuantity: 1,
+    result: 0,
+    inspector: '张质检',
+    createTime: '2024-01-14 11:00:00',
+    remark: '功能异常1件，已记录',
+    unqualifiedItems: ['功能异常']
+  },
+  {
+    id: 5,
+    qualityNo: 'QC-20240113001',
+    workOrderId: 6,
+    workOrderNo: 'WO-2024006',
+    productName: '智能健康手环 Pro',
+    qualityType: 1,
+    quantity: 200,
+    qualifiedQuantity: 198,
+    unqualifiedQuantity: 2,
+    result: 1,
+    inspector: '李质检',
+    createTime: '2024-01-13 09:00:00',
+    remark: '入库抽检，合格率达标',
+    unqualifiedItems: ['外观不良']
+  },
+  {
+    id: 6,
+    qualityNo: 'QC-20240113002',
+    workOrderId: 6,
+    workOrderNo: 'WO-2024006',
+    productName: '智能健康手环 Pro',
+    qualityType: 2,
+    quantity: 60,
+    qualifiedQuantity: 60,
+    unqualifiedQuantity: 0,
+    result: 1,
+    inspector: '王质检',
+    createTime: '2024-01-13 15:00:00',
+    remark: '过程质检合格',
+    unqualifiedItems: []
+  }
+])
+
+const tableData = ref([])
+
+onMounted(() => {
+  fetchData()
+})
+
+function fetchData() {
+  loading.value = true
+  setTimeout(() => {
+    let filtered = [...mockData.value]
+    if (searchForm.qualityNo) {
+      filtered = filtered.filter(item => item.qualityNo.includes(searchForm.qualityNo))
+    }
+    if (searchForm.workOrderNo) {
+      filtered = filtered.filter(item => item.workOrderNo.includes(searchForm.workOrderNo))
+    }
+    if (searchForm.productName) {
+      filtered = filtered.filter(item => item.productName.includes(searchForm.productName))
+    }
+    if (searchForm.qualityType !== '') {
+      filtered = filtered.filter(item => item.qualityType === searchForm.qualityType)
+    }
+    if (searchForm.result !== '') {
+      filtered = filtered.filter(item => item.result === searchForm.result)
+    }
+    total.value = filtered.length
+    const start = (currentPage.value - 1) * pageSize.value
+    const end = start + pageSize.value
+    tableData.value = filtered.slice(start, end)
+    loading.value = false
+  }, 300)
 }
 
-const handleAdd = () => {
+function handleSearch() {
+  currentPage.value = 1
+  fetchData()
+}
+
+function handleReset() {
+  searchForm.qualityNo = ''
+  searchForm.workOrderNo = ''
+  searchForm.productName = ''
+  searchForm.qualityType = ''
+  searchForm.result = ''
+  currentPage.value = 1
+  fetchData()
+}
+
+function handleSizeChange(size) {
+  pageSize.value = size
+  currentPage.value = 1
+  fetchData()
+}
+
+function handleCurrentChange(page) {
+  currentPage.value = page
+  fetchData()
+}
+
+function handleAdd() {
+  isEdit.value = false
+  isView.value = false
   resetForm()
   dialogVisible.value = true
 }
 
-const handleSubmit = async () => {
-  await formRef.value.validate()
-  submitting.value = true
+function handleEdit(row) {
+  isEdit.value = true
+  isView.value = false
+  qualityForm.id = row.id
+  qualityForm.qualityNo = row.qualityNo
+  qualityForm.workOrderId = row.workOrderId
+  qualityForm.workOrderNo = row.workOrderNo
+  qualityForm.productName = row.productName
+  qualityForm.qualityType = row.qualityType
+  qualityForm.quantity = row.quantity
+  qualityForm.qualifiedQuantity = row.qualifiedQuantity
+  qualityForm.unqualifiedQuantity = row.unqualifiedQuantity
+  qualityForm.result = row.result
+  qualityForm.inspector = row.inspector
+  qualityForm.remark = row.remark
+  qualityForm.unqualifiedItems = [...row.unqualifiedItems]
+  dialogVisible.value = true
+}
+
+function handleView(row) {
+  isEdit.value = false
+  isView.value = true
+  qualityForm.id = row.id
+  qualityForm.qualityNo = row.qualityNo
+  qualityForm.workOrderId = row.workOrderId
+  qualityForm.workOrderNo = row.workOrderNo
+  qualityForm.productName = row.productName
+  qualityForm.qualityType = row.qualityType
+  qualityForm.quantity = row.quantity
+  qualityForm.qualifiedQuantity = row.qualifiedQuantity
+  qualityForm.unqualifiedQuantity = row.unqualifiedQuantity
+  qualityForm.result = row.result
+  qualityForm.inspector = row.inspector
+  qualityForm.remark = row.remark
+  qualityForm.unqualifiedItems = [...row.unqualifiedItems]
+  dialogVisible.value = true
+}
+
+function handleDelete(row) {
+  ElMessageBox.confirm(`确定要删除质检记录「${row.qualityNo}」吗？`, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    const index = mockData.value.findIndex(item => item.id === row.id)
+    if (index !== -1) {
+      mockData.value.splice(index, 1)
+    }
+    ElMessage.success('删除成功')
+    fetchData()
+  }).catch(() => {})
+}
+
+function handleWorkOrderChange(val) {
+  const order = workOrderList.value.find(o => o.id === val)
+  if (order) {
+    qualityForm.workOrderNo = order.workOrderNo
+    qualityForm.productName = order.productName
+  }
+}
+
+function handleQuantityChange() {
+  if (qualityForm.qualifiedQuantity > qualityForm.quantity) {
+    qualityForm.qualifiedQuantity = qualityForm.quantity
+  }
+  qualityForm.unqualifiedQuantity = qualityForm.quantity - qualityForm.qualifiedQuantity
+}
+
+function handleQualifiedChange() {
+  qualityForm.unqualifiedQuantity = qualityForm.quantity - qualityForm.qualifiedQuantity
+  if (qualityForm.unqualifiedQuantity > 0 && qualityForm.result === 1) {
+    qualityForm.result = 0
+  } else if (qualityForm.unqualifiedQuantity === 0 && qualityForm.result === 0) {
+    qualityForm.result = 1
+  }
+}
+
+function resetForm() {
+  qualityForm.id = null
+  qualityForm.qualityNo = ''
+  qualityForm.workOrderId = null
+  qualityForm.workOrderNo = ''
+  qualityForm.productName = ''
+  qualityForm.qualityType = 2
+  qualityForm.quantity = 1
+  qualityForm.qualifiedQuantity = 0
+  qualityForm.unqualifiedQuantity = 0
+  qualityForm.result = 1
+  qualityForm.inspector = ''
+  qualityForm.remark = ''
+  qualityForm.unqualifiedItems = []
+  if (qualityFormRef.value) {
+    qualityFormRef.value.resetFields()
+  }
+}
+
+async function handleSubmit() {
+  if (!qualityFormRef.value) return
+  
   try {
-    await save({ ...form })
-    ElMessage.success('新增成功')
-    dialogVisible.value = false
-    fetchList()
-  } catch (e) {
-    console.error(e)
-  } finally {
-    submitting.value = false
+    await qualityFormRef.value.validate()
+    submitLoading.value = true
+    
+    setTimeout(() => {
+      if (isEdit.value) {
+        const index = mockData.value.findIndex(item => item.id === qualityForm.id)
+        if (index !== -1) {
+          mockData.value[index] = {
+            ...mockData.value[index],
+            workOrderId: qualityForm.workOrderId,
+            workOrderNo: qualityForm.workOrderNo,
+            productName: qualityForm.productName,
+            qualityType: qualityForm.qualityType,
+            quantity: qualityForm.quantity,
+            qualifiedQuantity: qualityForm.qualifiedQuantity,
+            unqualifiedQuantity: qualityForm.unqualifiedQuantity,
+            result: qualityForm.result,
+            inspector: qualityForm.inspector,
+            remark: qualityForm.remark,
+            unqualifiedItems: [...qualityForm.unqualifiedItems]
+          }
+        }
+        ElMessage.success('编辑成功')
+      } else {
+        const maxId = Math.max(...mockData.value.map(item => item.id), 0)
+        const now = new Date()
+        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '')
+        const newQuality = {
+          id: maxId + 1,
+          qualityNo: 'QC-' + dateStr + String(maxId + 1).padStart(3, '0'),
+          workOrderId: qualityForm.workOrderId,
+          workOrderNo: qualityForm.workOrderNo,
+          productName: qualityForm.productName,
+          qualityType: qualityForm.qualityType,
+          quantity: qualityForm.quantity,
+          qualifiedQuantity: qualityForm.qualifiedQuantity,
+          unqualifiedQuantity: qualityForm.unqualifiedQuantity,
+          result: qualityForm.result,
+          inspector: qualityForm.inspector,
+          createTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-'),
+          remark: qualityForm.remark,
+          unqualifiedItems: [...qualityForm.unqualifiedItems]
+        }
+        mockData.value.unshift(newQuality)
+        ElMessage.success('新增成功')
+      }
+      
+      dialogVisible.value = false
+      submitLoading.value = false
+      fetchData()
+    }, 300)
+  } catch (error) {
+    submitLoading.value = false
   }
 }
-
-const handleStart = (row) => {
-  ElMessageBox.confirm(`确定开始任务「${row.taskNo}」吗？`, '提示', { type: 'warning' })
-    .then(async () => {
-      await start(row.id)
-      ElMessage.success('任务已开始')
-      fetchList()
-    }).catch(() => {})
-}
-
-const handleComplete = (row) => {
-  ElMessageBox.confirm(`确定完成任务「${row.taskNo}」吗？`, '提示', { type: 'warning' })
-    .then(async () => {
-      await complete(row.id)
-      ElMessage.success('任务已完成')
-      fetchList()
-    }).catch(() => {})
-}
-
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`确定删除任务「${row.taskNo}」吗？`, '提示', { type: 'warning' })
-    .then(async () => {
-      await remove(row.id)
-      ElMessage.success('删除成功')
-      fetchList()
-    }).catch(() => {})
-}
-
-const resultDialogVisible = ref(false)
-const resultList = ref([])
-const resultSubmitting = ref(false)
-const currentTaskId = ref(null)
-
-const handleInputResult = async (row) => {
-  currentTaskId.value = row.id
-  resultDialogVisible.value = true
-  try {
-    const res = await getResultList({ taskId: row.id })
-    resultList.value = res.data || []
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-const handleResultSubmit = async () => {
-  if (!currentTaskId.value) return
-  resultSubmitting.value = true
-  try {
-    const data = resultList.value.map(item => ({
-      ...item,
-      taskId: currentTaskId.value
-    }))
-    await batchSave(data)
-    ElMessage.success('保存成功')
-    resultDialogVisible.value = false
-    fetchList()
-  } catch (e) {
-    console.error(e)
-  } finally {
-    resultSubmitting.value = false
-  }
-}
-
-const resultFormVisible = ref(false)
-const resultFormRef = ref()
-const resultForm = reactive({
-  id: null,
-  itemName: '',
-  standard: '',
-  result: '合格',
-  remark: ''
-})
-const resultRules = {
-  itemName: [{ required: true, message: '请输入检验项目', trigger: 'blur' }],
-  result: [{ required: true, message: '请选择检验结果', trigger: 'change' }]
-}
-const editResultIndex = ref(-1)
-
-const handleAddResult = () => {
-  resultForm.id = null
-  resultForm.itemName = ''
-  resultForm.standard = ''
-  resultForm.result = '合格'
-  resultForm.remark = ''
-  editResultIndex.value = -1
-  resultFormVisible.value = true
-}
-
-const handleEditResult = (row, index) => {
-  Object.assign(resultForm, row)
-  editResultIndex.value = index
-  resultFormVisible.value = true
-}
-
-const handleDeleteResult = (index) => {
-  ElMessageBox.confirm('确定删除该检验项吗？', '提示', { type: 'warning' })
-    .then(() => {
-      resultList.value.splice(index, 1)
-      ElMessage.success('删除成功')
-    }).catch(() => {})
-}
-
-const handleResultFormSubmit = async () => {
-  await resultFormRef.value.validate()
-  if (editResultIndex.value >= 0) {
-    resultList.value[editResultIndex.value] = { ...resultList.value[editResultIndex.value], ...resultForm }
-  } else {
-    resultList.value.push({ ...resultForm })
-  }
-  resultFormVisible.value = false
-}
-
-const reportDialogVisible = ref(false)
-const reportData = ref(null)
-
-const handleViewReport = async (row) => {
-  reportDialogVisible.value = true
-  reportData.value = null
-  try {
-    const res = await getReport(row.id)
-    reportData.value = res.data || {}
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-onMounted(() => {
-  fetchList()
-})
 </script>
 
 <style scoped>
-.search-form {
-  margin-bottom: 16px;
-  padding: 16px;
-  background: #fff;
-  border-radius: 4px;
+.page-container {
+  width: 100%;
 }
-.pagination {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
-}
-.result-toolbar {
-  margin-bottom: 12px;
-  display: flex;
-  justify-content: flex-end;
-}
-.report-content {
-  padding: 10px 0;
-}
-.report-header {
-  text-align: center;
+
+.stat-row {
   margin-bottom: 20px;
 }
-.report-header h3 {
-  margin: 0 0 10px 0;
-  font-size: 18px;
-  color: #303133;
+
+.stat-card {
+  border-radius: 8px;
 }
-.report-info {
+
+.stat-content {
   display: flex;
-  justify-content: center;
-  gap: 30px;
-  font-size: 13px;
-  color: #606266;
+  align-items: center;
+  gap: 16px;
 }
-.report-summary {
-  display: flex;
-  justify-content: space-around;
-  padding: 20px;
-  background: #f5f7fa;
-  border-radius: 6px;
-  margin-bottom: 20px;
-}
-.summary-item {
-  text-align: center;
-}
-.summary-item .label {
-  font-size: 13px;
-  color: #909399;
-  margin-bottom: 8px;
-}
-.summary-item .value {
-  font-size: 24px;
-  font-weight: 600;
-  color: #303133;
-}
-.summary-item .value.pass {
-  color: #67c23a;
-}
-.summary-item .value.fail {
-  color: #f56c6c;
-}
-.report-conclusion {
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 10px;
+  color: #fff;
+  flex-shrink: 0;
 }
-.conclusion-label {
-  font-size: 15px;
-  font-weight: 600;
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: bold;
   color: #303133;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #909399;
+  margin-top: 4px;
+}
+
+.search-card {
+  margin-bottom: 20px;
+}
+
+.table-card {
+  margin-bottom: 20px;
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.table-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #303133;
+}
+
+.pagination-wrapper {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>

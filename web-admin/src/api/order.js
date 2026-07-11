@@ -1,37 +1,60 @@
 import request from './request'
 
-export const getOrderList = (params) => {
-  return request.get('/order/list', { params })
+export function getOrderList(params) {
+  return request({
+    url: '/order/list',
+    method: 'get',
+    params
+  })
 }
 
-export const getOrderDetail = (id) => {
-  return request.get(`/order/${id}`)
+export function getOrderDetail(id) {
+  return request({
+    url: '/order/' + id,
+    method: 'get'
+  })
 }
 
-export const saveOrder = (data) => {
-  return request.post('/order/save', data)
+export function createOrder(data) {
+  return request({
+    url: '/order/save',
+    method: 'post',
+    data
+  })
 }
 
-export const updateOrder = (data) => {
-  return request.put('/order/update', data)
+export function updateOrder(data) {
+  return request({
+    url: '/order/update',
+    method: 'put',
+    data
+  })
 }
 
-export const deleteOrder = (id) => {
-  return request.delete(`/order/delete/${id}`)
+export function deleteOrder(id) {
+  return request({
+    url: '/order/delete/' + id,
+    method: 'delete'
+  })
 }
 
-export const auditOrder = (id) => {
-  return request.put(`/order/audit/${id}`)
+export function approveOrder(id) {
+  return request({
+    url: '/order/audit/' + id,
+    method: 'put'
+  })
 }
 
-export const dispatchOrder = (id) => {
-  return request.put(`/order/dispatch/${id}`)
+export function getCustomerList() {
+  return request({
+    url: '/customer/list',
+    method: 'get'
+  })
 }
 
-export const cancelOrder = (id) => {
-  return request.put(`/order/cancel/${id}`)
-}
-
-export const changeOrderStatus = (id, status) => {
-  return request.put(`/order/status/${id}/${status}`)
+export function getProductList() {
+  return request({
+    url: '/product/list',
+    method: 'get'
+  })
 }

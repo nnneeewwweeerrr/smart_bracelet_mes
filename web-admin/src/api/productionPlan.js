@@ -1,29 +1,46 @@
 import request from './request'
 
-export const getList = (params) => {
-  return request.get('/production-plan/list', { params })
+export function getProductionPlanList(params) {
+  return request({
+    url: '/production-plan/list',
+    method: 'get',
+    params
+  })
 }
 
-export const getById = (id) => {
-  return request.get('/production-plan/' + id)
+export function getProductionPlanDetail(id) {
+  return request({
+    url: '/production-plan/' + id,
+    method: 'get'
+  })
 }
 
-export const save = (data) => {
-  return request.post('/production-plan/save', data)
+export function createProductionPlan(data) {
+  return request({
+    url: '/production-plan/save',
+    method: 'post',
+    data
+  })
 }
 
-export const update = (data) => {
-  return request.put('/production-plan/update', data)
+export function updateProductionPlan(data) {
+  return request({
+    url: '/production-plan/update',
+    method: 'put',
+    data
+  })
 }
 
-export const remove = (id) => {
-  return request.delete('/production-plan/delete/' + id)
+export function deleteProductionPlan(id) {
+  return request({
+    url: '/production-plan/' + id,
+    method: 'delete'
+  })
 }
 
-export const start = (id) => {
-  return request.put('/production-plan/start/' + id)
-}
-
-export const finish = (id) => {
-  return request.put('/production-plan/finish/' + id)
+export function approveProductionPlan(id) {
+  return request({
+    url: '/production-plan/start/' + id,
+    method: 'put'
+  })
 }

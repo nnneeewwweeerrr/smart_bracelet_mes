@@ -1,9 +1,31 @@
 import request from './request'
 
-export const login = (data) => {
-  return request.post('/auth/login', data)
+export function login(data) {
+  return request({
+    url: '/auth/login',
+    method: 'post',
+    data
+  })
 }
 
-export const getUserInfo = () => {
-  return request.get('/auth/info')
+export function register(data) {
+  return request({
+    url: '/auth/register',
+    method: 'post',
+    data
+  })
+}
+
+export function getUserInfo() {
+  return request({
+    url: '/auth/info',
+    method: 'get'
+  })
+}
+
+export function logout() {
+  return request({
+    url: '/auth/logout',
+    method: 'post'
+  })
 }

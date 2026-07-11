@@ -1,23 +1,39 @@
 import request from './request'
 
-export const getList = (params) => {
-  return request.get('/customer/list', { params })
+export function getCustomerList(params) {
+  return request({
+    url: '/customer/list',
+    method: 'get',
+    params
+  })
 }
 
-export const getCustomerList = getList
-
-export const getById = (id) => {
-  return request.get('/customer/' + id)
+export function getCustomerDetail(id) {
+  return request({
+    url: '/customer/' + id,
+    method: 'get'
+  })
 }
 
-export const save = (data) => {
-  return request.post('/customer/save', data)
+export function createCustomer(data) {
+  return request({
+    url: '/customer/save',
+    method: 'post',
+    data
+  })
 }
 
-export const update = (data) => {
-  return request.put('/customer/update', data)
+export function updateCustomer(data) {
+  return request({
+    url: '/customer/update',
+    method: 'put',
+    data
+  })
 }
 
-export const remove = (id) => {
-  return request.delete('/customer/delete/' + id)
+export function deleteCustomer(id) {
+  return request({
+    url: '/customer/delete/' + id,
+    method: 'delete'
+  })
 }

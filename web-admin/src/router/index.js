@@ -1,131 +1,127 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '../stores/user'
+import { getMenusByRole } from '../config/roleMenu'
 
 const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('../views/login/index.vue')
+    component: () => import('../views/login/index.vue'),
+    meta: { title: '登录', requiresAuth: false }
   },
   {
     path: '/',
-    name: 'Layout',
     component: () => import('../views/layout/index.vue'),
     redirect: '/dashboard',
+    meta: { requiresAuth: true },
     children: [
       {
         path: 'dashboard',
         name: 'Dashboard',
         component: () => import('../views/dashboard/index.vue'),
-        meta: { title: '首页' }
+        meta: { title: '首页看板', icon: 'Odometer' }
       },
       {
         path: 'order',
         name: 'Order',
         component: () => import('../views/order/index.vue'),
-        meta: { title: '订单管理' }
+        meta: { title: '订单管理', icon: 'Document' }
       },
       {
         path: 'purchase',
         name: 'Purchase',
         component: () => import('../views/purchase/index.vue'),
-        meta: { title: '采购管理' }
+        meta: { title: '采购管理', icon: 'ShoppingCart' }
       },
       {
         path: 'supplier',
         name: 'Supplier',
         component: () => import('../views/supplier/index.vue'),
-        meta: { title: '供应商管理' }
+        meta: { title: '供应商管理', icon: 'OfficeBuilding' }
       },
       {
         path: 'customer',
         name: 'Customer',
         component: () => import('../views/customer/index.vue'),
-        meta: { title: '客户档案' }
+        meta: { title: '客户档案', icon: 'User' }
       },
       {
         path: 'material',
         name: 'Material',
         component: () => import('../views/material/index.vue'),
-        meta: { title: '物料档案' }
+        meta: { title: '物料档案', icon: 'Box' }
       },
       {
         path: 'product',
         name: 'Product',
         component: () => import('../views/product/index.vue'),
-        meta: { title: '产品档案' }
+        meta: { title: '产品档案', icon: 'Present' }
       },
       {
         path: 'equipment',
         name: 'Equipment',
         component: () => import('../views/equipment/index.vue'),
-        meta: { title: '设备档案' }
-      },
-      {
-        path: 'equipment-monitor',
-        name: 'EquipmentMonitor',
-        component: () => import('../views/equipment-monitor/index.vue'),
-        meta: { title: '设备监控' }
+        meta: { title: '设备档案', icon: 'Cpu' }
       },
       {
         path: 'stock',
         name: 'Stock',
         component: () => import('../views/stock/index.vue'),
-        meta: { title: '库存查询' }
+        meta: { title: '库存查询', icon: 'Warehouse' }
       },
       {
         path: 'stock-in',
         name: 'StockIn',
         component: () => import('../views/stock-in/index.vue'),
-        meta: { title: '入库记录' }
+        meta: { title: '入库记录', icon: 'Bottom' }
       },
       {
         path: 'stock-out',
         name: 'StockOut',
         component: () => import('../views/stock-out/index.vue'),
-        meta: { title: '出库记录' }
-      },
-      {
-        path: 'stock-flow',
-        name: 'StockFlow',
-        component: () => import('../views/stock-flow/index.vue'),
-        meta: { title: '库存流水' }
+        meta: { title: '出库记录', icon: 'Top' }
       },
       {
         path: 'work-order',
         name: 'WorkOrder',
         component: () => import('../views/work-order/index.vue'),
-        meta: { title: '生产工单' }
+        meta: { title: '生产工单', icon: 'Tickets' }
       },
       {
         path: 'production-progress',
         name: 'ProductionProgress',
         component: () => import('../views/production-progress/index.vue'),
-        meta: { title: '生产进度' }
+        meta: { title: '生产进度', icon: 'TrendCharts' }
       },
       {
         path: 'process-config',
         name: 'ProcessConfig',
         component: () => import('../views/process-config/index.vue'),
-        meta: { title: '工艺配置' }
+        meta: { title: '工艺配置', icon: 'SetUp' }
       },
       {
         path: 'quality-record',
         name: 'QualityRecord',
         component: () => import('../views/quality-record/index.vue'),
-        meta: { title: '质检记录' }
+        meta: { title: '质检记录', icon: 'CircleCheck' }
       },
       {
         path: 'exception-workbench',
         name: 'ExceptionWorkbench',
         component: () => import('../views/exception-workbench/index.vue'),
-        meta: { title: '异常处理' }
+        meta: { title: '异常处理', icon: 'Warning' }
+      },
+      {
+        path: 'system',
+        name: 'System',
+        component: () => import('../views/system/index.vue'),
+        meta: { title: '系统管理', icon: 'Tools' }
       },
       {
         path: 'operation-log',
         name: 'OperationLog',
         component: () => import('../views/operation-log/index.vue'),
-        meta: { title: '操作日志' }
+        meta: { title: '操作日志', icon: 'Notebook' }
       }
     ]
   }
@@ -138,8 +134,33 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
-  if (to.path !== '/login' && !userStore.token) {
+  const token = userStore.token
+
+  if (to.meta.requiresAuth && !token) {
     next('/login')
+  } else if (to.path === '/login' && token) {
+    next('/')
+  } else if (to.meta.requiresAuth && token) {
+    const role = userStore.userInfo?.role || 'admin'
+    const menus = getMenusByRole(role)
+    const flatPaths = []
+    menus.forEach(menu => {
+      if (menu.children && menu.children.length > 0) {
+        menu.children.forEach(child => {
+          flatPaths.push(child.path)
+        })
+      } else {
+        flatPaths.push(menu.path)
+      }
+    })
+    const path = to.path.substring(1)
+    const hasPermission = flatPaths.includes(path)
+    
+    if (hasPermission || to.path === '/dashboard' || to.path === '/') {
+      next()
+    } else {
+      next('/dashboard')
+    }
   } else {
     next()
   }

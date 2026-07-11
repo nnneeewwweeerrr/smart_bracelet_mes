@@ -1,27 +1,46 @@
 import request from './request'
 
-export const getList = (params) => {
-  return request.get('/material/list', { params })
+export function getMaterialList(params) {
+  return request({
+    url: '/material/list',
+    method: 'get',
+    params
+  })
 }
 
-export const getMaterialList = getList
-
-export const getById = (id) => {
-  return request.get('/material/' + id)
+export function getMaterialDetail(id) {
+  return request({
+    url: '/material/' + id,
+    method: 'get'
+  })
 }
 
-export const getByCode = (code) => {
-  return request.get('/material/code/' + code)
+export function getMaterialByCode(code) {
+  return request({
+    url: '/material/code/' + code,
+    method: 'get'
+  })
 }
 
-export const save = (data) => {
-  return request.post('/material/save', data)
+export function createMaterial(data) {
+  return request({
+    url: '/material/save',
+    method: 'post',
+    data
+  })
 }
 
-export const update = (data) => {
-  return request.put('/material/update', data)
+export function updateMaterial(data) {
+  return request({
+    url: '/material/update',
+    method: 'put',
+    data
+  })
 }
 
-export const remove = (id) => {
-  return request.delete('/material/delete/' + id)
+export function deleteMaterial(id) {
+  return request({
+    url: '/material/delete/' + id,
+    method: 'delete'
+  })
 }
