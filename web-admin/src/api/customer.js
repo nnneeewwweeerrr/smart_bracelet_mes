@@ -17,7 +17,7 @@ export function getCustomerDetail(id) {
 
 export function createCustomer(data) {
   return request({
-    url: '/customer',
+    url: '/customer/save',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createCustomer(data) {
 
 export function updateCustomer(data) {
   return request({
-    url: '/customer',
+    url: '/customer/update',
     method: 'put',
     data
   })
@@ -33,7 +33,7 @@ export function updateCustomer(data) {
 
 export function deleteCustomer(id) {
   return request({
-    url: '/customer/' + id,
+    url: '/customer/delete/' + id,
     method: 'delete'
   })
 }

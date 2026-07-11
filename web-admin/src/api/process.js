@@ -17,7 +17,7 @@ export function getProcessDetail(id) {
 
 export function createProcess(data) {
   return request({
-    url: '/process',
+    url: '/process/save',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createProcess(data) {
 
 export function updateProcess(data) {
   return request({
-    url: '/process',
+    url: '/process/update',
     method: 'put',
     data
   })
@@ -33,7 +33,7 @@ export function updateProcess(data) {
 
 export function deleteProcess(id) {
   return request({
-    url: '/process/' + id,
+    url: '/process/delete/' + id,
     method: 'delete'
   })
 }

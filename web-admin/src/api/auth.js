@@ -2,7 +2,7 @@ import request from './request'
 
 export function login(data) {
   return request({
-    url: '/user/login',
+    url: '/auth/login',
     method: 'post',
     data
   })
@@ -10,7 +10,7 @@ export function login(data) {
 
 export function register(data) {
   return request({
-    url: '/user/register',
+    url: '/auth/register',
     method: 'post',
     data
   })
@@ -18,14 +18,14 @@ export function register(data) {
 
 export function getUserInfo() {
   return request({
-    url: '/user/info',
+    url: '/auth/info',
     method: 'get'
   })
 }
 
 export function logout() {
   return request({
-    url: '/user/logout',
+    url: '/auth/logout',
     method: 'post'
   })
 }

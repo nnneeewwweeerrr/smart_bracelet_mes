@@ -17,7 +17,7 @@ export function getQualityTaskDetail(id) {
 
 export function createQualityTask(data) {
   return request({
-    url: '/quality-task',
+    url: '/quality-task/save',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createQualityTask(data) {
 
 export function updateQualityTask(data) {
   return request({
-    url: '/quality-task',
+    url: '/quality-task/update',
     method: 'put',
     data
   })
@@ -33,7 +33,7 @@ export function updateQualityTask(data) {
 
 export function deleteQualityTask(id) {
   return request({
-    url: '/quality-task/' + id,
+    url: '/quality-task/delete/' + id,
     method: 'delete'
   })
 }

@@ -17,7 +17,7 @@ export function getPurchaseDetail(id) {
 
 export function createPurchase(data) {
   return request({
-    url: '/purchase',
+    url: '/purchase/save',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createPurchase(data) {
 
 export function updatePurchase(data) {
   return request({
-    url: '/purchase',
+    url: '/purchase/update',
     method: 'put',
     data
   })
@@ -33,14 +33,14 @@ export function updatePurchase(data) {
 
 export function deletePurchase(id) {
   return request({
-    url: '/purchase/' + id,
+    url: '/purchase/delete/' + id,
     method: 'delete'
   })
 }
 
 export function approvePurchase(id) {
   return request({
-    url: '/purchase/' + id + '/approve',
-    method: 'post'
+    url: '/purchase/audit/' + id,
+    method: 'put'
   })
 }

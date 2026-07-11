@@ -17,7 +17,7 @@ export function getQualityResultDetail(id) {
 
 export function createQualityResult(data) {
   return request({
-    url: '/quality-result',
+    url: '/quality-result/save',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createQualityResult(data) {
 
 export function updateQualityResult(data) {
   return request({
-    url: '/quality-result',
+    url: '/quality-result/update',
     method: 'put',
     data
   })

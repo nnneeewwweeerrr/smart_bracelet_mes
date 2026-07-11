@@ -17,7 +17,7 @@ export function getOrderDetail(id) {
 
 export function createOrder(data) {
   return request({
-    url: '/order',
+    url: '/order/save',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createOrder(data) {
 
 export function updateOrder(data) {
   return request({
-    url: '/order',
+    url: '/order/update',
     method: 'put',
     data
   })
@@ -33,15 +33,15 @@ export function updateOrder(data) {
 
 export function deleteOrder(id) {
   return request({
-    url: '/order/' + id,
+    url: '/order/delete/' + id,
     method: 'delete'
   })
 }
 
 export function approveOrder(id) {
   return request({
-    url: '/order/' + id + '/approve',
-    method: 'post'
+    url: '/order/audit/' + id,
+    method: 'put'
   })
 }
 

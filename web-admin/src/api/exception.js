@@ -17,7 +17,7 @@ export function getExceptionDetail(id) {
 
 export function createException(data) {
   return request({
-    url: '/exception',
+    url: '/exception/save',
     method: 'post',
     data
   })
@@ -25,15 +25,15 @@ export function createException(data) {
 
 export function handleException(id, data) {
   return request({
-    url: '/exception/' + id + '/handle',
-    method: 'post',
+    url: '/exception/handle/' + id,
+    method: 'put',
     data
   })
 }
 
 export function closeException(id) {
   return request({
-    url: '/exception/' + id + '/close',
-    method: 'post'
+    url: '/exception/resolve/' + id,
+    method: 'put'
   })
 }

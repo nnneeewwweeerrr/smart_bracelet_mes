@@ -9,11 +9,11 @@ export function scanStockOut(data) {
 }
 
 export function createStockIn(data) {
-  return post('/stock/in', data)
+  return post('/stock-in/save', data)
 }
 
 export function createStockOut(data) {
-  return post('/stock/out', data)
+  return post('/stock-out/save', data)
 }
 
 export function getStockList(params) {
@@ -25,21 +25,21 @@ export function stockCheck(data) {
 }
 
 export function getStockWarning() {
-  return get('/stock/warning')
+  return get('/mini/stock/warning')
 }
 
 export function getWarehouseList() {
-  return get('/stock/warehouse/list')
+  return get('/warehouse/list')
 }
 
 export function getMaterialList(params) {
-  return get('/purchase/material/list', params)
+  return get('/material/list', params)
 }
 
 export function getStockInList(params) {
-  return get('/stock/in/list', params)
+  return get('/stock-in/list', params)
 }
 
 export function getStockOutList(params) {
-  return get('/stock/out/list', params)
+  return get('/stock-out/list', params)
 }

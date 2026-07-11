@@ -265,8 +265,8 @@ import { ElMessage } from 'element-plus'
 import {
   Watch, User, Lock, InfoFilled, UserFilled, Phone
 } from '@element-plus/icons-vue'
-import { mockUsers } from '../../config/roleMenu'
-import { register } from '../../api/auth'
+import { mockUsers, roleNames } from '../../config/roleMenu'
+import { login as apiLogin, register } from '../../api/auth'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -341,38 +341,33 @@ async function doSignin() {
     await signinRef.value.validate()
     signinLoading.value = true
     
-    const matchedUser = userList.find(u => 
-      u.username === signinData.username && u.password === signinData.password
-    )
+    const res = await apiLogin({
+      username: signinData.username,
+      password: signinData.password
+    })
     
-    setTimeout(() => {
-      if (matchedUser) {
-        const fakeResp = {
-          code: 200,
-          message: '登录成功',
-          data: {
-            token: 'fake-token-' + Date.now(),
-            userInfo: {
-              id: 1,
-              username: matchedUser.username,
-              realName: matchedUser.realName,
-              role: matchedUser.role
-            }
-          }
-        }
-        
-        userStore.token = fakeResp.data.token
-        userStore.userInfo = fakeResp.data.userInfo
-        localStorage.setItem('token', fakeResp.data.token)
-        localStorage.setItem('userInfo', JSON.stringify(fakeResp.data.userInfo))
-        
-        ElMessage.success('登录成功')
-        router.push('/')
-      } else {
-        ElMessage.error('用户名或密码错误')
+    if (res.code === 200) {
+      userStore.token = res.data.token
+      localStorage.setItem('token', res.data.token)
+      
+      // 根据用户名匹配角色（后端返回roleId，前端映射为角色key）
+      const matchedUser = mockUsers.find(u => u.username === signinData.username)
+      const role = matchedUser ? matchedUser.role : 'admin'
+      const realName = matchedUser ? matchedUser.realName : signinData.username
+      
+      userStore.userInfo = {
+        username: signinData.username,
+        realName: realName,
+        role: role
       }
-      signinLoading.value = false
-    }, 500)
+      localStorage.setItem('userInfo', JSON.stringify(userStore.userInfo))
+      
+      ElMessage.success('登录成功')
+      router.push('/')
+    } else {
+      ElMessage.error(res.message || '登录失败')
+    }
+    signinLoading.value = false
     
   } catch (error) {
     signinLoading.value = false

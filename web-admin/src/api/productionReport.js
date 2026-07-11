@@ -17,7 +17,7 @@ export function getProductionReportDetail(id) {
 
 export function createProductionReport(data) {
   return request({
-    url: '/production-report',
+    url: '/production-report/save',
     method: 'post',
     data
   })

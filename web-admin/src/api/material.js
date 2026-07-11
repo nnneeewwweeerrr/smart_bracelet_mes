@@ -24,7 +24,7 @@ export function getMaterialByCode(code) {
 
 export function createMaterial(data) {
   return request({
-    url: '/material',
+    url: '/material/save',
     method: 'post',
     data
   })
@@ -32,7 +32,7 @@ export function createMaterial(data) {
 
 export function updateMaterial(data) {
   return request({
-    url: '/material',
+    url: '/material/update',
     method: 'put',
     data
   })
@@ -40,7 +40,7 @@ export function updateMaterial(data) {
 
 export function deleteMaterial(id) {
   return request({
-    url: '/material/' + id,
+    url: '/material/delete/' + id,
     method: 'delete'
   })
 }

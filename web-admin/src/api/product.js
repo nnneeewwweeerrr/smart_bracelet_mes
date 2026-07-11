@@ -17,7 +17,7 @@ export function getProductDetail(id) {
 
 export function createProduct(data) {
   return request({
-    url: '/product',
+    url: '/product/save',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createProduct(data) {
 
 export function updateProduct(data) {
   return request({
-    url: '/product',
+    url: '/product/update',
     method: 'put',
     data
   })
@@ -33,7 +33,7 @@ export function updateProduct(data) {
 
 export function deleteProduct(id) {
   return request({
-    url: '/product/' + id,
+    url: '/product/delete/' + id,
     method: 'delete'
   })
 }

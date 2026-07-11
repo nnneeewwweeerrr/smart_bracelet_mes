@@ -17,7 +17,7 @@ export function getWorkOrderDetail(id) {
 
 export function createWorkOrder(data) {
   return request({
-    url: '/work-order',
+    url: '/work-order/save',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createWorkOrder(data) {
 
 export function updateWorkOrder(data) {
   return request({
-    url: '/work-order',
+    url: '/work-order/update',
     method: 'put',
     data
   })
@@ -33,21 +33,21 @@ export function updateWorkOrder(data) {
 
 export function deleteWorkOrder(id) {
   return request({
-    url: '/work-order/' + id,
+    url: '/work-order/delete/' + id,
     method: 'delete'
   })
 }
 
 export function startWorkOrder(id) {
   return request({
-    url: '/work-order/' + id + '/start',
-    method: 'post'
+    url: '/work-order/dispatch/' + id,
+    method: 'put'
   })
 }
 
 export function finishWorkOrder(id) {
   return request({
-    url: '/work-order/' + id + '/finish',
-    method: 'post'
+    url: '/work-order/complete/' + id,
+    method: 'put'
   })
 }

@@ -17,7 +17,7 @@ export function getSupplierDetail(id) {
 
 export function createSupplier(data) {
   return request({
-    url: '/supplier',
+    url: '/supplier/save',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createSupplier(data) {
 
 export function updateSupplier(data) {
   return request({
-    url: '/supplier',
+    url: '/supplier/update',
     method: 'put',
     data
   })
@@ -33,7 +33,7 @@ export function updateSupplier(data) {
 
 export function deleteSupplier(id) {
   return request({
-    url: '/supplier/' + id,
+    url: '/supplier/delete/' + id,
     method: 'delete'
   })
 }

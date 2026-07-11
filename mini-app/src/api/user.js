@@ -4,16 +4,12 @@ export function miniLogin(data) {
   return post('/mini/login', data)
 }
 
-export function systemLogin(data) {
-  return post('/system/login', data)
-}
-
 export function getWorkerTasks() {
   return get('/mini/worker/tasks')
 }
 
 export function getUserInfo() {
-  return get('/system/user/info')
+  return get('/auth/info')
 }
 
 export function updateUserInfo(data) {
@@ -25,13 +21,13 @@ export function changePassword(data) {
 }
 
 export function getOperationLogList(params) {
-  return get('/system/log/list', params)
+  return get('/operation-log/list', params)
 }
 
 export function getOperationLogCount() {
-  return get('/system/log/count')
+  return get('/operation-log/count')
 }
 
 export function getPersonalPerformance() {
-  return get('/system/user/performance')
+  return get('/mini/production/dashboard')
 }

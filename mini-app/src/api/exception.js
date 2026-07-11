@@ -9,9 +9,9 @@ export function getExceptionDetail(id) {
 }
 
 export function createException(data) {
-  return post('/exception', data)
+  return post('/exception/save', data)
 }
 
 export function handleException(id, data) {
-  return put('/exception/' + id + '/handle', data)
+  return put('/exception/handle/' + id, data)
 }

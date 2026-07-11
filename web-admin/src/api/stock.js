@@ -17,7 +17,7 @@ export function getStockDetail(id) {
 
 export function getStockWarning() {
   return request({
-    url: '/stock/warning',
+    url: '/mini/stock/warning',
     method: 'get'
   })
 }

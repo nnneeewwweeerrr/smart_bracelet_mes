@@ -17,7 +17,7 @@ export function getProductionPlanDetail(id) {
 
 export function createProductionPlan(data) {
   return request({
-    url: '/production-plan',
+    url: '/production-plan/save',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createProductionPlan(data) {
 
 export function updateProductionPlan(data) {
   return request({
-    url: '/production-plan',
+    url: '/production-plan/update',
     method: 'put',
     data
   })
@@ -40,7 +40,7 @@ export function deleteProductionPlan(id) {
 
 export function approveProductionPlan(id) {
   return request({
-    url: '/production-plan/' + id + '/approve',
-    method: 'post'
+    url: '/production-plan/start/' + id,
+    method: 'put'
   })
 }
