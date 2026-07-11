@@ -8,7 +8,10 @@ import com.mes.service.EquipmentInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/equipment")
@@ -27,6 +30,49 @@ public class EquipmentController {
     @GetMapping("/{id}")
     public Result<EquipmentInfo> detail(@PathVariable Long id) {
         return Result.success(equipmentInfoService.getById(id));
+    }
+
+    @GetMapping("/statistics")
+    public Result<Map<String, Object>> statistics() {
+        Map<String, Object> stats = new HashMap<>();
+        
+        long total = equipmentInfoService.count();
+        long running = equipmentInfoService.count(new LambdaQueryWrapper<EquipmentInfo>().eq(EquipmentInfo::getStatus, 1));
+        long stopped = equipmentInfoService.count(new LambdaQueryWrapper<EquipmentInfo>().eq(EquipmentInfo::getStatus, 0));
+        long repairing = equipmentInfoService.count(new LambdaQueryWrapper<EquipmentInfo>().eq(EquipmentInfo::getStatus, 2));
+        
+        long needMaintain = equipmentInfoService.count(new LambdaQueryWrapper<EquipmentInfo>()
+                .isNotNull(EquipmentInfo::getNextMaintainDate)
+                .le(EquipmentInfo::getNextMaintainDate, LocalDateTime.now()));
+        
+        stats.put("total", total);
+        stats.put("running", running);
+        stats.put("stopped", stopped);
+        stats.put("repairing", repairing);
+        stats.put("needMaintain", needMaintain);
+        
+        return Result.success(stats);
+    }
+
+    @GetMapping("/status-list")
+    public Result<List<Map<String, Object>>> statusList() {
+        List<EquipmentInfo> list = equipmentInfoService.list(new LambdaQueryWrapper<EquipmentInfo>()
+                .orderByDesc(EquipmentInfo::getCreateTime).last("LIMIT 20"));
+        
+        List<Map<String, Object>> result = list.stream().map(eq -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", eq.getId());
+            map.put("equipmentCode", eq.getEquipmentCode());
+            map.put("equipmentName", eq.getEquipmentName());
+            map.put("equipmentType", eq.getEquipmentType());
+            map.put("status", eq.getStatus());
+            map.put("location", eq.getLocation());
+            map.put("nextMaintainDate", eq.getNextMaintainDate());
+            map.put("runningHours", eq.getRunningHours());
+            return map;
+        }).toList();
+        
+        return Result.success(result);
     }
 
     @PostMapping("/save")

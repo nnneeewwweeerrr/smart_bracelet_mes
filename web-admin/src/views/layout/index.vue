@@ -33,6 +33,7 @@
           <el-menu-item index="/material">物料档案</el-menu-item>
           <el-menu-item index="/product">产品档案</el-menu-item>
           <el-menu-item index="/equipment">设备档案</el-menu-item>
+          <el-menu-item index="/equipment-monitor">设备监控</el-menu-item>
         </el-sub-menu>
 
         <el-sub-menu index="warehouse">
@@ -64,6 +65,14 @@
           <el-menu-item index="/quality-record">质检记录</el-menu-item>
           <el-menu-item index="/exception-workbench">异常处理</el-menu-item>
         </el-sub-menu>
+
+        <el-sub-menu index="system">
+          <template #title>
+            <el-icon><FileText /></el-icon>
+            <span>系统管理</span>
+          </template>
+          <el-menu-item index="/operation-log">操作日志</el-menu-item>
+        </el-sub-menu>
       </el-menu>
     </el-aside>
     <el-container>
@@ -81,7 +90,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/user'
-import { HomeFilled, Document, Folder, Box, Tools, CircleCheck } from '@element-plus/icons-vue'
+import { HomeFilled, Document, Folder, Box, Tools, CircleCheck, Monitor, FileText } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()

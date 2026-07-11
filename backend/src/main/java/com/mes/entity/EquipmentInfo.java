@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -27,5 +28,13 @@ public class EquipmentInfo {
 
     private LocalDate purchaseDate;
 
+    private LocalDateTime lastMaintainDate;
+
+    private LocalDateTime nextMaintainDate;
+
+    private BigDecimal runningHours;
+
     private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 }

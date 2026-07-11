@@ -50,4 +50,9 @@ public class BarcodeUtil {
         return "EX" + LocalDateTime.now().format(DATETIME_FORMAT)
                 + String.format("%04d", (int) (Math.random() * 10000));
     }
+
+    public static String generateMaintainNo() {
+        return "MT" + LocalDateTime.now().format(DATETIME_FORMAT)
+                + String.format("%04d", (int) (Math.random() * 10000));
+    }
 }

@@ -62,6 +62,12 @@ const routes = [
         meta: { title: '设备档案' }
       },
       {
+        path: 'equipment-monitor',
+        name: 'EquipmentMonitor',
+        component: () => import('../views/equipment-monitor/index.vue'),
+        meta: { title: '设备监控' }
+      },
+      {
         path: 'stock',
         name: 'Stock',
         component: () => import('../views/stock/index.vue'),
@@ -114,6 +120,12 @@ const routes = [
         name: 'ExceptionWorkbench',
         component: () => import('../views/exception-workbench/index.vue'),
         meta: { title: '异常处理' }
+      },
+      {
+        path: 'operation-log',
+        name: 'OperationLog',
+        component: () => import('../views/operation-log/index.vue'),
+        meta: { title: '操作日志' }
       }
     ]
   }
