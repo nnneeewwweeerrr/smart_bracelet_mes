@@ -1,0 +1,851 @@
+﻿姝ｅ湪缂栬瘧涓?..
+node.exe : (node:57208) Warning: Accessing non-existent property 'finally' of module exports inside circular dependency
+所在位置 行:1 字符: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:57208) Wa...ular dependency:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(Use `node --trace-warnings ...` to show where the warning was created)
+2026-07-10T13:25:28.153Z vite:config bundled config file loaded in 464.92ms
+
+uni-app 鏈夋柊鐗堟湰鍙戝竷锛岃鎵ц `npx @dcloudio/uvm@latest` 鏇存柊锛屾洿鏂版棩蹇楄瑙侊細https://download1.dcloud.net.cn/hbuilderx/changelog/5.15.2026070915.html
+2026-07-10T13:25:28.300Z vite:config using resolved config: {
+  plugins: [
+    'uni:pre',
+    'vite:build-metadata',
+    'vite:watch-package-data',
+    'vite:pre-alias',
+    'alias',
+    'uni:automator',
+    'uni:cloud',
+    'uni:cloud-vf',
+    'uni:push',
+    'uni:stat',
+    'uni:mp-main-js',
+    'uni:mp-manifest-json',
+    'uni:mp-pages-json',
+    'uni:virtual',
+    'vite:modulepreload-polyfill',
+    'uni:resolve-id',
+    'vite:resolve',
+    'vite:html-inline-proxy',
+    'vite:css',
+    'uni:pre-css',
+    'vite:esbuild',
+    'uni:json',
+    'vite:json',
+    'vite:wasm-helper',
+    'vite:worker',
+    'uni:static',
+    'vite:asset',
+    'uni:pre-vue',
+    'vite:vue',
+    'uni:ssr:ref',
+    'uni',
+    'uni:cloud',
+    'uni:mp-weixin',
+    'uni:mp-renderjs',
+    'uni:mp',
+    'uni:copy',
+    'vite:wasm-fallback',
+    'vite:define',
+    'vite:css-post',
+    'vite:build-html',
+    'vite:worker-import-meta-url',
+    'vite:asset-import-meta-url',
+    'vite:force-systemjs-wrap-complete',
+    'commonjs',
+    'vite:data-uri',
+    'vite:dynamic-import-vars',
+    'vite:import-glob',
+    'uni:cloud-inject',
+    'uni:mp-inject',
+    'uni:mp-runtime-hooks',
+    'uni:mp-using-component',
+    'vite:build-import-analysis',
+    'vite:esbuild-transpile',
+    'vite:terser',
+    'vite:reporter',
+    'vite:load-fallback'
+  ],
+  server: {
+    preTransformRequests: true,
+    port: 5173,
+    proxy: { '/api': [Object] },
+    sourcemapIgnoreList: [Function: isInNodeModules$1],
+    middlewareMode: false,
+    fs: {
+      strict: true,
+      allow: [Array],
+      deny: [Array],
+      cachedChecks: undefined
+    }
+  },
+  root: 'D:/soft/workplace/smart_bracelet_mes-master/mini-app',
+  mode: 'production',
+  build: {
+    target: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+    cssTarget: 'chrome53',
+    outDir: 'D:\\soft\\workplace\\smart_bracelet_mes-master\\mini-app\\dist\\build\\mp-weixin',
+    assetsDir: 'assets',
+    assetsInlineLimit: 40960,
+    cssCodeSplit: false,
+    sourcemap: false,
+    rollupOptions: { onwarn: [Function: onwarn], output: [Object], input: [Object] },
+    minify: 'terser',
+    terserOptions: {},
+    write: true,
+    emptyOutDir: false,
+    copyPublicDir: true,
+    manifest: false,
+    lib: {
+      fileName: 'app.js',
+      entry: 'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/main.js',
+      formats: [Array]
+    },
+    ssr: false,
+    ssrManifest: false,
+    ssrEmitAssets: false,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 100000000,
+    watch: null,
+    commonjsOptions: { include: [Array], extensions: [Array] },
+    dynamicImportVarsOptions: { warnOnError: true, exclude: [Array] },
+    modulePreload: { polyfill: true },
+    cssMinify: true
+  },
+  define: {
+    'process.env.UNI_SECURE_NETWORK_ENABLE': false,
+    'process.env.UNI_SECURE_NETWORK_CONFIG': '[]',
+    'process.env.UNI_STAT_TITLE_JSON': '{"pages/login/index":"鐧诲綍","pages/workbench/index":"宸ヤ綔鍙?,"pages/workbench/stat
+s":"鐢熶骇缁熻","pages/scan/index":"鎵爜","pages/stock/index":"浠撳偍鎿嶄綔","pages/stock/scan-in":"鎵爜鍏ュ簱","pages/stock/scan-out"
+:"鎵爜鍑哄簱","pages/stock/material":"鐗╂枡鏌ヨ","pages/stock/check":"搴撳瓨鐩樼偣","pages/stock/record":"鍑哄叆搴撹褰?,"pages/production
+/index":"鐢熶骇鎶ュ伐","pages/production/workorder":"鎴戠殑宸ュ崟","pages/production/report":"宸ュ簭鎶ュ伐","pages/production/sop":"SOP鏌ョ
+湅","pages/production/detail":"宸ュ崟璇︽儏","pages/production/trace":"杩芥函鏌ヨ","pages/quality/index":"璐ㄦ褰曞叆","pages/quality/i
+qc":"IQC妫€楠屽綍鍏?,"pages/quality/task":"璐ㄦ浠诲姟","pages/exception/index":"寮傚父绠＄悊","pages/exception/create":"寮傚父涓婃姤","pages
+/exception/pending":"寰呭鐞嗗紓甯?,"pages/mine/index":"涓汉涓績","pages/mine/todo":"寰呭姙浠诲姟","pages/mine/log":"鎿嶄綔璁板綍","pages/m
+ine/profile":"涓汉淇℃伅"}',
+    __VUE_OPTIONS_API__: true,
+    __VUE_PROD_DEVTOOLS__: false,
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+    __VUE_I18N_FULL_INSTALL__: true,
+    __VUE_I18N_LEGACY_API__: true,
+    __VUE_I18N_PROD_DEVTOOLS__: false,
+    __INTLIFY_PROD_DEVTOOLS__: false,
+    'process.env.NODE_ENV': '"production"',
+    'process.env.UNI_DEBUG': false,
+    'process.env.UNI_APP_ID': '"__UNI__SMART_BRACELET_MES"',
+    'process.env.UNI_APP_NAME': '"鏅鸿兘鎵嬬幆MES绯荤粺"',
+    'process.env.UNI_APP_VERSION_NAME': '"1.0.0"',
+    'process.env.UNI_APP_VERSION_CODE': '"100"',
+    'process.env.UNI_PLATFORM': '"mp-weixin"',
+    'process.env.UNI_SUB_PLATFORM': '""',
+    'process.env.UNI_MP_PLUGIN': '""',
+    'process.env.UNI_SUBPACKAGE': '""',
+    'process.env.UNI_COMPILER_VERSION': '"4.24"',
+    'process.env.RUN_BY_HBUILDERX': false,
+    'process.env.UNI_AUTOMATOR_WS_ENDPOINT': '""',
+    'process.env.UNI_AUTOMATOR_APP_WEBVIEW_SRC': '""',
+    'process.env.UNI_CLOUD_PROVIDER': '"[]"',
+    'process.env.UNICLOUD_DEBUG': '""',
+    'process.env.VUE_APP_PLATFORM': '"mp-weixin"',
+    'process.env.VUE_APP_DARK_MODE': 'false',
+    __VUE_CREATED_DEFERRED__: false
+  },
+  resolve: {
+    mainFields: [ 'browser', 'module', 'jsnext:main', 'jsnext' ],
+    conditions: [],
+    extensions: [
+      '.uts',  '.mjs',
+      '.js',   '.ts',
+      '.jsx',  '.tsx',
+      '.json', '.vue',
+      '.nvue', '.uvue'
+    ],
+    dedupe: [ 'vue' ],
+    preserveSymlinks: true,
+    alias: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object]
+    ]
+  },
+  ssr: {
+    target: 'node',
+    external: [],
+    optimizeDeps: { noDiscovery: true, esbuildOptions: [Object] }
+  },
+  base: '/',
+  publicDir: 'D:/soft/workplace/smart_bracelet_mes-master/mini-app/__static__',
+  logLevel: 'warn',
+  optimizeDeps: {
+    holdUntilCrawlEnd: true,
+    exclude: [
+      'vue',
+      'vuex',
+      'vue-i18n',
+      'vue-router',
+      '@dcloudio/uni-app',
+      '@dcloudio/uni-components',
+      '@dcloudio/uni-i18n',
+      '@dcloudio/uni-shared',
+      '@dcloudio/uni-stacktracey',
+      'pinia'
+    ],
+    noDiscovery: true,
+    include: [],
+    esbuildOptions: { preserveSymlinks: true }
+  },
+  css: {
+    preprocessorOptions: { scss: [Object] },
+    postcss: { plugins: [Array] },
+    lightningcss: undefined
+  },
+  esbuild: {
+    jsxDev: false,
+    include: /\.(tsx?|jsx|uts)$/,
+    exclude: /\.js$/,
+    loader: 'ts'
+  },
+  configFile: 'D:/soft/workplace/smart_bracelet_mes-master/mini-app/vite.config.js',
+  configFileDependencies: [
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/vite.config.js'
+  ],
+  inlineConfig: {
+    root: 'D:\\soft\\workplace\\smart_bracelet_mes-master\\mini-app',
+    configFile: undefined,
+    base: undefined,
+    logLevel: undefined,
+    clearScreen: undefined,
+    mode: 'production',
+    build: {
+      emptyOutDir: true,
+      outDir: 'D:\\soft\\workplace\\smart_bracelet_mes-master\\mini-app\\dist\\build\\mp-weixin'
+    }
+  },
+  decodedBase: '/',
+  rawBase: '/',
+  cacheDir: 'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/.vite',
+  command: 'build',
+  isWorker: false,
+  mainConfig: null,
+  bundleChain: [],
+  isProduction: true,
+  preview: {
+    port: undefined,
+    strictPort: undefined,
+    host: undefined,
+    allowedHosts: undefined,
+    https: undefined,
+    open: undefined,
+    proxy: { '/api': [Object] },
+    cors: undefined,
+    headers: undefined
+  },
+  envDir: 'D:/soft/workplace/smart_bracelet_mes-master/mini-app',
+  env: {
+    VITE_CJS_IGNORE_WARNING: 'true',
+    VITE_ROOT_DIR: 'D:\\soft\\workplace\\smart_bracelet_mes-master\\mini-app',
+    VITE_USER_NODE_ENV: 'production',
+    BASE_URL: '/',
+    MODE: 'production',
+    DEV: false,
+    PROD: true
+  },
+  assetsInclude: [Function: assetsInclude],
+  logger: {
+    hasWarned: false,
+    info: [Function (anonymous)],
+    warn: [Function (anonymous)],
+    warnOnce: [Function: warnOnce],
+    error: [Function (anonymous)],
+    clearScreen: [Function: clearScreen],
+    hasErrorLogged: [Function: hasErrorLogged]
+  },
+  packageCache: Map(1) {
+    'fnpd_D:/soft/workplace/smart_bracelet_mes-master/mini-app' => {
+      dir: 'D:/soft/workplace/smart_bracelet_mes-master/mini-app',
+      data: [Object],
+      hasSideEffects: [Function: hasSideEffects],
+      webResolvedImports: {},
+      nodeResolvedImports: {},
+      setResolvedCache: [Function: setResolvedCache],
+      getResolvedCache: [Function: getResolvedCache]
+    },
+    set: [Function (anonymous)]
+  },
+  createResolver: [Function: createResolver],
+  worker: { format: 'iife', plugins: '() => plugins', rollupOptions: {} },
+  appType: 'spa',
+  experimental: { importGlobRestoreExtension: false, hmrPartialAccept: false },
+  webSocketToken: '716vMmCPITen',
+  additionalAllowedHosts: [],
+  getSortedPlugins: [Function: getSortedPlugins],
+  getSortedPluginHooks: [Function: getSortedPluginHooks]
+}
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\App.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+    鈺?104 鈹?@import 'uview-plus/index.scss';
+    鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+    鈺?    src\App.vue 104:9  root stylesheet
+
+2026-07-10T13:25:28.789Z vite:resolve [32m0.76ms[39m [36muview-plus/theme.scss[39m -> [2mD:/soft/workplace/smart_b
+racelet_mes-master/mini-app/node_modules/uview-plus/theme.scss[22m
+2026-07-10T13:25:28.812Z vite:resolve [32m0.71ms[39m [36muview-plus/index.scss[39m -> [2mD:/soft/workplace/smart_b
+racelet_mes-master/mini-app/node_modules/uview-plus/index.scss[22m
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?2 鈹?@import "./libs/css/theme-vars.scss";
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    node_modules\uview-plus\index.scss 2:9  @import
+    src\App.vue 104:9                       root stylesheet
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?3 鈹?@import "./libs/css/theme-legacy-bridge.scss";
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    node_modules\uview-plus\index.scss 3:9  @import
+    src\App.vue 104:9                       root stylesheet
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?7 鈹?@import "./libs/css/common.scss";
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    node_modules\uview-plus\index.scss 7:9  @import
+    src\App.vue 104:9                       root stylesheet
+
+WARNING: 8 repetitive deprecation warnings omitted.
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\workbench\index.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\login\index.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\scan\index.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\stock\index.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [strict-unary]: This operation is parsed as:
+
+    0 - $spacing-sm
+
+but you may have intended it to mean:
+
+    0 (-$spacing-sm)
+
+Add a space after - to clarify that it's meant to be a binary operation, or wrap
+it in parentheses to make it a unary operation. This will be an error in future
+versions of Sass.
+
+More info and automated migrator: https://sass-lang.com/d/strict-unary
+
+    鈺?154 鈹?  margin: 0 -$spacing-sm;
+    鈹?          ^^^^^^^^^^^^^^
+    鈺?    src\pages\stock\index.vue 154:11  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\workbench\stats.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\stock\scan-out.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\stock\check.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\stock\material.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\production\index.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [strict-unary]: This operation is parsed as:
+
+    0 - $spacing-sm
+
+but you may have intended it to mean:
+
+    0 (-$spacing-sm)
+
+Add a space after - to clarify that it's meant to be a binary operation, or wrap
+it in parentheses to make it a unary operation. This will be an error in future
+versions of Sass.
+
+More info and automated migrator: https://sass-lang.com/d/strict-unary
+
+    鈺?154 鈹?  margin: 0 -$spacing-sm;
+    鈹?          ^^^^^^^^^^^^^^
+    鈺?    src\pages\production\index.vue 154:11  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\stock\scan-in.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\stock\record.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\production\report.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\production\workorder.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\production\trace.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\production\detail.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\production\sop.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\quality\index.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [strict-unary]: This operation is parsed as:
+
+    0 - $spacing-sm
+
+but you may have intended it to mean:
+
+    0 (-$spacing-sm)
+
+Add a space after - to clarify that it's meant to be a binary operation, or wrap
+it in parentheses to make it a unary operation. This will be an error in future
+versions of Sass.
+
+More info and automated migrator: https://sass-lang.com/d/strict-unary
+
+    鈺?153 鈹?  margin: 0 -$spacing-sm;
+    鈹?          ^^^^^^^^^^^^^^
+    鈺?    src\pages\quality\index.vue 153:11  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\quality\task.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\exception\create.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\quality\iqc.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\mine\todo.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\exception\pending.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\exception\index.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [strict-unary]: This operation is parsed as:
+
+    0 - $spacing-sm
+
+but you may have intended it to mean:
+
+    0 (-$spacing-sm)
+
+Add a space after - to clarify that it's meant to be a binary operation, or wrap
+it in parentheses to make it a unary operation. This will be an error in future
+versions of Sass.
+
+More info and automated migrator: https://sass-lang.com/d/strict-unary
+
+    鈺?153 鈹?  margin: 0 -$spacing-sm;
+    鈹?          ^^^^^^^^^^^^^^
+    鈺?    src\pages\exception\index.vue 153:11  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\mine\index.vue 1:9  root stylesheet
+
+DEPRECATION WARNING [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+
+More info: https://sass-lang.com/d/legacy-js-api
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  鈺?1 鈹?@import 'uview-plus/theme.scss';
+  鈹?        ^^^^^^^^^^^^^^^^^^^^^^^
+  鈺?    src\pages\mine\log.vue 1:9  root stylesheet
+
+[31mx[39m Build failed in 1.29s
+[31m[vite:css] Undefined variable.
+    鈺?128 鈹?    background: $error-light-5;
+    鈹?                ^^^^^^^^^^^^^^
+    鈺?  src\pages\quality\index.vue 128:17  root stylesheet[39m
+file: [36mD:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/quality/index.vue?vue&type=style&index=0&scop
+ed=9c4cb4aa&lang.scss[39m
+[33m
+Error: Undefined variable.
+    鈺?128 鈹?    background: $error-light-5;
+    鈹?                ^^^^^^^^^^^^^^
+    鈺?  src\pages\quality\index.vue 128:17  root stylesheet
+[39m
+    at Object.wrapException (D:\soft\workplace\smart_bracelet_mes-master\mini-app\node_modules\sass\sass.dart.js:2337:4
+7)
+    at D:\soft\workplace\smart_bracelet_mes-master\mini-app\node_modules\sass\sass.dart.js:91579:23
+    at _wrapJsFunctionForAsync_closure.$protected (D:\soft\workplace\smart_bracelet_mes-master\mini-app\node_modules\sa
+ss\sass.dart.js:5005:15)
+    at _wrapJsFunctionForAsync_closure.call$2 (D:\soft\workplace\smart_bracelet_mes-master\mini-app\node_modules\sass\s
+ass.dart.js:38746:12)
+    at Object._asyncStartSync (D:\soft\workplace\smart_bracelet_mes-master\mini-app\node_modules\sass\sass.dart.js:4969
+:20)
+    at _EvaluateVisitor2.visitVariableExpression$body$_EvaluateVisitor0 (D:\soft\workplace\smart_bracelet_mes-master\mi
+ni-app\node_modules\sass\sass.dart.js:91585:16)
+    at _EvaluateVisitor2.visitVariableExpression$1 (D:\soft\workplace\smart_bracelet_mes-master\mini-app\node_modules\s
+ass\sass.dart.js:91559:19)
+    at VariableExpression0.accept$1$1 (D:\soft\workplace\smart_bracelet_mes-master\mini-app\node_modules\sass\sass.dart
+.js:129886:22)
+    at VariableExpression0.accept$1 (D:\soft\workplace\smart_bracelet_mes-master\mini-app\node_modules\sass\sass.dart.j
+s:129889:19)
+    at D:\soft\workplace\smart_bracelet_mes-master\mini-app\node_modules\sass\sass.dart.js:89594:41 {
+  formatted: 'Error: Undefined variable.\n' +
+    '    鈺穃n' +
+    '128 鈹?    background: $error-light-5;\r\n' +
+    '    鈹?                ^^^^^^^^^^^^^^\n' +
+    '    鈺礬n' +
+    '  src\\pages\\quality\\index.vue 128:17  root stylesheet',
+  line: 128,
+  column: 17,
+  file: 'D:\\soft\\workplace\\smart_bracelet_mes-master\\mini-app\\src\\pages\\quality\\index.vue',
+  status: 1,
+  id: 'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/quality/index.vue?vue&type=style&index=0&scoped=9
+c4cb4aa&lang.scss',
+  frame: 'Error: Undefined variable.\n' +
+    '    鈺穃n' +
+    '128 鈹?    background: $error-light-5;\r\n' +
+    '    鈹?                ^^^^^^^^^^^^^^\n' +
+    '    鈺礬n' +
+    '  src\\pages\\quality\\index.vue 128:17  root stylesheet',
+  code: 'PLUGIN_ERROR',
+  plugin: 'vite:css',
+  hook: 'transform',
+  watchFiles: [
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/main.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/@dcloudio/uni-mp-vue/dist/vue.runtime.esm.js',
+    'D:\\soft\\workplace\\smart_bracelet_mes-master\\mini-app\\package.json',
+    'D:\\soft\\workplace\\smart_bracelet_mes-master\\mini-app\\node_modules\\@vue\\shared\\dist\\shared.esm-bundler.js'
+,
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/@dcloudio/uni-mp-weixin/dist/uni.api.esm.js',
+    'D:\\soft\\workplace\\smart_bracelet_mes-master\\mini-app\\node_modules\\@dcloudio\\uni-shared\\dist\\uni-shared.es
+.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/index.js',
+    'D:\\soft\\workplace\\smart_bracelet_mes-master\\mini-app\\src\\pages.json',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/login/index.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/workbench/index.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/workbench/stats.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/scan/index.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/stock/index.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/stock/scan-in.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/stock/scan-out.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/stock/material.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/stock/check.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/stock/record.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/production/index.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/production/workorder.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/production/report.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/production/sop.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/production/detail.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/production/trace.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/quality/index.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/quality/iqc.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/quality/task.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/exception/index.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/exception/create.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/exception/pending.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/mine/index.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/mine/todo.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/mine/log.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/pages/mine/profile.vue',
+    'D:\\soft\\workplace\\smart_bracelet_mes-master\\mini-app\\src\\manifest.json',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/mixin/mpMixin.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/util/route.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/function/throttle.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/function/debounce.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/mixin/mixin.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/function/test.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/function/calc.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/function/colorGradient.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/function/index.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/config/props.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/config/config.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/function/platform.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/config/zIndex.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/function/digit.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/config/color.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-icon/util.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/function/http.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/i18n/index.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/theme/theme.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/libs/theme/runtime.js',
+    'D:\\soft\\workplace\\smart_bracelet_mes-master\\mini-app\\node_modules\\@dcloudio\\uni-i18n\\dist\\uni-i18n.es.js'
+,
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/src/App.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/@dcloudio/uni-mp-weixin/dist/uni.mp.esm.js',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-avatar/u-avatar.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-icon/u-icon.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-badge/u-badge.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-empty/u-empty.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-tag/u-tag.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-input/u-input.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-form-item/u-form-item.vu
+e',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-form/u-form.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-button/u-button.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-picker/u-picker.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-search/u-search.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-tabs/u-tabs.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-popup/u-popup.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-textarea/u-textarea.vue'
+,
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-radio/u-radio.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-radio-group/u-radio-grou
+p.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-cell/u-cell.vue',
+    'D:/soft/workplace/smart_bracelet_mes-master/mini-app/node_modules/uview-plus/components/u-cell-group/u-cell-group.
+vue'
+  ]
+}
+Build failed with errors.
