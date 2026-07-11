@@ -19,3 +19,11 @@ export const update = (data) => {
 export const remove = (id) => {
   return request.delete('/equipment/delete/' + id)
 }
+
+export const getStatistics = () => {
+  return request.get('/equipment/statistics')
+}
+
+export const getStatusList = () => {
+  return request.get('/equipment/status-list')
+}

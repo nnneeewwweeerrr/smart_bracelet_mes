@@ -241,9 +241,29 @@ CREATE TABLE IF NOT EXISTS `equipment_info` (
     `status` INT DEFAULT 1 COMMENT '设备状态(0停用,1运行,2维修)',
     `location` VARCHAR(100) COMMENT '设备位置',
     `purchase_date` DATETIME COMMENT '购入日期',
+    `last_maintain_date` DATETIME COMMENT '上次保养日期',
+    `next_maintain_date` DATETIME COMMENT '下次保养日期',
+    `running_hours` DECIMAL(10,2) DEFAULT 0 COMMENT '运行时长(小时)',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX `idx_equipment_code` (`equipment_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设备表';
+
+CREATE TABLE IF NOT EXISTS `equipment_maintain` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '保养记录ID',
+    `maintain_no` VARCHAR(50) UNIQUE COMMENT '保养单号',
+    `equipment_id` BIGINT COMMENT '设备ID',
+    `maintain_type` VARCHAR(50) COMMENT '保养类型(日常保养/定期保养/专项保养)',
+    `maintain_date` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '保养日期',
+    `maintain_content` TEXT COMMENT '保养内容',
+    `maintain_result` VARCHAR(20) COMMENT '保养结果(正常/异常/待处理)',
+    `maintainer_id` BIGINT COMMENT '保养人ID',
+    `maintainer_name` VARCHAR(50) COMMENT '保养人姓名',
+    `remark` TEXT COMMENT '备注',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    INDEX `idx_maintain_no` (`maintain_no`),
+    INDEX `idx_equipment_id` (`equipment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设备保养记录表';
 
 CREATE TABLE IF NOT EXISTS `exception_record` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '异常ID',

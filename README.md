@@ -24,7 +24,7 @@
 | 生产管理 | 生产计划、工单管理、生产报工、工艺路线、SOP | ✅ 已完成 |
 | 质量管理 | IQC来料检验、IPQC工序检验、OQC成品检验、检验报告 | ✅ 已完成 |
 | 异常处理 | 异常上报、等级判定、处理闭环、批次追溯 | ✅ 已完成 |
-| 设备管理 | 设备台账、维护保养、设备状态监控 | ⏳ 待开发 |
+| 设备管理 | 设备台账、维护保养、设备状态监控 | ✅ 已完成 |
 | 小程序端 | 现场扫码报工、质检、异常上报 | ⏳ 待开发 |
 
 ## 项目结构
@@ -55,8 +55,10 @@ SmartBraceletMES/
 │   │   │   ├── CustomerController.java   # 客户档案接口（/api/customer）
 │   │   │   ├── MaterialController.java   # 物料档案接口（/api/material）
 │   │   │   ├── ProductController.java    # 产品档案接口（/api/product）
-│   │   │   ├── EquipmentController.java  # 设备档案接口（/api/equipment）
-│   │   │   ├── WarehouseController.java  # 仓库管理接口（/api/warehouse）
+│   │   │   ├── EquipmentController.java        # 设备档案接口（/api/equipment）
+│   │   │   ├── EquipmentMaintainController.java # 设备保养接口（/api/equipment-maintain）
+│   │   │   ├── OperationLogController.java      # 操作日志接口（/api/operation-log）
+│   │   │   ├── WarehouseController.java         # 仓库管理接口（/api/warehouse）
 │   │   │   ├── StockController.java      # 库存查询接口（/api/stock）
 │   │   │   ├── StockInController.java    # 入库记录接口（/api/stock-in）
 │   │   │   ├── StockOutController.java   # 出库记录接口（/api/stock-out）
@@ -83,8 +85,9 @@ SmartBraceletMES/
 │   │   │   ├── CustomerInfo.java         # 客户
 │   │   │   ├── MaterialInfo.java         # 物料
 │   │   │   ├── ProductInfo.java          # 产品
-│   │   │   ├── EquipmentInfo.java        # 设备
-│   │   │   ├── WarehouseInfo.java        # 仓库
+│   │   │   ├── EquipmentInfo.java         # 设备
+│   │   │   ├── EquipmentMaintain.java     # 设备保养记录
+│   │   │   ├── WarehouseInfo.java         # 仓库
 │   │   │   ├── StockInfo.java            # 库存
 │   │   │   ├── StockIn.java              # 入库单
 │   │   │   ├── StockOut.java             # 出库单
@@ -138,14 +141,18 @@ SmartBraceletMES/
 │   │   │   ├── process.js                # 工艺管理
 │   │   │   ├── qualityTask.js            # 质检任务
 │   │   │   ├── qualityResult.js          # 质检结果
-│   │   │   └── exception.js              # 异常记录
+│   │   │   ├── exception.js              # 异常记录
+│   │   │   ├── equipmentMaintain.js      # 设备保养
+│   │   │   ├── operationLog.js           # 操作日志
+│   │   │   └── dict.js                   # 数据字典
 │   │   ├── router/                       # 路由配置
 │   │   │   └── index.js                  # 路由表 + 路由守卫（未登录跳登录页）
 │   │   ├── stores/                       # Pinia 状态管理
 │   │   │   └── user.js                   # 用户信息 & Token 存储
 │   │   ├── components/                   # 通用组件
 │   │   │   ├── BaseTable.vue             # 通用表格（分页、加载状态）
-│   │   │   └── SearchForm.vue            # 通用搜索表单
+│   │   │   ├── SearchForm.vue            # 通用搜索表单
+│   │   │   └── DictSelect.vue            # 数据字典下拉选择组件
 │   │   └── views/                        # 页面视图
 │   │       ├── login/                    # 登录页
 │   │       ├── layout/                   # 后台整体布局（侧边栏 + 顶部 + 内容区）
@@ -157,7 +164,8 @@ SmartBraceletMES/
 │   │       ├── material/                 # 物料档案页（含扫码查物料）
 │   │       ├── product/                  # 产品档案页
 │   │       ├── equipment/                # 设备档案页
-│   │       ├── stock/                    # 库存查询页
+│   │       ├── equipment-monitor/         # 设备状态监控仪表盘
+│   │       ├── stock/                     # 库存查询页
 │   │       ├── stock-in/                 # 入库记录页
 │   │       ├── stock-out/                # 出库记录页
 │   │       ├── stock-flow/               # 库存流水页
@@ -165,7 +173,8 @@ SmartBraceletMES/
 │   │       ├── production-progress/      # 生产进度监控页
 │   │       ├── process-config/           # 工艺配置页
 │   │       ├── quality-record/           # 质检记录页
-│   │       └── exception-workbench/      # 异常处理工作台
+│   │       ├── exception-workbench/      # 异常处理工作台
+│   │       └── operation-log/            # 操作日志查看页
 │   ├── public/                           # 静态资源
 │   ├── index.html                        # HTML 模板
 │   ├── vite.config.js                    # Vite 配置（代理 /api → 后端 8080）
@@ -181,7 +190,7 @@ SmartBraceletMES/
 │   └── 05-项目管理/                      # 开发排期 / 团队开发规范
 │
 ├── sql/                                  # 【数据库】脚本
-│   ├── schema.sql                        # 建表脚本（24 张业务表）
+│   ├── schema.sql                        # 建表脚本（25 张业务表）
 │   └── init_data.sql                     # 初始化数据（管理员、角色、字典、基础数据）
 │
 ├── .gitignore                            # Git 忽略配置
