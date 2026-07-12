@@ -51,6 +51,8 @@ yarn.lock
 # Build output
 dist/
 build/
+build-output*.txt
+build-log.txt
 
 # Environment variables
 .env

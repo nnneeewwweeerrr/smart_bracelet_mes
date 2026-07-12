@@ -26,10 +26,16 @@
     <el-card class="table-card" shadow="never">
       <div class="table-header">
         <span class="table-title">生产工单列表</span>
-        <el-button type="primary" @click="handleAdd">
-          <el-icon><Plus /></el-icon>
-          新增工单
-        </el-button>
+        <div class="header-btns">
+          <el-button type="primary" plain @click="handleAskAi">
+            <el-icon><ChatDotRound /></el-icon>
+            问AI
+          </el-button>
+          <el-button type="primary" @click="handleAdd">
+            <el-icon><Plus /></el-icon>
+            新增工单
+          </el-button>
+        </div>
       </div>
 
       <el-table v-loading="loading" :data="tableData" border stripe style="width: 100%">
@@ -499,6 +505,20 @@ function handleView(row) {
   detailVisible.value = true
 }
 
+function handleAskAi() {
+  let question
+  if (currentWorkOrder.workOrderNo) {
+    const statusText = getStatusText(currentWorkOrder.status)
+    const progress = currentWorkOrder.quantity
+      ? Math.round(currentWorkOrder.finishedQuantity / currentWorkOrder.quantity * 100)
+      : 0
+    question = `请帮我分析工单「${currentWorkOrder.workOrderNo}」的生产进度和状态。当前状态为「${statusText}」，计划数量${currentWorkOrder.quantity}，已完成${currentWorkOrder.finishedQuantity}，完成进度${progress}%，请给出进度分析和后续建议。`
+  } else {
+    question = '请帮我分析当前生产工单的整体进度和状态情况，包括各工单的完成情况和需要注意的事项。'
+  }
+  window.dispatchEvent(new CustomEvent('ask-ai', { detail: { question } }))
+}
+
 function handleViewSop(row) {
   const firstProcess = row.processList && row.processList.length > 0 ? row.processList[0] : null
   const processId = firstProcess?.id || row.id
@@ -648,6 +668,12 @@ async function handleSubmit() {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+}
+
+.header-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .table-title {

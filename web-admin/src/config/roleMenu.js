@@ -49,14 +49,23 @@ export const roleMenus = {
       ]
     },
     {
-      title: '系统管理',
-      icon: 'Tools',
-      children: [
-        { path: 'system', title: '系统设置', icon: 'Tools' },
-        { path: 'operation-log', title: '操作日志', icon: 'Notebook' }
-      ]
-    }
-  ],
+        title: '系统管理',
+        icon: 'Tools',
+        children: [
+          { path: 'system', title: '系统设置', icon: 'Tools' },
+          { path: 'operation-log', title: '操作日志', icon: 'Notebook' }
+        ]
+      },
+      {
+        title: 'AI助手',
+        icon: 'MagicStick',
+        children: [
+          { path: 'knowledge-base', title: '知识库管理', icon: 'DataBoard' },
+          { path: 'knowledge-graph', title: '知识图谱', icon: 'Share' },
+          { path: 'ai-stats', title: '问答统计', icon: 'DataLine' }
+        ]
+      }
+    ],
   order_clerk: [
     { path: 'dashboard', title: '首页看板', icon: 'Odometer' },
     {

@@ -158,6 +158,24 @@ const routes = [
         name: 'OperationLog',
         component: () => import('../views/operation-log/index.vue'),
         meta: { title: '操作日志', icon: 'Notebook' }
+      },
+      {
+        path: 'knowledge-base',
+        name: 'KnowledgeBase',
+        component: () => import('../views/knowledge-base/index.vue'),
+        meta: { title: '知识库管理', icon: 'DataBoard' }
+      },
+      {
+        path: 'knowledge-graph',
+        name: 'KnowledgeGraph',
+        component: () => import('../views/knowledge-graph/index.vue'),
+        meta: { title: '知识图谱', icon: 'Share' }
+      },
+      {
+        path: 'ai-stats',
+        name: 'AiStats',
+        component: () => import('../views/ai-stats/index.vue'),
+        meta: { title: '问答统计', icon: 'DataLine' }
       }
     ]
   }

@@ -26,10 +26,16 @@
     <el-card class="table-card" shadow="never">
       <div class="table-header">
         <span class="table-title">工艺配置列表</span>
-        <el-button type="primary" @click="handleAdd">
-          <el-icon><Plus /></el-icon>
-          新增工艺
-        </el-button>
+        <div class="header-btns">
+          <el-button type="primary" plain @click="handleAskAi">
+            <el-icon><ChatDotRound /></el-icon>
+            问AI
+          </el-button>
+          <el-button type="primary" @click="handleAdd">
+            <el-icon><Plus /></el-icon>
+            新增工艺
+          </el-button>
+        </div>
       </div>
 
       <el-table v-loading="loading" :data="tableData" border stripe style="width: 100%">
@@ -716,6 +722,17 @@ function handleView(row) {
   dialogVisible.value = true
 }
 
+function handleAskAi() {
+  let question
+  if (processForm.id) {
+    const processNames = processForm.processList.map(p => p.processName).filter(Boolean).join('、')
+    question = `请介绍工艺「${processForm.processName}」（编号${processForm.processNo}，版本${processForm.version}）的SOP操作规范。该工艺适用于产品「${processForm.productName}」，包含工序：${processNames || '暂无'}。请详细说明各工序的SOP标准、操作步骤和注意事项。`
+  } else {
+    question = '请介绍当前工艺配置中各工序的SOP操作规范、标准工时和注意事项。'
+  }
+  window.dispatchEvent(new CustomEvent('ask-ai', { detail: { question } }))
+}
+
 function handleDelete(row) {
   ElMessageBox.confirm(`确定要删除工艺「${row.processName}」吗？`, '提示', {
     confirmButtonText: '确定',
@@ -1086,6 +1103,12 @@ async function handleSaveSop() {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+}
+
+.header-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .table-title {

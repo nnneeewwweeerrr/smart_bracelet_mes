@@ -133,6 +133,7 @@
         </el-main>
       </div>
     </el-container>
+    <AiAssistant />
   </el-container>
 </template>
 
@@ -146,6 +147,7 @@ import {
   Search, Watch, Key, Monitor
 } from '@element-plus/icons-vue'
 import { getMenusByRole, roleNames } from '../../config/roleMenu'
+import AiAssistant from '../../components/AiAssistant.vue'
 
 const route = useRoute()
 const router = useRouter()

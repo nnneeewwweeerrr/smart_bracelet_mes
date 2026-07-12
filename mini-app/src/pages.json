@@ -162,6 +162,14 @@
       "style": {
         "navigationBarTitleText": "个人信息"
       }
+    },
+    {
+      "path": "pages/ai/index",
+      "style": {
+        "navigationBarTitleText": "AI生产助手",
+        "navigationBarBackgroundColor": "#1e3a5f",
+        "navigationBarTextStyle": "white"
+      }
     }
   ],
   "tabBar": {

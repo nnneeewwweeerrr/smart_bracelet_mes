@@ -296,3 +296,15 @@ CREATE TABLE IF NOT EXISTS `operation_log` (
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
     INDEX `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
+
+CREATE TABLE IF NOT EXISTS `ai_chat_history` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID',
+    `user_id` VARCHAR(100) COMMENT '用户ID',
+    `user_name` VARCHAR(50) COMMENT '用户名',
+    `question` TEXT NOT NULL COMMENT '用户问题',
+    `answer` TEXT COMMENT 'AI回答',
+    `context` TEXT COMMENT '上下文信息JSON',
+    `chat_status` INT DEFAULT 0 COMMENT '状态(0成功,1失败)',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    INDEX `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI对话记录表';
