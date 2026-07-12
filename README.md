@@ -8,11 +8,14 @@
 
 ## 技术架构
 
-- **后端**: SpringBoot 2.7.x + MyBatis + MySQL
-- **前端管理端**: Vue3 + Vite + Element Plus
+- **后端**: SpringBoot 2.7.15 + MyBatis-Plus 3.5.3 + Spring Security + JWT + MySQL 8.0
+- **前端管理端**: Vue3 + Vite 5 + Element Plus + Pinia + ECharts 5
 - **小程序端**: UniApp
+- **代码规范**: Lombok、雪花ID、单据号自动生成、AOP操作日志
 
 ## 功能模块
+
+### 业务功能
 
 | 模块 | 说明 | 状态 |
 |------|------|------|
@@ -26,6 +29,13 @@
 | 异常处理 | 异常上报、等级判定、处理闭环、批次追溯 | ✅ 已完成 |
 | 设备管理 | 设备台账、维护保养、设备状态监控 | ✅ 已完成 |
 | 小程序端 | 现场扫码报工、质检、异常上报 | ⏳ 待开发 |
+
+### 可视化大屏（答辩演示）
+
+| 大屏名称 | 说明 | 访问路径 | 状态 |
+|----------|------|----------|------|
+| 数字化车间大屏 | 产线实时运行状态：实时产量、产线良率、设备状态、在制分布、TOP不良 | `/big-screen` | ✅ 已完成 |
+| 订单全链路追溯大屏 | 订单从接收到交付的完整生产链路追溯，7个核心环节可视化 | `/trace-screen` | ✅ 已完成 |
 
 ## 项目结构
 
@@ -69,7 +79,9 @@ SmartBraceletMES/
 │   │   │   ├── ProcessController.java          # 工艺管理接口（/api/process）
 │   │   │   ├── QualityTaskController.java      # 质检任务接口（/api/quality-task）
 │   │   │   ├── QualityResultController.java    # 质检结果接口（/api/quality-result）
-│   │   │   └── ExceptionRecordController.java  # 异常记录接口（/api/exception）
+│   │   │   ├── ExceptionRecordController.java  # 异常记录接口（/api/exception）
+│   │   │   ├── BigScreenController.java        # 数字化车间大屏接口（/api/big-screen）
+│   │   │   └── OrderTraceController.java       # 订单全链路追溯接口（/api/trace）
 │   │   ├── service/                      # 业务逻辑层接口
 │   │   │   └── impl/                     # 业务逻辑层实现
 │   │   ├── mapper/                       # 数据访问层（MyBatis Mapper 接口）
@@ -144,7 +156,9 @@ SmartBraceletMES/
 │   │   │   ├── exception.js              # 异常记录
 │   │   │   ├── equipmentMaintain.js      # 设备保养
 │   │   │   ├── operationLog.js           # 操作日志
-│   │   │   └── dict.js                   # 数据字典
+│   │   │   ├── dict.js                   # 数据字典
+│   │   │   ├── bigScreen.js              # 数字化车间大屏
+│   │   │   └── trace.js                  # 订单全链路追溯
 │   │   ├── router/                       # 路由配置
 │   │   │   └── index.js                  # 路由表 + 路由守卫（未登录跳登录页）
 │   │   ├── stores/                       # Pinia 状态管理
@@ -157,6 +171,8 @@ SmartBraceletMES/
 │   │       ├── login/                    # 登录页
 │   │       ├── layout/                   # 后台整体布局（侧边栏 + 顶部 + 内容区）
 │   │       ├── dashboard/                # 首页 / 工作台
+│   │       ├── big-screen/               # 数字化车间大屏（全屏，独立路由）
+│   │       ├── trace-screen/             # 订单全链路追溯大屏（全屏，独立路由）
 │   │       ├── order/                    # 订单管理页
 │   │       ├── purchase/                 # 采购管理页
 │   │       ├── supplier/                 # 供应商管理页
@@ -191,7 +207,9 @@ SmartBraceletMES/
 │
 ├── sql/                                  # 【数据库】脚本
 │   ├── schema.sql                        # 建表脚本（25 张业务表）
-│   └── init_data.sql                     # 初始化数据（管理员、角色、字典、基础数据）
+│   ├── init_data.sql                     # 初始化数据（管理员、角色、字典、基础数据）
+│   ├── sample_data.sql                   # 业务示例数据（每表10条以上，用于演示）
+│   └── supplement_data.sql               # 补充数据（补全数据不足的表）
 │
 ├── .gitignore                            # Git 忽略配置
 ├── LICENSE                               # MIT 开源协议
@@ -224,8 +242,12 @@ SmartBraceletMES/
 # 1. 创建数据库
 mysql -u root -p < sql/schema.sql
 
-# 2. 导入初始数据
+# 2. 导入初始数据（管理员、角色、字典等）
 mysql -u root -p < sql/init_data.sql
+
+# 3. （可选）导入业务示例数据，用于演示和大屏展示
+mysql -u root -p smart_bracelet_mes -e "source sql/sample_data.sql"
+mysql -u root -p smart_bracelet_mes -e "source sql/supplement_data.sql"
 ```
 
 ### 后端启动
@@ -242,7 +264,9 @@ mvn spring-boot:run
 cd web-admin
 npm install
 npm run dev
-# 访问地址: http://localhost:5174
+# 访问地址: http://localhost:5173
+# 数字化车间大屏: http://localhost:5173/big-screen
+# 订单全链路追溯大屏: http://localhost:5173/trace-screen
 ```
 
 ### 小程序端启动
