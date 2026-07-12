@@ -10,6 +10,18 @@ const routes = [
     meta: { title: '登录', requiresAuth: false }
   },
   {
+    path: '/big-screen',
+    name: 'BigScreen',
+    component: () => import('../views/big-screen/index.vue'),
+    meta: { title: '数字化车间大屏', requiresAuth: false }
+  },
+  {
+    path: '/trace-screen',
+    name: 'TraceScreen',
+    component: () => import('../views/trace-screen/index.vue'),
+    meta: { title: '订单全链路追溯大屏', requiresAuth: false }
+  },
+  {
     path: '/',
     component: () => import('../views/layout/index.vue'),
     redirect: '/dashboard',

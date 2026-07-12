@@ -5,6 +5,14 @@
         <h2 class="welcome-title">Hello, {{ userStore.userInfo.realName || '管理员' }} 👋</h2>
         <p class="welcome-desc">Here's your production summary for today</p>
       </div>
+      <div class="welcome-right">
+        <button class="big-screen-btn" @click="goToBigScreen">
+          <span>数字化车间大屏</span>
+        </button>
+        <button class="big-screen-btn trace-btn" @click="goToTraceScreen">
+          <span>订单全链路追溯</span>
+        </button>
+      </div>
     </div>
 
     <el-row :gutter="16" class="stat-row">
@@ -165,6 +173,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import { useUserStore } from '../../stores/user'
 import {
@@ -172,6 +181,7 @@ import {
   Top, Bottom, Minus
 } from '@element-plus/icons-vue'
 
+const router = useRouter()
 const userStore = useUserStore()
 const productionChartRef = ref(null)
 const pieChartRef = ref(null)
@@ -248,6 +258,14 @@ const pieData = [
 const days = ['1月10日', '1月11日', '1月12日', '1月13日', '1月14日', '1月15日', '1月16日']
 const productionData = [820, 932, 901, 934, 1290, 1330, 1280]
 const targetData = [1000, 1000, 1000, 1100, 1200, 1300, 1300]
+
+function goToBigScreen() {
+  router.push('/big-screen')
+}
+
+function goToTraceScreen() {
+  router.push('/trace-screen')
+}
 
 function initProductionChart() {
   if (!productionChartRef.value) return
@@ -687,6 +705,39 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 20px;
+}
+
+.welcome-right {
+  display: flex;
+  align-items: center;
+}
+
+.big-screen-btn {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);
+}
+
+.big-screen-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45);
+}
+
+.trace-btn {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
+  margin-left: 12px;
+}
+
+.trace-btn:hover {
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45);
 }
 
 .welcome-title {
