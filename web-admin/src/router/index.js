@@ -22,6 +22,18 @@ const routes = [
     meta: { title: '订单全链路追溯大屏', requiresAuth: false }
   },
   {
+    path: '/sop-board',
+    name: 'SopBoard',
+    component: () => import('../views/sop-board/index.vue'),
+    meta: { title: 'SOP电子看板', requiresAuth: false }
+  },
+  {
+    path: '/sn-trace',
+    name: 'SnTrace',
+    component: () => import('../views/sn-trace/index.vue'),
+    meta: { title: 'SN全生命周期追溯', requiresAuth: false }
+  },
+  {
     path: '/',
     component: () => import('../views/layout/index.vue'),
     redirect: '/dashboard',

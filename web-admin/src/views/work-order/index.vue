@@ -59,7 +59,7 @@
         <el-table-column prop="planStartDate" label="计划开始" width="110" />
         <el-table-column prop="planEndDate" label="计划完成" width="110" />
         <el-table-column prop="createTime" label="创建时间" width="170" />
-        <el-table-column label="操作" width="280" fixed="right" align="center">
+        <el-table-column label="操作" width="340" fixed="right" align="center">
           <template #default="{ row }">
             <el-button type="primary" link @click="handleView(row)">查看</el-button>
             <el-button
@@ -78,6 +78,7 @@
             >
               开始生产
             </el-button>
+            <el-button type="warning" link @click="handleViewSop(row)">SOP看板</el-button>
             <el-button
               type="danger"
               link
@@ -216,7 +217,10 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+
+const router = useRouter()
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -493,6 +497,15 @@ function handleEdit(row) {
 function handleView(row) {
   Object.assign(currentWorkOrder, row)
   detailVisible.value = true
+}
+
+function handleViewSop(row) {
+  const firstProcess = row.processList && row.processList.length > 0 ? row.processList[0] : null
+  const processId = firstProcess?.id || row.id
+  const processName = firstProcess?.processName || ''
+  const query = { processId }
+  if (processName) query.processName = processName
+  router.push({ path: '/sop-board', query })
 }
 
 function handleDelete(row) {
