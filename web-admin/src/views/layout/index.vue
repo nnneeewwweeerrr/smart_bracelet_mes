@@ -143,7 +143,7 @@ import { useUserStore } from '../../stores/user'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import {
   Fold, Expand, ArrowDown, UserFilled, SwitchButton,
-  Search, Watch
+  Search, Watch, Key, Monitor
 } from '@element-plus/icons-vue'
 import { getMenusByRole, roleNames } from '../../config/roleMenu'
 

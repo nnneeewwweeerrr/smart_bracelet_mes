@@ -37,7 +37,7 @@
               <el-option
                 v-for="item in workOrderList"
                 :key="item.id"
-                :label="item.workOrderNo"
+                :label="item.workNo || item.workOrderNo"
                 :value="item.id"
               />
             </el-select>
@@ -235,7 +235,7 @@
             <div class="panel-content">
               <div class="verify-section">
                 <div class="verify-title">
-                  <el-icon><Package /></el-icon>
+                  <el-icon><Box /></el-icon>
                   物料防错校验
                 </div>
                 <div class="verify-input-group">
@@ -264,7 +264,7 @@
 
               <div class="verify-section">
                 <div class="verify-title">
-                  <el-icon><Settings /></el-icon>
+                  <el-icon><Setting /></el-icon>
                   工艺参数校验
                 </div>
                 <div class="param-input-grid">
@@ -337,9 +337,10 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Document, Warning, Package, Settings } from '@element-plus/icons-vue'
+import { Document, Warning, Box, Setting } from '@element-plus/icons-vue'
 import { getSopByProcessId, verifyMaterial, verifyParams } from '../../api/sop'
 import { getWorkOrderList } from '../../api/workOrder'
+import { getProcessList } from '../../api/process'
 
 const route = useRoute()
 const router = useRouter()
@@ -392,14 +393,22 @@ async function loadWorkOrders() {
   }
 }
 
-function handleWorkOrderChange(val) {
+async function handleWorkOrderChange(val) {
   const order = workOrderList.value.find(o => o.id === val)
-  processList.value = (order?.processList || []).map((p, i) => ({
-    ...p,
-    id: p.id || p.processId || (val * 100 + i),
-    sortOrder: p.sortOrder || i + 1,
-    index: i + 1
-  }))
+  if (order && order.productId) {
+    try {
+      const res = await getProcessList({ productId: order.productId })
+      processList.value = (res.data || []).map((p, i) => ({
+        ...p,
+        sortOrder: p.sortOrder || i + 1,
+        index: i + 1
+      }))
+    } catch (e) {
+      processList.value = []
+    }
+  } else {
+    processList.value = []
+  }
   currentProcessId.value = null
   resetSopDisplay()
 }
@@ -530,7 +539,11 @@ onMounted(async () => {
 
   await loadWorkOrders()
 
-  // 支持通过URL参数直接加载
+  if (workOrderList.value.length > 0) {
+    workOrderId.value = workOrderList.value[0].id
+    await handleWorkOrderChange(workOrderList.value[0].id)
+  }
+
   const processId = route.query.processId
   if (processId) {
     currentProcessId.value = Number(processId)

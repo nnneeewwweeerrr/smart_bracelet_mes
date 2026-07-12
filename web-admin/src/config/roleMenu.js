@@ -35,7 +35,9 @@ export const roleMenus = {
       children: [
         { path: 'work-order', title: '生产工单', icon: 'Tickets' },
         { path: 'production-progress', title: '生产进度', icon: 'TrendCharts' },
-        { path: 'process-config', title: '工艺配置', icon: 'Setting' }
+        { path: 'process-config', title: '工艺配置', icon: 'Setting' },
+        { path: 'sn-trace', title: 'SN全生命周期追溯', icon: 'Key' },
+        { path: 'sop-board', title: 'SOP电子看板', icon: 'Monitor' }
       ]
     },
     {
@@ -125,6 +127,8 @@ export const roleMenus = {
         { path: 'work-order', title: '生产工单', icon: 'Tickets' },
         { path: 'production-progress', title: '生产进度', icon: 'TrendCharts' },
         { path: 'process-config', title: '工艺配置', icon: 'Setting' },
+        { path: 'sn-trace', title: 'SN全生命周期追溯', icon: 'Key' },
+        { path: 'sop-board', title: 'SOP电子看板', icon: 'Monitor' },
         { path: 'equipment', title: '设备档案', icon: 'Cpu' }
       ]
     },

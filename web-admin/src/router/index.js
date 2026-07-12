@@ -124,6 +124,18 @@ const routes = [
         meta: { title: '工艺配置', icon: 'SetUp' }
       },
       {
+        path: 'sn-trace',
+        name: 'SnTrace',
+        component: () => import('../views/sn-trace/index.vue'),
+        meta: { title: 'SN全生命周期追溯', icon: 'Key' }
+      },
+      {
+        path: 'sop-board',
+        name: 'SopBoard',
+        component: () => import('../views/sop-board/index.vue'),
+        meta: { title: 'SOP电子看板', icon: 'Monitor' }
+      },
+      {
         path: 'quality-record',
         name: 'QualityRecord',
         component: () => import('../views/quality-record/index.vue'),
