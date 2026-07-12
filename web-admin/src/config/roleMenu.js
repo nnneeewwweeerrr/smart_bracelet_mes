@@ -166,7 +166,7 @@ export const roleMenus = {
     },
     {
       title: '仓储记录',
-      icon: 'Warehouse',
+      icon: 'Goods',
       children: [
         { path: 'stock-in', title: '入库记录', icon: 'Bottom' },
         { path: 'stock-out', title: '出库记录', icon: 'Top' }

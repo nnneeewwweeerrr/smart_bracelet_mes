@@ -21,7 +21,7 @@
       </el-card>
       <el-card class="stat-card">
         <div class="stat-icon repairing">
-          <el-icon><Wrench /></el-icon>
+          <el-icon><Tools /></el-icon>
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ stats.repairing }}</div>
@@ -119,7 +119,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Monitor, CircleCheck, Wrench, SwitchButton, Clock } from '@element-plus/icons-vue'
+import { Monitor, CircleCheck, Tools, SwitchButton, Clock } from '@element-plus/icons-vue'
 import { getStatistics, getStatusList } from '../../api/equipment'
 
 const router = useRouter()

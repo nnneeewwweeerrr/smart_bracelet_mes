@@ -713,31 +713,32 @@ onUnmounted(() => {
 }
 
 .big-screen-btn {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
-  color: #fff;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 8px;
-  font-size: 14px;
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #e0f2fe;
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);
+  transition: all 0.2s ease;
 }
 
 .big-screen-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45);
+  background: #e0f2fe;
+  border-color: #bae6fd;
 }
 
 .trace-btn {
-  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
-  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ede9fe;
   margin-left: 12px;
 }
 
 .trace-btn:hover {
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45);
+  background: #ede9fe;
+  border-color: #ddd6fe;
 }
 
 .welcome-title {

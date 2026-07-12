@@ -350,10 +350,9 @@ async function doSignin() {
       userStore.token = res.data.token
       localStorage.setItem('token', res.data.token)
       
-      // 根据用户名匹配角色（后端返回roleId，前端映射为角色key）
       const matchedUser = mockUsers.find(u => u.username === signinData.username)
       const role = matchedUser ? matchedUser.role : 'admin'
-      const realName = matchedUser ? matchedUser.realName : signinData.username
+      const realName = res.data.realName || signinData.username
       
       userStore.userInfo = {
         username: signinData.username,
@@ -382,33 +381,31 @@ async function doSignup() {
     await signupRef.value.validate()
     signupLoading.value = true
     
-    try {
-      const res = await register({
-        username: signupData.username,
-        password: signupData.password,
-        confirmPassword: signupData.confirmPassword,
-        realName: signupData.realName,
-        phone: signupData.phone
-      })
-      
-      if (res.code === 200) {
-        ElMessage.success('注册成功，请登录')
-        currentTab.value = 'signin'
-        signinData.username = signupData.username
-        signinData.password = signupData.password
-        signupData.username = ''
-        signupData.realName = ''
-        signupData.phone = ''
-        signupData.password = ''
-        signupData.confirmPassword = ''
-      }
-    } catch (err) {
-      ElMessage.error(err.message || '注册失败')
-    }
+    const res = await register({
+      username: signupData.username,
+      password: signupData.password,
+      realName: signupData.realName,
+      phone: signupData.phone
+    })
     
+    if (res.code === 200) {
+      ElMessage.success('注册成功，请登录')
+      currentTab.value = 'signin'
+      signinData.username = signupData.username
+      signinData.password = signupData.password
+      signupData.username = ''
+      signupData.realName = ''
+      signupData.phone = ''
+      signupData.password = ''
+      signupData.confirmPassword = ''
+    } else {
+      ElMessage.error(res.message || '注册失败')
+    }
     signupLoading.value = false
+    
   } catch (error) {
     signupLoading.value = false
+    ElMessage.error(error.response?.data?.message || '注册失败，请稍后重试')
     console.error('注册失败:', error)
   }
 }

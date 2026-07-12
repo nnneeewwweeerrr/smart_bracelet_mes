@@ -7,7 +7,10 @@
       </div>
       <div class="header-center">
         <div class="title-decoration left"></div>
-        <h1 class="screen-title">智能手环MES · 订单全链路追溯</h1>
+        <div class="screen-title-wrap">
+          <h1 class="screen-title">智能手环MES</h1>
+          <h2 class="screen-title-sub">订单全链路追溯</h2>
+        </div>
         <div class="title-decoration right"></div>
       </div>
       <div class="header-right">
@@ -19,7 +22,12 @@
     <!-- 查询区域 -->
     <div class="search-section">
       <div class="search-box">
-        <div class="search-icon">🔍</div>
+        <div class="search-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+        </div>
         <input
           v-model="searchOrderNo"
           class="search-input"
@@ -50,46 +58,50 @@
     <div class="screen-body" v-loading="loading" element-loading-background="rgba(3,10,26,0.8)">
       <!-- 订单基本信息卡片 -->
       <div v-if="traceData.orderInfo" class="order-info-card">
-        <div class="order-info-left">
-          <div class="order-no-label">订单编号</div>
-          <div class="order-no-value">{{ traceData.orderInfo.orderNo }}</div>
-        </div>
-        <div class="order-info-divider"></div>
-        <div class="order-info-item">
-          <div class="info-label">客户名称</div>
-          <div class="info-value">{{ traceData.orderInfo.customerName }}</div>
-        </div>
-        <div class="order-info-item">
-          <div class="info-label">产品名称</div>
-          <div class="info-value">{{ traceData.orderInfo.productName }}</div>
-        </div>
-        <div class="order-info-item">
-          <div class="info-label">订单数量</div>
-          <div class="info-value highlight">{{ traceData.orderInfo.quantity }} 件</div>
-        </div>
-        <div class="order-info-item">
-          <div class="info-label">订单金额</div>
-          <div class="info-value highlight">¥ {{ formatAmount(traceData.orderInfo.totalAmount) }}</div>
-        </div>
-        <div class="order-info-item">
-          <div class="info-label">订单状态</div>
-          <div class="info-value">
-            <span class="order-status" :class="'order-status-' + traceData.orderInfo.status">
-              {{ traceData.orderInfo.statusText }}
-            </span>
+        <div class="order-info-top">
+          <div class="order-info-left">
+            <div class="order-no-label">订单编号</div>
+            <div class="order-no-value">{{ traceData.orderInfo.orderNo }}</div>
+          </div>
+          <div class="order-info-divider"></div>
+          <div class="order-info-item">
+            <div class="info-label">客户名称</div>
+            <div class="info-value">{{ traceData.orderInfo.customerName }}</div>
+          </div>
+          <div class="order-info-item">
+            <div class="info-label">产品名称</div>
+            <div class="info-value">{{ traceData.orderInfo.productName }}</div>
+          </div>
+          <div class="order-info-item">
+            <div class="info-label">订单数量</div>
+            <div class="info-value highlight">{{ traceData.orderInfo.quantity }} 件</div>
+          </div>
+          <div class="order-info-item">
+            <div class="info-label">订单金额</div>
+            <div class="info-value highlight">¥ {{ formatAmount(traceData.orderInfo.totalAmount) }}</div>
+          </div>
+          <div class="order-info-item">
+            <div class="info-label">订单状态</div>
+            <div class="info-value">
+              <span class="order-status" :class="'order-status-' + traceData.orderInfo.status">
+                {{ traceData.orderInfo.statusText }}
+              </span>
+            </div>
+          </div>
+          <div class="order-info-item">
+            <div class="info-label">交货日期</div>
+            <div class="info-value">{{ formatDate(traceData.orderInfo.deliveryDate) }}</div>
           </div>
         </div>
-        <div class="order-info-item">
-          <div class="info-label">交货日期</div>
-          <div class="info-value">{{ formatDate(traceData.orderInfo.deliveryDate) }}</div>
-        </div>
-        <div class="order-progress">
-          <div class="progress-label">整体进度</div>
-          <div class="progress-bar-wrap">
-            <div class="progress-bar-bg">
-              <div class="progress-bar-fill" :style="{ width: traceData.overallProgress + '%' }"></div>
+        <div class="order-info-bottom">
+          <div class="order-progress">
+            <div class="progress-label">整体进度</div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" :style="{ width: traceData.overallProgress + '%' }"></div>
+              </div>
+              <span class="progress-text">{{ traceData.overallProgress }}%</span>
             </div>
-            <span class="progress-text">{{ traceData.overallProgress }}%</span>
           </div>
         </div>
       </div>
@@ -109,7 +121,7 @@
           >
             <!-- 节点圆圈 -->
             <div class="node-circle">
-              <div class="node-icon">{{ getNodeIcon(node.icon) }}</div>
+              <svg viewBox="0 0 24 24" width="24" height="24" class="node-icon" v-html="getNodeIconSvg(node.icon)"></svg>
               <div class="node-index">{{ node.index }}</div>
             </div>
             <!-- 节点名称 -->
@@ -135,7 +147,7 @@
       <div v-if="activeNodeIndex !== null && traceData.nodes[activeNodeIndex]" class="detail-panel">
         <div class="detail-header">
           <span class="detail-title">
-            <span class="detail-icon">{{ getNodeIcon(traceData.nodes[activeNodeIndex].icon) }}</span>
+            <svg viewBox="0 0 24 24" width="20" height="20" class="detail-icon" v-html="getNodeIconSvg(traceData.nodes[activeNodeIndex].icon)"></svg>
             {{ traceData.nodes[activeNodeIndex].name }} - 详情
           </span>
           <button class="detail-close" @click="activeNodeIndex = null">✕</button>
@@ -464,17 +476,17 @@ function goBack() {
   router.push('/dashboard')
 }
 
-function getNodeIcon(icon) {
-  const icons = {
-    'document': '📋',
-    'shopping-cart': '🛒',
-    'check-circle': '✅',
-    'bottom': '📥',
-    'tickets': '🎫',
-    'quality': '🔍',
-    'warehouse': '🏭'
+function getNodeIconSvg(icon) {
+  const svgs = {
+    'document': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    'shopping-cart': '<path d="M3 3h2l.4 2M7 13h10l4-8H5.4 M10 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2z M18 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    'check-circle': '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14 M22 4 12 14.01 9 11.01" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    'bottom': '<path d="M12 5v14 M19 12l-7 7-7-7" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    'tickets': '<path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z M13 5v2 M13 17v2 M13 11v2" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    'quality': '<circle cx="11" cy="11" r="8" stroke="currentColor" fill="none" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/>',
+    'warehouse': '<path d="M3 21h18 M5 21V7l7-4 7 4v14 M8 21v-6h8v6 M9 11h6" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
   }
-  return icons[icon] || '📌'
+  return svgs[icon] || svgs['document']
 }
 
 function getStatusText(status) {
@@ -649,7 +661,7 @@ onUnmounted(() => {
 .trace-screen {
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(ellipse at center, #061a36 0%, #030a1a 100%);
+  background: radial-gradient(ellipse at top, #1e3a5f 0%, #0f172a 60%, #020617 100%);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -659,13 +671,13 @@ onUnmounted(() => {
 
 /* 顶部标题栏 */
 .screen-header {
-  height: 64px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 30px;
-  background: linear-gradient(180deg, rgba(14,165,233,0.15) 0%, transparent 100%);
-  border-bottom: 1px solid rgba(14,165,233,0.2);
+  background: linear-gradient(180deg, rgba(14,165,233,0.12) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(14,165,233,0.15);
   flex-shrink: 0;
 }
 
@@ -682,13 +694,13 @@ onUnmounted(() => {
 
 .header-date {
   font-size: 14px;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .header-time {
-  font-size: 22px;
-  font-weight: 700;
-  color: #0ea5e9;
+  font-size: 20px;
+  font-weight: 600;
+  color: #7dd3fc;
   font-family: 'Courier New', monospace;
   letter-spacing: 2px;
 }
@@ -701,33 +713,48 @@ onUnmounted(() => {
   gap: 16px;
 }
 
+.screen-title-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  line-height: 1.2;
+}
+
 .screen-title {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   color: #f1f5f9;
   margin: 0;
-  letter-spacing: 4px;
-  text-shadow: 0 0 20px rgba(14,165,233,0.5);
-  background: linear-gradient(90deg, #38bdf8, #818cf8, #38bdf8);
+  letter-spacing: 6px;
+  background: linear-gradient(90deg, #7dd3fc, #38bdf8, #7dd3fc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
+.screen-title-sub {
+  font-size: 18px;
+  font-weight: 500;
+  color: #cbd5e1;
+  margin: 0;
+  letter-spacing: 4px;
+}
+
 .title-decoration {
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #0ea5e9);
+  width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #38bdf8);
 }
 
 .title-decoration.right {
-  background: linear-gradient(90deg, #0ea5e9, transparent);
+  background: linear-gradient(90deg, #38bdf8, transparent);
 }
 
 .back-btn {
   background: rgba(14,165,233,0.15);
   border: 1px solid rgba(14,165,233,0.3);
-  color: #38bdf8;
+  color: #7dd3fc;
   padding: 6px 16px;
   border-radius: 6px;
   cursor: pointer;
@@ -742,7 +769,7 @@ onUnmounted(() => {
 
 /* 查询区域 */
 .search-section {
-  padding: 20px 40px;
+  padding: 16px 40px;
   display: flex;
   justify-content: center;
   flex-shrink: 0;
@@ -751,23 +778,25 @@ onUnmounted(() => {
 .search-box {
   display: flex;
   align-items: center;
-  background: rgba(14,165,233,0.08);
-  border: 1px solid rgba(14,165,233,0.2);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(148,163,184,0.15);
   border-radius: 8px;
   padding: 4px 4px 4px 16px;
   width: 600px;
   position: relative;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .search-box:focus-within {
-  border-color: rgba(14,165,233,0.5);
-  box-shadow: 0 0 20px rgba(14,165,233,0.15);
+  border-color: rgba(56,189,248,0.3);
 }
 
 .search-icon {
-  font-size: 18px;
+  font-size: 16px;
   margin-right: 10px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
 }
 
 .search-input {
@@ -777,29 +806,28 @@ onUnmounted(() => {
   border: none;
   outline: none;
   color: #e2e8f0;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .search-input::placeholder {
-  color: #475569;
+  color: #64748b;
 }
 
 .search-btn {
-  background: linear-gradient(135deg, #0ea5e9, #0369a1);
-  color: #fff;
-  border: none;
+  background: rgba(56,189,248,0.15);
+  color: #7dd3fc;
+  border: 1px solid rgba(56,189,248,0.25);
   padding: 0 24px;
   height: 40px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .search-btn:hover {
-  box-shadow: 0 0 15px rgba(14,165,233,0.4);
-  transform: translateY(-1px);
+  background: rgba(56,189,248,0.25);
 }
 
 .suggestion-dropdown {
@@ -808,8 +836,8 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   margin-top: 4px;
-  background: rgba(3,10,26,0.98);
-  border: 1px solid rgba(14,165,233,0.2);
+  background: rgba(15,23,42,0.98);
+  border: 1px solid rgba(148,163,184,0.15);
   border-radius: 8px;
   max-height: 300px;
   overflow-y: auto;
@@ -822,16 +850,16 @@ onUnmounted(() => {
   padding: 10px 16px;
   cursor: pointer;
   gap: 12px;
-  border-bottom: 1px solid rgba(14,165,233,0.08);
+  border-bottom: 1px solid rgba(148,163,184,0.06);
   transition: all 0.2s;
 }
 
 .suggestion-item:hover {
-  background: rgba(14,165,233,0.1);
+  background: rgba(56,189,248,0.06);
 }
 
 .sug-order {
-  color: #38bdf8;
+  color: #7dd3fc;
   font-weight: 600;
   font-family: 'Courier New', monospace;
   width: 140px;
@@ -845,41 +873,41 @@ onUnmounted(() => {
 
 .sug-qty {
   color: #94a3b8;
-  font-size: 13px;
+  font-size: 12px;
   width: 70px;
   text-align: right;
 }
 
 .sug-status {
-  font-size: 12px;
+  font-size: 11px;
   padding: 2px 8px;
   border-radius: 4px;
 }
 
-.sug-status.status-0 { background: rgba(245,158,11,0.15); color: #f59e0b; }
-.sug-status.status-1 { background: rgba(59,130,246,0.15); color: #3b82f6; }
-.sug-status.status-2 { background: rgba(34,197,94,0.15); color: #22c55e; }
-.sug-status.status-3 { background: rgba(14,165,233,0.15); color: #0ea5e9; }
+.sug-status.status-0 { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.sug-status.status-1 { background: rgba(96,165,250,0.12); color: #60a5fa; }
+.sug-status.status-2 { background: rgba(74,222,128,0.12); color: #4ade80; }
+.sug-status.status-3 { background: rgba(56,189,248,0.12); color: #38bdf8; }
 
 /* 主体 */
 .screen-body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 0 30px 30px;
+  gap: 12px;
+  padding: 0 30px 24px;
   overflow: hidden;
 }
 
 /* 订单信息卡片 */
 .order-info-card {
-  background: linear-gradient(135deg, rgba(14,165,233,0.08) 0%, rgba(3,10,26,0.6) 100%);
-  border: 1px solid rgba(14,165,233,0.15);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(148,163,184,0.12);
   border-radius: 10px;
   padding: 16px 24px;
   display: flex;
-  align-items: center;
-  gap: 20px;
+  flex-direction: column;
+  gap: 14px;
   flex-shrink: 0;
   position: relative;
 }
@@ -891,32 +919,38 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(14,165,233,0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(148,163,184,0.25), transparent);
+}
+
+.order-info-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .order-info-left {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .order-no-label {
   font-size: 12px;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .order-no-value {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
-  color: #38bdf8;
+  color: #90caf9;
   font-family: 'Courier New', monospace;
   letter-spacing: 1px;
 }
 
 .order-info-divider {
   width: 1px;
-  height: 50px;
-  background: rgba(14,165,233,0.2);
+  height: 40px;
+  background: rgba(148,163,184,0.15);
 }
 
 .order-info-item {
@@ -928,103 +962,95 @@ onUnmounted(() => {
 
 .info-label {
   font-size: 12px;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .info-value {
-  font-size: 15px;
+  font-size: 14px;
   color: #e2e8f0;
   font-weight: 500;
 }
 
 .info-value.highlight {
-  color: #f59e0b;
+  color: #f0c987;
   font-weight: 600;
 }
 
-.order-status {
-  padding: 3px 10px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 500;
+.order-info-bottom {
+  padding-top: 8px;
+  border-top: 1px solid rgba(148,163,184,0.08);
 }
 
-.order-status-0 { background: rgba(245,158,11,0.15); color: #f59e0b; }
-.order-status-1 { background: rgba(59,130,246,0.15); color: #3b82f6; }
-.order-status-2 { background: rgba(34,197,94,0.15); color: #22c55e; }
-.order-status-3 { background: rgba(14,165,233,0.15); color: #0ea5e9; }
-.order-status-4 { background: rgba(100,116,139,0.15); color: #64748b; }
-
 .order-progress {
-  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.progress-label {
+  font-size: 12px;
+  color: #94a3b8;
+  flex-shrink: 0;
+  width: 60px;
+}
+
+.progress-bar-wrap {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.progress-label {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.progress-bar-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 .progress-bar-bg {
-  width: 150px;
+  flex: 1;
   height: 10px;
-  background: rgba(14,165,233,0.1);
+  background: rgba(148,163,184,0.1);
   border-radius: 5px;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #0369a1, #0ea5e9, #38bdf8);
+  background: linear-gradient(90deg, #64b5f6, #90caf9, #bbdefb);
   border-radius: 5px;
   transition: width 1s ease;
   position: relative;
 }
 
-.progress-bar-fill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
 .progress-text {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  color: #38bdf8;
+  color: #90caf9;
   font-family: 'Courier New', monospace;
-  min-width: 50px;
+  min-width: 55px;
+  text-align: right;
 }
+
+.order-status {
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.order-status-0 { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.order-status-1 { background: rgba(96,165,250,0.12); color: #60a5fa; }
+.order-status-2 { background: rgba(74,222,128,0.12); color: #4ade80; }
+.order-status-3 { background: rgba(56,189,248,0.12); color: #38bdf8; }
+.order-status-4 { background: rgba(148,163,184,0.1); color: #94a3b8; }
 
 /* 链路流程图 */
 .trace-flow {
-  flex: 1;
-  background: linear-gradient(135deg, rgba(14,165,233,0.06) 0%, rgba(3,10,26,0.5) 100%);
-  border: 1px solid rgba(14,165,233,0.15);
+  flex: 1.2;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(148,163,184,0.1);
   border-radius: 10px;
-  padding: 30px 20px;
+  padding: 28px 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  min-height: 200px;
+  min-height: 0;
 }
 
 .trace-flow::before {
@@ -1034,7 +1060,7 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(14,165,233,0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(148,163,184,0.2), transparent);
 }
 
 .flow-container {
@@ -1052,41 +1078,42 @@ onUnmounted(() => {
   align-items: center;
   position: relative;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
   flex: 1;
   z-index: 2;
 }
 
 .flow-node:hover {
-  transform: translateY(-4px);
+  opacity: 0.85;
 }
 
 .flow-node.active .node-circle {
-  box-shadow: 0 0 25px rgba(14,165,233,0.6);
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .node-circle {
-  width: 70px;
-  height: 70px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1e3a5f, #0f172a);
-  border: 3px solid #334155;
+  background: rgba(148,163,184,0.08);
+  border: 2px solid #334155;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .node-icon {
-  font-size: 28px;
+  width: 30px;
+  height: 30px;
+  color: #e2e8f0;
 }
 
 .node-index {
   position: absolute;
-  top: -8px;
-  right: -8px;
+  top: -4px;
+  right: -4px;
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -1101,62 +1128,47 @@ onUnmounted(() => {
 
 /* 已完成状态 */
 .node-completed .node-circle {
-  border-color: #22c55e;
-  background: linear-gradient(135deg, #064e3b, #0f172a);
-  box-shadow: 0 0 15px rgba(34,197,94,0.3);
+  border-color: #99d8c9;
+  background: rgba(153,216,201,0.06);
 }
 
 .node-completed .node-index {
-  background: #22c55e;
-  color: #fff;
+  background: #99d8c9;
+  color: #2d5048;
 }
 
 .node-completed .node-name {
-  color: #22c55e;
+  color: #99d8c9;
 }
 
 /* 进行中状态 */
 .node-inProgress .node-circle {
-  border-color: #f59e0b;
-  background: linear-gradient(135deg, #78350f, #0f172a);
-  box-shadow: 0 0 15px rgba(245,158,11,0.3);
-  animation: pulse-yellow 2s infinite;
+  border-color: #f0c987;
+  background: rgba(240,201,135,0.06);
 }
 
 .node-inProgress .node-index {
-  background: #f59e0b;
-  color: #fff;
+  background: #f0c987;
+  color: #6b5327;
 }
 
 .node-inProgress .node-name {
-  color: #f59e0b;
-}
-
-@keyframes pulse-yellow {
-  0%, 100% { box-shadow: 0 0 15px rgba(245,158,11,0.3); }
-  50% { box-shadow: 0 0 25px rgba(245,158,11,0.5); }
+  color: #f0c987;
 }
 
 /* 异常状态 */
 .node-abnormal .node-circle {
-  border-color: #ef4444;
-  background: linear-gradient(135deg, #7f1d1d, #0f172a);
-  box-shadow: 0 0 15px rgba(239,68,68,0.3);
-  animation: pulse-red 1.5s infinite;
+  border-color: #f4b6c2;
+  background: rgba(244,182,194,0.06);
 }
 
 .node-abnormal .node-index {
-  background: #ef4444;
-  color: #fff;
+  background: #f4b6c2;
+  color: #7a3d4d;
 }
 
 .node-abnormal .node-name {
-  color: #ef4444;
-}
-
-@keyframes pulse-red {
-  0%, 100% { box-shadow: 0 0 15px rgba(239,68,68,0.3); }
-  50% { box-shadow: 0 0 25px rgba(239,68,68,0.6); }
+  color: #f4b6c2;
 }
 
 /* 待开始状态 */
@@ -1169,28 +1181,32 @@ onUnmounted(() => {
   color: #64748b;
 }
 
+.node-pending .node-icon {
+  color: #64748b;
+}
+
 .node-info {
-  margin-top: 12px;
+  margin-top: 14px;
   text-align: center;
 }
 
 .node-name {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
-  margin-bottom: 2px;
-  transition: color 0.3s;
+  margin-bottom: 4px;
+  transition: color 0.2s;
 }
 
 .node-name-en {
-  font-size: 10px;
-  color: #475569;
+  font-size: 11px;
+  color: #64748b;
   letter-spacing: 1px;
   margin-bottom: 4px;
 }
 
 .node-time {
-  font-size: 11px;
-  color: #64748b;
+  font-size: 12px;
+  color: #94a3b8;
   font-family: 'Courier New', monospace;
 }
 
@@ -1203,29 +1219,29 @@ onUnmounted(() => {
 }
 
 .node-status-tag.status-completed {
-  background: rgba(34,197,94,0.15);
-  color: #22c55e;
+  background: rgba(153,216,201,0.1);
+  color: #99d8c9;
 }
 
 .node-status-tag.status-inProgress {
-  background: rgba(245,158,11,0.15);
-  color: #f59e0b;
+  background: rgba(240,201,135,0.1);
+  color: #f0c987;
 }
 
 .node-status-tag.status-pending {
-  background: rgba(100,116,139,0.15);
-  color: #64748b;
+  background: rgba(148,163,184,0.08);
+  color: #94a3b8;
 }
 
 .node-status-tag.status-abnormal {
-  background: rgba(239,68,68,0.15);
-  color: #ef4444;
+  background: rgba(244,182,194,0.1);
+  color: #f4b6c2;
 }
 
 /* 连接线 */
 .node-connector {
   position: absolute;
-  top: 35px;
+  top: 38px;
   left: 50%;
   width: 100%;
   display: flex;
@@ -1236,34 +1252,35 @@ onUnmounted(() => {
 
 .connector-line {
   flex: 1;
-  height: 3px;
-  background: linear-gradient(90deg, #334155, #475569);
-  margin: 0 10px;
-  border-radius: 2px;
+  height: 1px;
+  border-top: 2px dashed rgba(148,163,184,0.2);
+  margin: 0 14px;
+  background: transparent;
 }
 
 .node-completed + .flow-node .connector-line,
 .node-completed .connector-line {
-  background: linear-gradient(90deg, #22c55e, #16a34a);
+  border-top-color: rgba(153,216,201,0.5);
 }
 
 .connector-arrow {
-  font-size: 10px;
-  color: #475569;
+  font-size: 8px;
+  color: #64748b;
 }
 
 .node-completed .connector-arrow {
-  color: #22c55e;
+  color: #99d8c9;
 }
 
 /* 详情面板 */
 .detail-panel {
-  background: linear-gradient(135deg, rgba(14,165,233,0.06) 0%, rgba(3,10,26,0.6) 100%);
-  border: 1px solid rgba(14,165,233,0.2);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(148,163,184,0.1);
   border-radius: 10px;
   overflow: hidden;
   flex-shrink: 0;
-  max-height: 320px;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   animation: slideUp 0.3s ease;
@@ -1272,7 +1289,7 @@ onUnmounted(() => {
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -1284,32 +1301,35 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
-  background: rgba(14,165,233,0.1);
-  border-bottom: 1px solid rgba(14,165,233,0.15);
+  padding: 10px 20px;
+  background: rgba(148,163,184,0.05);
+  border-bottom: 1px solid rgba(148,163,184,0.1);
+  flex-shrink: 0;
 }
 
 .detail-title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: #e2e8f0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .detail-icon {
-  font-size: 20px;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
 }
 
 .detail-close {
   background: transparent;
   border: none;
   color: #64748b;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -1318,89 +1338,90 @@ onUnmounted(() => {
 }
 
 .detail-close:hover {
-  background: rgba(239,68,68,0.15);
+  background: rgba(248,113,113,0.1);
   color: #f87171;
 }
 
 .detail-body {
   flex: 1;
-  padding: 16px 20px;
+  padding: 14px 20px;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 12px;
 }
 
 .detail-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 16px;
-  background: rgba(14,165,233,0.05);
+  gap: 4px;
+  padding: 10px 14px;
+  background: rgba(148,163,184,0.05);
   border-radius: 8px;
-  border: 1px solid rgba(14,165,233,0.1);
+  border: 1px solid rgba(148,163,184,0.08);
 }
 
 .detail-label {
-  font-size: 12px;
-  color: #64748b;
+  font-size: 11px;
+  color: #94a3b8;
 }
 
 .detail-value {
-  font-size: 15px;
+  font-size: 14px;
   color: #e2e8f0;
   font-weight: 500;
 }
 
 .detail-summary {
   display: flex;
-  gap: 20px;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin-bottom: 12px;
 }
 
 .summary-stat {
   flex: 1;
   text-align: center;
-  padding: 12px;
-  background: rgba(14,165,233,0.05);
+  padding: 10px;
+  background: rgba(148,163,184,0.05);
   border-radius: 8px;
-  border: 1px solid rgba(14,165,233,0.1);
+  border: 1px solid rgba(148,163,184,0.08);
 }
 
-.summary-stat.good .stat-value { color: #22c55e; }
-.summary-stat.bad .stat-value { color: #ef4444; }
-.summary-stat.rate .stat-value { color: #38bdf8; }
+.summary-stat.good .stat-value { color: #99d8c9; }
+.summary-stat.bad .stat-value { color: #f4b6c2; }
+.summary-stat.rate .stat-value { color: #a5c9e8; }
 
 .stat-value {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: #f1f5f9;
   font-family: 'Courier New', monospace;
 }
 
 .stat-label {
-  font-size: 12px;
-  color: #64748b;
-  margin-top: 4px;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
 }
 
 .detail-section-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #cbd5e1;
-  margin: 16px 0 10px;
-  padding-left: 10px;
-  border-left: 3px solid #0ea5e9;
+  margin: 12px 0 8px;
+  padding-left: 8px;
+  border-left: 3px solid #38bdf8;
 }
 
 .process-progress-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .process-item {
@@ -1411,8 +1432,8 @@ onUnmounted(() => {
 
 .process-name {
   width: 100px;
-  font-size: 13px;
-  color: #cbd5e1;
+  font-size: 12px;
+  color: #94a3b8;
   flex-shrink: 0;
 }
 
@@ -1425,38 +1446,38 @@ onUnmounted(() => {
 
 .process-bar-bg {
   flex: 1;
-  height: 8px;
-  background: rgba(14,165,233,0.1);
-  border-radius: 4px;
+  height: 6px;
+  background: rgba(148,163,184,0.1);
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .process-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #0369a1, #0ea5e9, #38bdf8);
-  border-radius: 4px;
+  background: linear-gradient(90deg, #0284c7, #38bdf8, #7dd3fc);
+  border-radius: 3px;
   transition: width 0.8s ease;
 }
 
 .process-percent {
-  width: 45px;
+  width: 40px;
   text-align: right;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  color: #38bdf8;
+  color: #7dd3fc;
   font-family: 'Courier New', monospace;
 }
 
 .process-qty {
-  width: 150px;
+  width: 140px;
   display: flex;
   gap: 12px;
   justify-content: flex-end;
-  font-size: 12px;
+  font-size: 11px;
 }
 
-.process-qty .good { color: #22c55e; }
-.process-qty .bad { color: #ef4444; }
+.process-qty .good { color: #4ade80; }
+.process-qty .bad { color: #f87171; }
 
 .detail-table {
   overflow-x: auto;
@@ -1465,33 +1486,33 @@ onUnmounted(() => {
 .detail-table table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .detail-table th {
-  background: rgba(14,165,233,0.1);
+  background: rgba(148,163,184,0.06);
   color: #94a3b8;
   font-weight: 600;
-  padding: 10px 12px;
+  padding: 8px 12px;
   text-align: left;
-  border-bottom: 1px solid rgba(14,165,233,0.15);
+  border-bottom: 1px solid rgba(148,163,184,0.1);
 }
 
 .detail-table td {
-  padding: 10px 12px;
+  padding: 8px 12px;
   color: #cbd5e1;
-  border-bottom: 1px solid rgba(14,165,233,0.06);
+  border-bottom: 1px solid rgba(148,163,184,0.06);
 }
 
 .detail-table tr:hover td {
-  background: rgba(14,165,233,0.05);
+  background: rgba(148,163,184,0.04);
 }
 
 .table-status {
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: 12px;
-  background: rgba(14,165,233,0.15);
-  color: #38bdf8;
+  font-size: 11px;
+  background: rgba(56,189,248,0.12);
+  color: #7dd3fc;
 }
 </style>

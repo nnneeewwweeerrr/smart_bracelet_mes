@@ -650,8 +650,27 @@ onMounted(() => {
   gap: 6px;
 }
 
+.item-right :deep(.el-progress__text) {
+  color: #909399 !important;
+}
+
 .process-progress {
   padding: 0 10px;
+}
+
+.process-progress :deep(.el-progress-bar__innerText) {
+  color: #606266 !important;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 16px;
+}
+
+.process-progress :deep(.el-progress-bar__outer) {
+  height: 16px !important;
+}
+
+.process-progress :deep(.el-progress-bar__inner) {
+  height: 16px !important;
 }
 
 .loading-icon {
