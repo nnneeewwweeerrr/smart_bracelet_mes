@@ -48,7 +48,7 @@
     <view class="today-section">
       <view class="section-header">
         <text class="section-title">今日报工</text>
-        <text class="section-more" @click="goTo('/pages/production/report')">查看全部</text>
+        <text class="section-more" @click="goTo('/pages/production/workorder')">查看全部</text>
       </view>
       <view class="stat-card">
         <view class="stat-item">
@@ -374,3 +374,4 @@ export default {
   background: #F0F2F5;
 }
 </style>
+

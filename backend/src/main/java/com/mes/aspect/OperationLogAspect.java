@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 @Slf4j
 @Aspect
 @Component
+
 public class OperationLogAspect {
 
     @Autowired

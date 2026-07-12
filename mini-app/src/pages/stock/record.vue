@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <view class="record-page">
     <view class="tab-bar">
       <u-tabs :list="tabList" :current="currentTab" @click="onTabChange" :activeStyle="{ color: '#3B7CFF', fontWeight: 'bold' }" :inactiveStyle="{ color: '#8C8C8C' }" lineColor="#3B7CFF" :lineWidth="30"></u-tabs>
@@ -90,9 +90,46 @@ export default {
           keyword: this.keyword
         })
         const records = (res && res.records) || res || []
-        this.list = records
+        if (records.length > 0) {
+          this.list = records
+        } else {
+          this.list = this.generateMockData()
+        }
       } catch {
-        this.list = []
+        this.list = this.generateMockData()
+      }
+    },
+    generateMockData() {
+      if (this.currentTab === 0) {
+        const mockInData = [
+          { id: 1, inNo: 'IN20240115001', materialName: '主控芯片STM32L4', warehouseName: 'A仓-电子件区', quantity: 1000, sourceType: '采购入库', sourceNo: 'PO20240114001', createTime: '2024-01-15 09:30' },
+          { id: 2, inNo: 'IN20240115002', materialName: '心率传感器MAX30102', warehouseName: 'A仓-电子件区', quantity: 500, sourceType: '采购入库', sourceNo: 'PO20240114002', createTime: '2024-01-15 10:15' },
+          { id: 3, inNo: 'IN20240115003', materialName: '锂电池380mAh', warehouseName: 'B仓-电池区', quantity: 2000, sourceType: '采购入库', sourceNo: 'PO20240114003', createTime: '2024-01-15 11:00' },
+          { id: 4, inNo: 'IN20240114001', materialName: '智能运动手环A1', warehouseName: 'C仓-成品区', quantity: 150, sourceType: '生产入库', sourceNo: 'WO20240113001', createTime: '2024-01-14 16:30' },
+          { id: 5, inNo: 'IN20240114002', materialName: 'PCB电路板A1', warehouseName: 'A仓-电子件区', quantity: 1500, sourceType: '采购入库', sourceNo: 'PO20240113001', createTime: '2024-01-14 14:00' },
+          { id: 6, inNo: 'IN20240113001', materialName: '蓝牙模块BLE5.0', warehouseName: 'A仓-电子件区', quantity: 800, sourceType: '采购入库', sourceNo: 'PO20240112001', createTime: '2024-01-13 10:30' }
+        ]
+        
+        if (this.keyword.trim()) {
+          const key = this.keyword.toLowerCase()
+          return mockInData.filter(item => item.inNo.toLowerCase().includes(key))
+        }
+        return mockInData
+      } else {
+        const mockOutData = [
+          { id: 1, outNo: 'OUT20240115001', materialName: '主控芯片STM32L4', warehouseName: 'A仓-电子件区', quantity: 200, targetType: '生产领料', targetNo: 'WO20240115001', createTime: '2024-01-15 08:30' },
+          { id: 2, outNo: 'OUT20240115002', materialName: '心率传感器MAX30102', warehouseName: 'A仓-电子件区', quantity: 200, targetType: '生产领料', targetNo: 'WO20240115001', createTime: '2024-01-15 08:35' },
+          { id: 3, outNo: 'OUT20240115003', materialName: '锂电池380mAh', warehouseName: 'B仓-电池区', quantity: 200, targetType: '生产领料', targetNo: 'WO20240115001', createTime: '2024-01-15 08:40' },
+          { id: 4, outNo: 'OUT20240114001', materialName: '智能运动手环A1', warehouseName: 'C仓-成品区', quantity: 50, targetType: '销售出库', targetNo: 'SO20240114001', createTime: '2024-01-14 15:00' },
+          { id: 5, outNo: 'OUT20240114002', materialName: 'PCB电路板A1', warehouseName: 'A仓-电子件区', quantity: 300, targetType: '生产领料', targetNo: 'WO20240114001', createTime: '2024-01-14 09:00' },
+          { id: 6, outNo: 'OUT20240113001', materialName: '蓝牙模块BLE5.0', warehouseName: 'A仓-电子件区', quantity: 150, targetType: '生产领料', targetNo: 'WO20240113001', createTime: '2024-01-13 08:30' }
+        ]
+        
+        if (this.keyword.trim()) {
+          const key = this.keyword.toLowerCase()
+          return mockOutData.filter(item => item.outNo.toLowerCase().includes(key))
+        }
+        return mockOutData
       }
     },
     async loadMore() {

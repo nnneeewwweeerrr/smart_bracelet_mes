@@ -1,4 +1,4 @@
-﻿﻿<template>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
   <view class="scan-out-page">
     <view class="scan-area" @click="handleScan">
       <text class="scan-icon-text">扫</text>

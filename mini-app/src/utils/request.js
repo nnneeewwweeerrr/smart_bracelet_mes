@@ -100,6 +100,7 @@ const mockHandlers = {
     processName: 'SMT贴片'
   }),
   'POST /production/report': () => ({ id: Date.now() }),
+  'POST /production-report/save': () => ({ id: Date.now() }),
   'POST /production/report/verify-material': (data) => {
     const failCodes = ['MAT999', 'FAIL001']
     if (failCodes.includes(data.materialCode)) {
@@ -137,17 +138,48 @@ const mockHandlers = {
     ]
   }),
   'GET /production/trace/reverse': (data) => {
-    const workNo = data.workNo || ''
-    if (!workNo) return []
-    return [
-      { processName: '原材料入库', executeTime: '2024-01-08 09:00:00', result: 'pass', detail: 'OLED显示屏 x500 入库至原材料仓', relatedWorkNo: '' },
-      { processName: 'SMT贴片', executeTime: '2024-01-12 14:30:00', result: 'pass', detail: '合格150 / 不合格2', relatedWorkNo: 'WO202401001' },
-      { processName: '焊接组装', executeTime: '2024-01-14 09:00:00', result: 'pass', detail: '合格148 / 不合格0', relatedWorkNo: 'WO202401001' },
-      { processName: '固件烧录', executeTime: '2024-01-15 11:00:00', result: 'pass', detail: '合格148 / 不合格0', relatedWorkNo: 'WO202401001' },
-      { processName: '功能测试', executeTime: '2024-01-16 14:00:00', result: 'fail', detail: '合格145 / 不合格3 (蓝牙信号弱)', relatedWorkNo: 'WO202401001' },
-      { processName: '外观检查', executeTime: '2024-01-17 10:00:00', result: 'pass', detail: '合格145 / 不合格0', relatedWorkNo: 'WO202401001' },
-      { processName: '包装入库', executeTime: '2024-01-18 16:00:00', result: 'running', detail: '进行中', relatedWorkNo: 'WO202401001' }
-    ]
+    const snCode = data.snCode || data.workNo || ''
+    if (!snCode) return []
+    return {
+      snCode: snCode.startsWith('SN') ? snCode : `SN${snCode}20240101001`,
+      productModel: '智能运动手环A1 Pro',
+      workOrderNo: 'WO20240101001',
+      batchNo: 'BATCH20240101',
+      productionDate: '2024-01-15 09:30:00',
+      status: 'delivered',
+      statusText: '已交付',
+      materialList: [
+        { id: 1, name: '主控芯片', code: 'IC-MCU-001', batch: 'IC20240105', supplier: '联发科科技', color: 'rgba(59, 124, 255, 0.15)' },
+        { id: 2, name: '心率传感器', code: 'SENSOR-HR-001', batch: 'HR20240108', supplier: '汇顶科技', color: 'rgba(245, 108, 108, 0.15)' },
+        { id: 3, name: '屏幕模组', code: 'LCD-001', batch: 'LCD20240110', supplier: '京东方', color: 'rgba(103, 194, 58, 0.15)' },
+        { id: 4, name: '锂电池', code: 'BAT-380', batch: 'BAT20240112', supplier: '宁德时代', color: 'rgba(250, 173, 20, 0.15)' }
+      ],
+      productionHistory: [
+        { processName: 'SMT贴片', lineName: 'A线-贴片机01', workerName: '张工', executeTime: '2024-01-15 09:30-10:15', status: 'pass', statusText: '已完成', statusTag: 'success' },
+        { processName: '焊接组装', lineName: 'A线-焊接工位03', workerName: '李工', executeTime: '2024-01-15 10:30-11:20', status: 'pass', statusText: '已完成', statusTag: 'success' },
+        { processName: '固件烧录', lineName: 'A线-烧录工位01', workerName: '王工', executeTime: '2024-01-15 13:00-13:30', status: 'pass', statusText: '已完成', statusTag: 'success' },
+        { processName: '功能测试', lineName: 'A线-测试工位05', workerName: '赵工', executeTime: '2024-01-15 14:00-14:45', status: 'pass', statusText: '已完成', statusTag: 'success' },
+        { processName: '外观检查', lineName: 'A线-质检工位02', workerName: '孙工', executeTime: '2024-01-15 15:00-15:15', status: 'pass', statusText: '已完成', statusTag: 'success' },
+        { processName: '包装入库', lineName: '仓库-包装区', workerName: '周工', executeTime: '2024-01-15 15:30-15:45', status: 'pass', statusText: '已完成', statusTag: 'success' }
+      ],
+      qualityRecords: [
+        { id: 1, inspectionType: 'IQC来料检验', detail: '芯片、传感器、屏幕、电池来料检验合格', inspector: '质检员-刘', inspectionTime: '2024-01-14 16:00', result: 'pass', resultText: '合格', resultTag: 'success' },
+        { id: 2, inspectionType: '过程巡检', detail: '焊接工序焊点质量抽检合格', inspector: '巡检员-陈', inspectionTime: '2024-01-15 11:00', result: 'pass', resultText: '合格', resultTag: 'success' },
+        { id: 3, inspectionType: '成品终检', detail: '功能测试全部通过，外观检查合格', inspector: '终检员-杨', inspectionTime: '2024-01-15 16:00', result: 'pass', resultText: '合格', resultTag: 'success' }
+      ],
+      testData: {
+        heartRate: { value: '60-180bpm', pass: true },
+        bluetooth: { value: '连接成功', pass: true },
+        battery: { value: '380mAh', pass: true },
+        waterproof: { value: 'IP68', pass: true }
+      },
+      deliveryInfo: {
+        customerName: '京东商城',
+        orderNo: 'JD20240120001',
+        deliveryDate: '2024-01-20 10:00',
+        trackingNo: 'SF1234567890'
+      }
+    }
   },
   'GET /production/trace/forward': (data) => {
     const batchNo = data.batchNo || ''
@@ -207,7 +239,20 @@ const mockHandlers = {
     return { records: filtered, total: filtered.length }
   },
   'POST /exception': () => ({ id: Date.now(), exceptionNo: 'EX' + Date.now() }),
+  'POST /exception/save': () => ({ id: Date.now(), exceptionNo: 'EX' + Date.now() }),
   'PUT /exception/:id/handle': () => ({ id: Date.now() }),
+  'PUT /exception/handle/:id': () => ({ id: Date.now() }),
+  'GET /mini/production/sop/scan': (data) => {
+    const stationMap = {
+      'STATION0001': { code: 'STATION0001', name: 'SMT贴片工位', process: 'SMT贴片', operator: '张三' },
+      'STATION0002': { code: 'STATION0002', name: '焊接组装工位', process: '焊接组装', operator: '李四' },
+      'STATION0003': { code: 'STATION0003', name: '固件烧录工位', process: '固件烧录', operator: '王五' },
+      'STATION0004': { code: 'STATION0004', name: '功能测试工位', process: '功能测试', operator: '赵六' },
+      'STATION0005': { code: 'STATION0005', name: '外观检查工位', process: '外观检查', operator: '孙七' },
+      'STATION0006': { code: 'STATION0006', name: '包装入库工位', process: '包装入库', operator: '周八' }
+    }
+    return stationMap[data.code] || null
+  },
   'GET /system/user/info': () => getUser(),
   'PUT /system/user/:id': () => ({ id: Date.now() }),
   'PUT /system/user/password': () => ({}),
@@ -405,3 +450,4 @@ export function del(url, data) {
 }
 
 export default request
+
