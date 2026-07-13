@@ -340,53 +340,30 @@ export default {
       this.showResult = false
       uni.showLoading({ title: '正在追溯...' })
 
-      setTimeout(() => {
-        uni.hideLoading()
-        this.snData = this.generateMockData(this.searchKey.trim())
+      try {
+        if (this.mode === 'reverse') {
+          const res = await getReverseTrace(this.searchKey.trim())
+          if (res) {
+            this.snData = {
+              ...res,
+              statusClass: `status-${res.status}`
+            }
+          }
+        } else {
+          const res = await getForwardTrace(this.searchKey.trim())
+          if (res) {
+            this.snData = {
+              batchNo: this.searchKey.trim(),
+              productionHistory: res
+            }
+          }
+        }
         this.searched = true
         this.showResult = true
-      }, 800)
-    },
-    generateMockData(key) {
-      return {
-        snCode: key.startsWith('SN') ? key : `SN${key}20240101001`,
-        productModel: '智能运动手环A1 Pro',
-        workOrderNo: 'WO20240101001',
-        batchNo: 'BATCH20240101',
-        productionDate: '2024-01-15 09:30:00',
-        statusText: '已交付',
-        statusClass: 'status-delivered',
-        materialList: [
-          { id: 1, name: '主控芯片', code: 'IC-MCU-001', batch: 'IC20240105', supplier: '联发科科技', color: 'rgba(59, 124, 255, 0.15)' },
-          { id: 2, name: '心率传感器', code: 'SENSOR-HR-001', batch: 'HR20240108', supplier: '汇顶科技', color: 'rgba(245, 108, 108, 0.15)' },
-          { id: 3, name: '屏幕模组', code: 'LCD-001', batch: 'LCD20240110', supplier: '京东方', color: 'rgba(103, 194, 58, 0.15)' },
-          { id: 4, name: '锂电池', code: 'BAT-380', batch: 'BAT20240112', supplier: '宁德时代', color: 'rgba(250, 173, 20, 0.15)' }
-        ],
-        productionHistory: [
-          { processName: 'SMT贴片', lineName: 'A线-贴片机01', workerName: '张工', executeTime: '2024-01-15 09:30-10:15', status: 'pass', statusText: '已完成', statusTag: 'success' },
-          { processName: '焊接组装', lineName: 'A线-焊接工位03', workerName: '李工', executeTime: '2024-01-15 10:30-11:20', status: 'pass', statusText: '已完成', statusTag: 'success' },
-          { processName: '固件烧录', lineName: 'A线-烧录工位01', workerName: '王工', executeTime: '2024-01-15 13:00-13:30', status: 'pass', statusText: '已完成', statusTag: 'success' },
-          { processName: '功能测试', lineName: 'A线-测试工位05', workerName: '赵工', executeTime: '2024-01-15 14:00-14:45', status: 'pass', statusText: '已完成', statusTag: 'success' },
-          { processName: '外观检查', lineName: 'A线-质检工位02', workerName: '孙工', executeTime: '2024-01-15 15:00-15:15', status: 'pass', statusText: '已完成', statusTag: 'success' },
-          { processName: '包装入库', lineName: '仓库-包装区', workerName: '周工', executeTime: '2024-01-15 15:30-15:45', status: 'pass', statusText: '已完成', statusTag: 'success' }
-        ],
-        qualityRecords: [
-          { id: 1, inspectionType: 'IQC来料检验', detail: '芯片、传感器、屏幕、电池来料检验合格，符合质量标准', inspector: '质检员-刘', inspectionTime: '2024-01-14 16:00', result: 'pass', resultText: '合格', resultTag: 'success' },
-          { id: 2, inspectionType: '过程巡检', detail: '焊接工序焊点质量抽检合格，无虚焊连锡现象', inspector: '巡检员-陈', inspectionTime: '2024-01-15 11:00', result: 'pass', resultText: '合格', resultTag: 'success' },
-          { id: 3, inspectionType: '成品终检', detail: '功能测试全部通过，外观检查合格，包装完整', inspector: '终检员-杨', inspectionTime: '2024-01-15 16:00', result: 'pass', resultText: '合格', resultTag: 'success' }
-        ],
-        testData: {
-          heartRate: { value: '60-180bpm', pass: true },
-          bluetooth: { value: '连接成功', pass: true },
-          battery: { value: '380mAh', pass: true },
-          waterproof: { value: 'IP68', pass: true }
-        },
-        deliveryInfo: {
-          customerName: '京东商城',
-          orderNo: 'JD20240120001',
-          deliveryDate: '2024-01-20 10:00',
-          trackingNo: 'SF1234567890'
-        }
+      } catch {
+        uni.showToast({ title: '追溯失败', icon: 'none' })
+      } finally {
+        uni.hideLoading()
       }
     },
     buildSnData(res) {
