@@ -104,6 +104,12 @@
       }
     },
     {
+      "path": "pages/production/repair",
+      "style": {
+        "navigationBarTitleText": "不良品维修"
+      }
+    },
+    {
       "path": "pages/quality/index",
       "style": {
         "navigationBarTitleText": "质检录入"
@@ -119,6 +125,18 @@
       "path": "pages/quality/task",
       "style": {
         "navigationBarTitleText": "质检任务"
+      }
+    },
+    {
+      "path": "pages/quality/test-dashboard",
+      "style": {
+        "navigationBarTitleText": "测试数据看板"
+      }
+    },
+    {
+      "path": "pages/quality/test-input",
+      "style": {
+        "navigationBarTitleText": "功能测试录入"
       }
     },
     {
@@ -158,9 +176,29 @@
       }
     },
     {
+      "path": "pages/mine/notifications",
+      "style": {
+        "navigationBarTitleText": "消息通知"
+      }
+    },
+    {
+      "path": "pages/mine/settings",
+      "style": {
+        "navigationBarTitleText": "设置"
+      }
+    },
+    {
       "path": "pages/mine/profile",
       "style": {
         "navigationBarTitleText": "个人信息"
+      }
+    },
+    {
+      "path": "pages/ai/index",
+      "style": {
+        "navigationBarTitleText": "AI生产助手",
+        "navigationBarBackgroundColor": "#1e3a5f",
+        "navigationBarTextStyle": "white"
       }
     }
   ],

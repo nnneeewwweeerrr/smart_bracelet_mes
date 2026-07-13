@@ -71,6 +71,25 @@
         </view>
       </view>
 
+      <view class="ai-entry-card" @click="goTo('/pages/ai/index')">
+        <view class="ai-card-bg"></view>
+        <view class="ai-card-content">
+          <view class="ai-card-left">
+            <view class="ai-avatar">
+              <text class="ai-avatar-icon">AI</text>
+              <view class="ai-pulse"></view>
+            </view>
+            <view class="ai-card-text">
+              <text class="ai-card-title">AI生产助手</text>
+              <text class="ai-card-desc">智能问答 · 语音交互 · 扫码联动</text>
+            </view>
+          </view>
+          <view class="ai-card-right">
+            <text class="ai-card-arrow">立即提问 ›</text>
+          </view>
+        </view>
+      </view>
+
       <view class="quick-actions">
         <view class="section-header">
           <text class="section-title">快捷操作</text>
@@ -397,6 +416,123 @@ export default {
   display: flex;
   gap: $spacing-md;
   margin-bottom: $spacing-lg;
+}
+
+.ai-entry-card {
+  position: relative;
+  border-radius: $radius-card;
+  padding: $spacing-lg $spacing-xl;
+  margin-bottom: $spacing-lg;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2a5298 50%, #3B7CFF 100%);
+  box-shadow: 0 12rpx 36rpx rgba(30, 58, 95, 0.28);
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  transition: all $transition-normal;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 6rpx 18rpx rgba(30, 58, 95, 0.3);
+  }
+}
+
+.ai-card-bg {
+  position: absolute;
+  top: -60rpx;
+  right: -60rpx;
+  width: 240rpx;
+  height: 240rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%);
+  animation: float 6s ease-in-out infinite;
+}
+
+.ai-card-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ai-card-left {
+  display: flex;
+  align-items: center;
+}
+
+.ai-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: $radius-lg;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-lg;
+  position: relative;
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.ai-avatar-icon {
+  font-size: $font-size-lg;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 2rpx;
+}
+
+.ai-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: $radius-lg;
+  border: 2rpx solid rgba(255, 255, 255, 0.4);
+  transform: translate(-50%, -50%);
+  animation: aiPulse 2s ease-out infinite;
+}
+
+@keyframes aiPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0;
+  }
+}
+
+.ai-card-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-card-title {
+  font-size: $font-size-lg;
+  font-weight: 700;
+  color: #ffffff;
+  display: block;
+}
+
+.ai-card-desc {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4rpx;
+  display: block;
+}
+
+.ai-card-right {
+  flex-shrink: 0;
+}
+
+.ai-card-arrow {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.18);
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-full;
+  backdrop-filter: blur(10px);
 }
 
 .data-card {

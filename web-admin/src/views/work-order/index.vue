@@ -26,10 +26,16 @@
     <el-card class="table-card" shadow="never">
       <div class="table-header">
         <span class="table-title">生产工单列表</span>
-        <el-button type="primary" @click="handleAdd">
-          <el-icon><Plus /></el-icon>
-          新增工单
-        </el-button>
+        <div class="header-btns">
+          <el-button type="primary" plain @click="handleAskAi">
+            <el-icon><ChatDotRound /></el-icon>
+            问AI
+          </el-button>
+          <el-button type="primary" @click="handleAdd">
+            <el-icon><Plus /></el-icon>
+            新增工单
+          </el-button>
+        </div>
       </div>
 
       <el-table v-loading="loading" :data="tableData" border stripe style="width: 100%">
@@ -59,7 +65,7 @@
         <el-table-column prop="planStartDate" label="计划开始" width="110" />
         <el-table-column prop="planEndDate" label="计划完成" width="110" />
         <el-table-column prop="createTime" label="创建时间" width="170" />
-        <el-table-column label="操作" width="280" fixed="right" align="center">
+        <el-table-column label="操作" width="340" fixed="right" align="center">
           <template #default="{ row }">
             <el-button type="primary" link @click="handleView(row)">查看</el-button>
             <el-button
@@ -78,6 +84,7 @@
             >
               开始生产
             </el-button>
+            <el-button type="warning" link @click="handleViewSop(row)">SOP看板</el-button>
             <el-button
               type="danger"
               link
@@ -216,7 +223,10 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+
+const router = useRouter()
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -495,6 +505,29 @@ function handleView(row) {
   detailVisible.value = true
 }
 
+function handleAskAi() {
+  let question
+  if (currentWorkOrder.workOrderNo) {
+    const statusText = getStatusText(currentWorkOrder.status)
+    const progress = currentWorkOrder.quantity
+      ? Math.round(currentWorkOrder.finishedQuantity / currentWorkOrder.quantity * 100)
+      : 0
+    question = `请帮我分析工单「${currentWorkOrder.workOrderNo}」的生产进度和状态。当前状态为「${statusText}」，计划数量${currentWorkOrder.quantity}，已完成${currentWorkOrder.finishedQuantity}，完成进度${progress}%，请给出进度分析和后续建议。`
+  } else {
+    question = '请帮我分析当前生产工单的整体进度和状态情况，包括各工单的完成情况和需要注意的事项。'
+  }
+  window.dispatchEvent(new CustomEvent('ask-ai', { detail: { question } }))
+}
+
+function handleViewSop(row) {
+  const firstProcess = row.processList && row.processList.length > 0 ? row.processList[0] : null
+  const processId = firstProcess?.id || row.id
+  const processName = firstProcess?.processName || ''
+  const query = { processId }
+  if (processName) query.processName = processName
+  router.push({ path: '/sop-board', query })
+}
+
 function handleDelete(row) {
   ElMessageBox.confirm(`确定要删除工单「${row.workOrderNo}」吗？`, '提示', {
     confirmButtonText: '确定',
@@ -635,6 +668,12 @@ async function handleSubmit() {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+}
+
+.header-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .table-title {

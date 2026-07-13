@@ -44,10 +44,16 @@
     <el-card class="table-card" shadow="never">
       <div class="table-header">
         <span class="table-title">异常记录列表</span>
-        <el-button type="danger" @click="handleAdd">
-          <el-icon><Plus /></el-icon>
-          上报异常
-        </el-button>
+        <div class="header-btns">
+          <el-button type="primary" plain @click="handleAskAi">
+            <el-icon><ChatDotRound /></el-icon>
+            问AI
+          </el-button>
+          <el-button type="danger" @click="handleAdd">
+            <el-icon><Plus /></el-icon>
+            上报异常
+          </el-button>
+        </div>
       </div>
 
       <el-table v-loading="loading" :data="tableData" border stripe style="width: 100%">
@@ -512,6 +518,18 @@ function handleView(row) {
   detailVisible.value = true
 }
 
+function handleAskAi() {
+  let question
+  if (currentException.exceptionNo) {
+    const typeText = getTypeText(currentException.exceptionType)
+    const statusText = getStatusText(currentException.status)
+    question = `生产异常「${currentException.exceptionNo}」需要处理方案。异常类型为「${typeText}」，当前状态「${statusText}」，关联工单「${currentException.workOrderNo}」，产品「${currentException.productName}」。异常描述：${currentException.exceptionDesc}。请给出针对该异常的处理方案和建议。`
+  } else {
+    question = '请介绍生产过程中常见异常（设备故障、质量异常、物料短缺、工艺问题等）的标准处理方案和预防措施。'
+  }
+  window.dispatchEvent(new CustomEvent('ask-ai', { detail: { question } }))
+}
+
 function handleProcess(row) {
   processForm.id = row.id
   processForm.action = row.status === 0 ? '处理中' : '已解决'
@@ -697,6 +715,12 @@ async function handleSubmitAdd() {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+}
+
+.header-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .table-title {

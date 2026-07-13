@@ -53,6 +53,15 @@ public class MiniAppController {
     private ProcessInfoService processInfoService;
 
     @Autowired
+    private ProcessSopService processSopService;
+
+    @Autowired
+    private ProcessParamStandardService processParamStandardService;
+
+    @Autowired
+    private ProcessMaterialBomService processMaterialBomService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -180,9 +189,194 @@ public class MiniAppController {
         return Result.success(processInfoService.list(new LambdaQueryWrapper<ProcessInfo>().orderByAsc(ProcessInfo::getSortOrder)));
     }
 
+    /**
+     * 按工序ID查询完整SOP（含操作步骤、参数标准、物料BOM）
+     */
     @GetMapping("/production/sop/{id}")
-    public Result<ProcessInfo> getSopDetail(@PathVariable Long id) {
-        return Result.success(processInfoService.getById(id));
+    public Result<Map<String, Object>> getSopDetail(@PathVariable Long id) {
+        Map<String, Object> result = new HashMap<>();
+
+        // 工序基本信息
+        ProcessInfo process = processInfoService.getById(id);
+        result.put("process", process);
+
+        // SOP信息
+        LambdaQueryWrapper<ProcessSop> sopWrapper = new LambdaQueryWrapper<>();
+        sopWrapper.eq(ProcessSop::getProcessId, id)
+                .eq(ProcessSop::getStatus, 1)
+                .orderByDesc(ProcessSop::getCreateTime)
+                .last("LIMIT 1");
+        ProcessSop sop = processSopService.getOne(sopWrapper);
+        result.put("sop", sop);
+
+        // 工艺参数标准
+        LambdaQueryWrapper<ProcessParamStandard> paramWrapper = new LambdaQueryWrapper<>();
+        paramWrapper.eq(ProcessParamStandard::getProcessId, id)
+                .orderByAsc(ProcessParamStandard::getSortOrder);
+        List<ProcessParamStandard> params = processParamStandardService.list(paramWrapper);
+        result.put("paramStandards", params);
+
+        // 物料BOM（关联物料名称）
+        LambdaQueryWrapper<ProcessMaterialBom> bomWrapper = new LambdaQueryWrapper<>();
+        bomWrapper.eq(ProcessMaterialBom::getProcessId, id)
+                .orderByAsc(ProcessMaterialBom::getSortOrder);
+        List<ProcessMaterialBom> bomList = processMaterialBomService.list(bomWrapper);
+        List<Map<String, Object>> bomDetailList = new ArrayList<>();
+        for (ProcessMaterialBom bom : bomList) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("materialId", bom.getMaterialId());
+            item.put("quantity", bom.getQuantity());
+            item.put("isRequired", bom.getIsRequired());
+            MaterialInfo material = materialInfoService.getById(bom.getMaterialId());
+            if (material != null) {
+                item.put("materialCode", material.getMaterialCode());
+                item.put("materialName", material.getMaterialName());
+                item.put("unit", material.getUnit());
+            }
+            bomDetailList.add(item);
+        }
+        result.put("materialBom", bomDetailList);
+
+        return Result.success(result);
+    }
+
+    /**
+     * 按工单号查询SOP（扫码后自动获取当前工序SOP）
+     */
+    @GetMapping("/production/sop/work-order/{workOrderId}")
+    public Result<Map<String, Object>> getSopByWorkOrder(@PathVariable Long workOrderId) {
+        WorkOrder wo = workOrderService.getById(workOrderId);
+        if (wo == null) {
+            return Result.error("工单不存在");
+        }
+        if (wo.getProcessId() == null) {
+            return Result.error("工单未关联工序");
+        }
+        return getSopDetail(wo.getProcessId());
+    }
+
+    /**
+     * 物料防错校验（小程序扫码后调用）
+     */
+    @PostMapping("/production/verify/material")
+    public Result<Map<String, Object>> verifyMaterial(@RequestBody Map<String, Object> params) {
+        String materialCode = (String) params.get("materialCode");
+        Long processId = params.get("processId") != null ? Long.valueOf(params.get("processId").toString()) : null;
+
+        Map<String, Object> result = new HashMap<>();
+
+        if (materialCode == null || processId == null) {
+            result.put("pass", false);
+            result.put("reason", "参数缺失");
+            return Result.success(result);
+        }
+
+        LambdaQueryWrapper<MaterialInfo> matWrapper = new LambdaQueryWrapper<>();
+        matWrapper.eq(MaterialInfo::getMaterialCode, materialCode);
+        MaterialInfo material = materialInfoService.getOne(matWrapper);
+
+        if (material == null) {
+            result.put("pass", false);
+            result.put("reason", "物料编码不存在：" + materialCode);
+            result.put("materialCode", materialCode);
+            return Result.success(result);
+        }
+
+        result.put("materialCode", material.getMaterialCode());
+        result.put("materialName", material.getMaterialName());
+
+        LambdaQueryWrapper<ProcessMaterialBom> bomWrapper = new LambdaQueryWrapper<>();
+        bomWrapper.eq(ProcessMaterialBom::getProcessId, processId)
+                .eq(ProcessMaterialBom::getMaterialId, material.getId());
+        ProcessMaterialBom bom = processMaterialBomService.getOne(bomWrapper);
+
+        if (bom == null) {
+            result.put("pass", false);
+            result.put("reason", "物料「" + material.getMaterialName() + "」不属于当前工序的BOM范围");
+        } else {
+            result.put("pass", true);
+            result.put("reason", "物料校验通过");
+        }
+        return Result.success(result);
+    }
+
+    /**
+     * 工艺参数校验（小程序录入参数后调用）
+     */
+    @PostMapping("/production/verify/params")
+    public Result<Map<String, Object>> verifyParams(@RequestBody Map<String, Object> params) {
+        Long processId = params.get("processId") != null ? Long.valueOf(params.get("processId").toString()) : null;
+        @SuppressWarnings("unchecked")
+        Map<String, Object> actualParams = (Map<String, Object>) params.get("params");
+
+        Map<String, Object> result = new HashMap<>();
+
+        if (processId == null || actualParams == null) {
+            result.put("pass", false);
+            result.put("reason", "参数缺失");
+            return Result.success(result);
+        }
+
+        LambdaQueryWrapper<ProcessParamStandard> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ProcessParamStandard::getProcessId, processId)
+                .orderByAsc(ProcessParamStandard::getSortOrder);
+        List<ProcessParamStandard> standards = processParamStandardService.list(wrapper);
+
+        List<Map<String, Object>> checkResults = new ArrayList<>();
+        boolean allPass = true;
+        StringBuilder failReason = new StringBuilder();
+
+        for (ProcessParamStandard std : standards) {
+            Map<String, Object> check = new HashMap<>();
+            check.put("paramName", std.getParamName());
+            check.put("paramCode", std.getParamCode());
+            check.put("unit", std.getUnit());
+            check.put("minValue", std.getMinValue());
+            check.put("maxValue", std.getMaxValue());
+
+            Object actualVal = actualParams.get(std.getParamCode());
+            if (actualVal == null || actualVal.toString().isEmpty()) {
+                if (std.getIsRequired() != null && std.getIsRequired() == 1) {
+                    check.put("pass", false);
+                    check.put("reason", "必检参数未填写");
+                    allPass = false;
+                    if (failReason.length() > 0) failReason.append("；");
+                    failReason.append(std.getParamName()).append("未填写");
+                } else {
+                    check.put("pass", true);
+                    check.put("reason", "非必检，已跳过");
+                }
+            } else {
+                try {
+                    double actual = Double.parseDouble(actualVal.toString());
+                    check.put("actualValue", actual);
+                    double min = std.getMinValue() != null ? std.getMinValue().doubleValue() : Double.MIN_VALUE;
+                    double max = std.getMaxValue() != null ? std.getMaxValue().doubleValue() : Double.MAX_VALUE;
+                    String unit = std.getUnit() != null ? std.getUnit() : "";
+
+                    if (actual < min || actual > max) {
+                        check.put("pass", false);
+                        check.put("reason", "超差：标准" + min + "~" + max + unit + "，实际" + actual + unit);
+                        allPass = false;
+                        if (failReason.length() > 0) failReason.append("；");
+                        failReason.append(std.getParamName()).append("超差");
+                    } else {
+                        check.put("pass", true);
+                        check.put("reason", "合格");
+                    }
+                } catch (NumberFormatException e) {
+                    check.put("pass", false);
+                    check.put("reason", "格式错误");
+                    allPass = false;
+                }
+            }
+            checkResults.add(check);
+        }
+
+        result.put("pass", allPass);
+        result.put("reason", allPass ? "全部参数校验通过" : failReason.toString());
+        result.put("details", checkResults);
+        return Result.success(result);
     }
 
     @GetMapping("/quality/statistics")
