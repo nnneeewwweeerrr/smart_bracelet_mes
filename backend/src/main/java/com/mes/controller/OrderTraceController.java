@@ -450,7 +450,7 @@ public class OrderTraceController {
                 ri.put("checkItem", r.getCheckItem());
                 ri.put("standardValue", r.getStandardValue());
                 ri.put("actualValue", r.getActualValue());
-                ri.put("result", r.getResult() == 1 ? "合格" : "不合格");
+                ri.put("result", r.getResult() != null && r.getResult() == 1 ? "合格" : "不合格");
                 resultList.add(ri);
             }
             item.put("results", resultList);

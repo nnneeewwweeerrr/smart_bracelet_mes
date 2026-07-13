@@ -121,10 +121,40 @@
       </view>
     </view>
 
+    <view class="network-status" :class="{ offline: !isOnline }">
+      <text class="network-icon">{{ isOnline ? '📶' : '📴' }}</text>
+      <text class="network-text">{{ isOnline ? '网络正常' : '离线模式 - 报工数据将暂存本地' }}</text>
+    </view>
+
     <view class="submit-area">
-      <u-button type="primary" :loading="loading" @click="handleSubmit" customStyle="height: 88rpx; border-radius: 44rpx;">
-        提交报工
+      <u-button type="primary" :loading="loading" @click="handleSubmit" customStyle="height: 88rpx; border-radius: 44rpx;" :disabled="!isOnline">
+        {{ isOnline ? '提交报工' : '离线中，无法提交' }}
       </u-button>
+      <u-button type="warning" plain @click="handleOfflineSubmit" customStyle="height: 88rpx; border-radius: 44rpx; margin-top: 16rpx;">
+        <text style="margin-right: 8rpx;">📱</text>
+        离线暂存报工
+      </u-button>
+    </view>
+
+    <view class="offline-section" v-if="offlineRecords.length > 0">
+      <view class="offline-header">
+        <text class="section-title">离线暂存记录</text>
+        <view class="sync-btn" @click="syncOfflineRecords">
+          <text class="sync-icon">↻</text>
+          <text class="sync-text">同步上传</text>
+        </view>
+      </view>
+      <view class="offline-list">
+        <view class="offline-item" v-for="(item, idx) in offlineRecords" :key="idx">
+          <view class="offline-info">
+            <text class="offline-workno">{{ item.form.workNo }}</text>
+            <text class="offline-time">{{ item.createTime }}</text>
+          </view>
+          <view class="offline-actions">
+            <view class="action-btn delete" @click="deleteOfflineRecord(idx)">删除</view>
+          </view>
+        </view>
+      </view>
     </view>
 
     <u-picker :show="showProcessPicker" :columns="processColumns" keyName="processName" @confirm="onProcessConfirm" @cancel="showProcessPicker = false"></u-picker>
@@ -157,7 +187,9 @@ export default {
       paramVerifyStatus: '',
       paramCheckDetails: [],
       sopData: null,
-      sopSteps: []
+      sopSteps: [],
+      offlineRecords: [],
+      isOnline: true
     }
   },
   computed: {
@@ -188,8 +220,72 @@ export default {
     if (options.processId) this.form.processId = options.processId
     if (options.processName) this.processName = decodeURIComponent(options.processName || '')
     this.loadProcesses()
+    this.checkNetwork()
+    this.watchNetwork()
+  },
+  onShow() {
+    this.loadOfflineRecords()
+    this.checkNetwork()
+    if (this.isOnline && this.offlineRecords.length > 0) {
+      uni.showModal({
+        title: '检测到离线记录',
+        content: `发现${this.offlineRecords.length}条未同步的离线报工记录，是否立即同步？`,
+        success: (res) => {
+          if (res.confirm) {
+            this.syncOfflineRecords()
+          }
+        }
+      })
+    }
+  },
+  onUnload() {
+    if (this.networkListener) {
+      uni.offNetworkStatusChange(this.networkListener)
+    }
   },
   methods: {
+    checkNetwork() {
+      const network = uni.getNetworkType({
+        success: (res) => {
+          this.isOnline = res.networkType !== 'none'
+        },
+        fail: () => {
+          this.isOnline = false
+        }
+      })
+    },
+    watchNetwork() {
+      this.networkListener = uni.onNetworkStatusChange((res) => {
+        const wasOffline = !this.isOnline
+        this.isOnline = res.isConnected
+        
+        if (this.isOnline && wasOffline) {
+          uni.showToast({
+            title: '网络已恢复',
+            icon: 'success'
+          })
+          
+          if (this.offlineRecords.length > 0) {
+            setTimeout(() => {
+              uni.showModal({
+                title: '检测到离线记录',
+                content: `发现${this.offlineRecords.length}条未同步的离线报工记录，是否立即同步？`,
+                success: (res) => {
+                  if (res.confirm) {
+                    this.syncOfflineRecords()
+                  }
+                }
+              })
+            }, 1000)
+          }
+        } else if (!this.isOnline) {
+          uni.showToast({
+            title: '已切换至离线模式',
+            icon: 'none'
+          })
+        }
+      })
+    },
     async loadProcesses() {
       try {
         this.processList = await getProcessList() || []
@@ -399,6 +495,145 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+    handleOfflineSubmit() {
+      if (!this.form.workNo) {
+        uni.showToast({ title: '请输入工单号', icon: 'none' })
+        return
+      }
+      if (!this.form.processId) {
+        uni.showToast({ title: '请选择工序', icon: 'none' })
+        return
+      }
+      const good = Number(this.form.goodQuantity) || 0
+      const bad = Number(this.form.badQuantity) || 0
+      if (good + bad <= 0) {
+        uni.showToast({ title: '请输入报工数量', icon: 'none' })
+        return
+      }
+
+      const record = {
+        form: { ...this.form },
+        paramForm: { ...this.paramForm },
+        processName: this.processName,
+        verifyStatus: this.verifyStatus,
+        verifiedMaterial: this.verifiedMaterial,
+        createTime: new Date().toLocaleString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        syncStatus: 'pending'
+      }
+
+      this.offlineRecords.unshift(record)
+      this.saveOfflineRecords()
+
+      uni.showModal({
+        title: '离线暂存成功',
+        content: `报工记录已保存到本地，当前共有${this.offlineRecords.length}条待同步记录。联网后可点击"同步上传"按钮提交。`,
+        showCancel: false
+      })
+
+      this.form = { workOrderId: '', workNo: '', processId: '', goodQuantity: '', badQuantity: '' }
+      this.paramForm = { temperature: '', humidity: '', pressure: '', speed: '' }
+      this.processName = ''
+      this.verifyStatus = ''
+      this.verifiedMaterial = null
+    },
+    loadOfflineRecords() {
+      try {
+        const records = uni.getStorageSync('offlineReportRecords')
+        this.offlineRecords = records ? JSON.parse(records) : []
+      } catch {
+        this.offlineRecords = []
+      }
+    },
+    saveOfflineRecords() {
+      try {
+        uni.setStorageSync('offlineReportRecords', JSON.stringify(this.offlineRecords))
+      } catch {
+        uni.showToast({ title: '存储失败', icon: 'none' })
+      }
+    },
+    deleteOfflineRecord(index) {
+      uni.showModal({
+        title: '确认删除',
+        content: '确定要删除这条离线记录吗？',
+        success: (res) => {
+          if (res.confirm) {
+            this.offlineRecords.splice(index, 1)
+            this.saveOfflineRecords()
+            uni.showToast({ title: '删除成功', icon: 'success' })
+          }
+        }
+      })
+    },
+    async syncOfflineRecords() {
+      if (this.offlineRecords.length === 0) {
+        uni.showToast({ title: '暂无离线记录', icon: 'none' })
+        return
+      }
+
+      if (!this.isOnline) {
+        uni.showToast({ title: '当前处于离线状态', icon: 'none' })
+        return
+      }
+
+      const total = this.offlineRecords.length
+      let successCount = 0
+      let failCount = 0
+      const failedRecords = []
+
+      uni.showLoading({ title: `同步中 0/${total}` })
+
+      for (let i = 0; i < this.offlineRecords.length; i++) {
+        const record = this.offlineRecords[i]
+        
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        uni.showLoading({ title: `同步中 ${i + 1}/${total}` })
+
+        try {
+          const user = getUser() || {}
+          await productionReport({
+            workOrderId: record.form.workOrderId || undefined,
+            workerId: user.id,
+            processId: record.form.processId,
+            goodQuantity: Number(record.form.goodQuantity) || 0,
+            badQuantity: Number(record.form.badQuantity) || 0,
+            materialCode: record.verifiedMaterial ? record.verifiedMaterial.materialCode : undefined,
+            processParams: {
+              temperature: record.paramForm.temperature ? Number(record.paramForm.temperature) : undefined,
+              humidity: record.paramForm.humidity ? Number(record.paramForm.humidity) : undefined,
+              pressure: record.paramForm.pressure ? Number(record.paramForm.pressure) : undefined,
+              speed: record.paramForm.speed ? Number(record.paramForm.speed) : undefined
+            }
+          })
+          successCount++
+        } catch {
+          failCount++
+          failedRecords.push(record)
+        }
+      }
+
+      uni.hideLoading()
+
+      if (failedRecords.length > 0) {
+        this.offlineRecords = failedRecords
+        this.saveOfflineRecords()
+      } else {
+        this.offlineRecords = []
+        this.saveOfflineRecords()
+      }
+
+      uni.showModal({
+        title: successCount === total ? '同步成功' : '同步完成',
+        content: `成功上传${successCount}条，${failCount > 0 ? `失败${failCount}条（已保留在本地）` : ''}`,
+        showCancel: false
+      })
     }
   }
 }
@@ -680,7 +915,119 @@ export default {
   font-weight: 500;
 }
 
+.network-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 16rpx;
+  background: rgba(82, 196, 26, 0.1);
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+
+  &.offline {
+    background: rgba(255, 77, 79, 0.1);
+
+    .network-icon,
+    .network-text {
+      color: #FF4D4F;
+    }
+  }
+}
+
+.network-icon {
+  font-size: 28rpx;
+}
+
+.network-text {
+  font-size: 24rpx;
+  color: #52C41A;
+}
+
 .submit-area {
   padding-top: 10rpx;
+}
+
+.offline-section {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 34rpx;
+  margin-top: 24rpx;
+  box-shadow: 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+}
+
+.offline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.sync-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 20rpx;
+  background: rgba(82, 196, 26, 0.1);
+  border-radius: 20rpx;
+}
+
+.sync-icon {
+  font-size: 24rpx;
+  color: #52C41A;
+}
+
+.sync-text {
+  font-size: 24rpx;
+  color: #52C41A;
+  font-weight: 500;
+}
+
+.offline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.offline-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  background: #F8FAFF;
+  border-radius: 16rpx;
+}
+
+.offline-info {
+  flex: 1;
+}
+
+.offline-workno {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1F1F1F;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.offline-time {
+  font-size: 22rpx;
+  color: #8C8C8C;
+}
+
+.offline-actions {
+  margin-left: 16rpx;
+}
+
+.action-btn {
+  padding: 8rpx 20rpx;
+  border-radius: 16rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+
+  &.delete {
+    background: rgba(255, 77, 79, 0.1);
+    color: #FF4D4F;
+  }
 }
 </style>

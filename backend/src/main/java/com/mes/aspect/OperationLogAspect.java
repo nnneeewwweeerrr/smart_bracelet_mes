@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 @Slf4j
 @Aspect
 @Component
+
 public class OperationLogAspect {
 
     @Autowired
@@ -83,3 +84,4 @@ public class OperationLogAspect {
         return ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip);
     }
 }
+

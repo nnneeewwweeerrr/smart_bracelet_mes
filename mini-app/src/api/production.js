@@ -16,6 +16,10 @@ export function productionReport(data) {
   return post('/production-report/save', data)
 }
 
+export function getProductionReportList(params) {
+  return get('/production-report/list', params)
+}
+
 export function getProcessList(params) {
   return get('/process/list', params)
 }
@@ -36,8 +40,12 @@ export function getSopByWorkOrder(workOrderId) {
   return get('/mini/production/sop/work-order/' + workOrderId)
 }
 
-export function getReverseTrace(workNo) {
-  return get('/exception/batch-trace/' + workNo)
+export function scanSop(code) {
+  return get('/mini/production/sop/scan', { code })
+}
+
+export function getReverseTrace(snCode) {
+  return get('/production/trace/reverse', { snCode })
 }
 
 export function getForwardTrace(batchNo) {

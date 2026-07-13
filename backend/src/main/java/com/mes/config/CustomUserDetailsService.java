@@ -24,6 +24,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("用户不存在");
         }
+        if (user.getStatus() == null || user.getStatus() != 1) {
+            throw new UsernameNotFoundException("用户已被禁用");
+        }
         return new User(user.getUserName(), user.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
     }

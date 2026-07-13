@@ -15,6 +15,16 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
     private final Map<String, Map<String, Object>> nodes = new ConcurrentHashMap<>();
     private final List<Map<String, Object>> relationships = new ArrayList<>();
 
+    private double toDouble(Object value) {
+        if (value == null) return 0.0;
+        if (value instanceof Number) return ((Number) value).doubleValue();
+        try {
+            return Double.parseDouble(value.toString());
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
+    }
+
     @PostConstruct
     public void init() {
         initDemoData();
@@ -282,7 +292,7 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
             }
         }
 
-        paths.sort((a, b) -> Double.compare((Double) b.get("confidence"), (Double) a.get("confidence")));
+        paths.sort((a, b) -> Double.compare(toDouble(b.get("confidence")), toDouble(a.get("confidence"))));
 
         result.put("defect", defect);
         result.put("relatedProcesses", relatedProcesses);

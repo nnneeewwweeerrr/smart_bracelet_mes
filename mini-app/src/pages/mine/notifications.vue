@@ -71,7 +71,8 @@ export default {
         { name: '全部', value: 'all' },
         { name: '工单', value: 'workorder' },
         { name: '异常', value: 'exception' },
-        { name: '质量', value: 'quality' }
+        { name: '质量', value: 'quality' },
+        { name: '仓储', value: 'stock' }
       ],
       notifications: [
         {

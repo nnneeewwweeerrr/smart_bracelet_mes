@@ -16,27 +16,33 @@
       <view class="stat-item" @click="goTo('/pages/mine/todo')">
         <text class="stat-value">{{ todoCount }}</text>
         <text class="stat-label">待办任务</text>
+        <view class="stat-badge" v-if="todoCount > 0">{{ todoCount }}</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item" @click="goTo('/pages/mine/notifications')">
+        <text class="stat-value">{{ notificationCount }}</text>
+        <text class="stat-label">消息通知</text>
+        <view class="stat-badge" v-if="notificationCount > 0">{{ notificationCount > 99 ? '99+' : notificationCount }}</view>
       </view>
       <view class="stat-divider"></view>
       <view class="stat-item" @click="goTo('/pages/mine/log')">
-        <text class="stat-value">{{ logCount }}</text>
-        <text class="stat-label">操作记录</text>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item">
         <text class="stat-value">{{ todayCount }}</text>
         <text class="stat-label">今日操作</text>
       </view>
     </view>
 
     <view class="performance-card">
-      <text class="section-title">个人绩效</text>
-      <view class="performance-row">
-        <view class="perf-item">
+      <view class="section-header">
+        <text class="section-title">个人绩效</text>
+        <text class="section-sub">今日数据</text>
+      </view>
+      
+      <view class="performance-grid">
+        <view class="perf-card">
           <view class="perf-icon-wrap output-icon">
             <text class="perf-icon-text">产</text>
           </view>
-          <view class="perf-detail">
+          <view class="perf-content">
             <view class="perf-value-row">
               <text class="perf-value">{{ performance.todayOutput }}</text>
               <text class="perf-unit">件</text>
@@ -44,21 +50,65 @@
             <text class="perf-label">今日产量</text>
           </view>
         </view>
-        <view class="perf-divider"></view>
-        <view class="perf-item">
+        
+        <view class="perf-card">
+          <view class="perf-icon-wrap rate-icon">
+            <text class="perf-icon-text">完</text>
+          </view>
+          <view class="perf-content">
+            <view class="perf-value-row">
+              <text class="perf-value">{{ performance.completionRate }}</text>
+              <text class="perf-unit">%</text>
+            </view>
+            <text class="perf-label">完成率</text>
+          </view>
+          <view class="perf-progress">
+            <view class="progress-bar">
+              <view class="progress-fill" :style="{ width: performance.completionRate + '%' }"></view>
+            </view>
+          </view>
+        </view>
+        
+        <view class="perf-card">
+          <view class="perf-icon-wrap yield-icon">
+            <text class="perf-icon-text">良</text>
+          </view>
+          <view class="perf-content">
+            <view class="perf-value-row">
+              <text class="perf-value">{{ performance.yieldRate }}</text>
+              <text class="perf-unit">%</text>
+            </view>
+            <text class="perf-label">良品率</text>
+          </view>
+        </view>
+        
+        <view class="perf-card">
           <view class="perf-icon-wrap rank-icon">
             <text class="perf-icon-text">排</text>
           </view>
-          <view class="perf-detail">
+          <view class="perf-content">
             <view class="perf-value-row">
               <text class="perf-value">第{{ performance.departmentRank }}</text>
-              <text class="perf-unit">/ {{ performance.departmentTotal }}人</text>
+              <text class="perf-unit">名</text>
             </view>
             <view class="perf-label-row">
               <text class="perf-label">部门排名</text>
               <text v-if="performance.rankTrend > 0" class="rank-trend trend-up">↑{{ performance.rankTrend }}</text>
               <text v-else-if="performance.rankTrend < 0" class="rank-trend trend-down">↓{{ Math.abs(performance.rankTrend) }}</text>
             </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="weekly-chart">
+        <text class="chart-title">本周产量趋势</text>
+        <view class="chart-bars">
+          <view class="chart-bar-item" v-for="(item, idx) in performance.weeklyData" :key="idx">
+            <view class="bar-wrapper">
+              <view class="bar-fill" :style="{ height: (item.output / 160 * 100) + '%' }"></view>
+              <text class="bar-value">{{ item.output }}</text>
+            </view>
+            <text class="bar-label">{{ item.day }}</text>
           </view>
         </view>
       </view>
@@ -82,7 +132,7 @@
     </view>
 
     <view class="mine-menu">
-      <view class="menu-item">
+      <view class="menu-item" @click="goTo('/pages/mine/settings')">
         <view class="menu-icon-wrap">
           <text class="menu-icon-text">设</text>
         </view>
@@ -122,11 +172,23 @@ export default {
       todoCount: 0,
       logCount: 0,
       todayCount: 0,
+      notificationCount: 5,
       performance: {
-        todayOutput: 0,
-        departmentRank: '-',
-        departmentTotal: '-',
-        rankTrend: 0
+        todayOutput: 156,
+        completionRate: 92,
+        yieldRate: 98.5,
+        departmentRank: 3,
+        departmentTotal: 25,
+        rankTrend: 2,
+        weeklyData: [
+          { day: '周一', output: 120, rate: 95 },
+          { day: '周二', output: 135, rate: 97 },
+          { day: '周三', output: 142, rate: 98 },
+          { day: '周四', output: 150, rate: 96 },
+          { day: '周五', output: 156, rate: 98 },
+          { day: '周六', output: 80, rate: 99 },
+          { day: '周日', output: 60, rate: 97 }
+        ]
       }
     }
   },
@@ -306,6 +368,20 @@ export default {
   display: block;
 }
 
+.stat-badge {
+  position: absolute;
+  top: 8rpx;
+  right: 50%;
+  transform: translateX(50%);
+  background: #FF4D4F;
+  color: #ffffff;
+  font-size: 20rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 10rpx;
+  min-width: 32rpx;
+  text-align: center;
+}
+
 .performance-card {
   background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
   margin: 0 24rpx 24rpx;
@@ -315,82 +391,88 @@ export default {
   border: 1rpx solid rgba(255, 255, 255, 0.8);
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
   color: #1F1F1F;
-  margin-bottom: 24rpx;
-  display: block;
 }
 
-.performance-row {
+.section-sub {
+  font-size: 24rpx;
+  color: #8C8C8C;
+}
+
+.performance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-bottom: 28rpx;
+}
+
+.perf-card {
+  background: #F8FAFF;
+  border-radius: 20rpx;
+  padding: 20rpx;
   display: flex;
-  align-items: center;
-}
-
-.perf-item {
-  flex: 1;
-  display: flex;
-  align-items: center;
-}
-
-.perf-divider {
-  width: 1rpx;
-  height: 80rpx;
-  background: #F0F0F0;
-  margin: 0 24rpx;
+  flex-direction: column;
 }
 
 .perf-icon-wrap {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 20rpx;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 20rpx;
-  flex-shrink: 0;
+  margin-bottom: 12rpx;
 
   &.output-icon { background: #E8F0FF; }
+  &.rate-icon { background: #FFF7E6; }
+  &.yield-icon { background: #F6FFED; }
   &.rank-icon { background: #FFFBE6; }
 }
 
 .perf-icon-text {
-  font-size: 28rpx;
+  font-size: 24rpx;
   font-weight: 700;
-  display: block;
-  line-height: 80rpx;
-  text-align: center;
 
   .output-icon & { color: #3B7CFF; }
+  .rate-icon & { color: #FAAD14; }
+  .yield-icon & { color: #52C41A; }
   .rank-icon & { color: #FAAD14; }
 }
 
-.perf-detail {
-  display: flex;
-  flex-direction: column;
+.perf-content {
+  flex: 1;
 }
 
 .perf-value-row {
   display: flex;
   align-items: baseline;
-  margin-bottom: 6rpx;
+  margin-bottom: 4rpx;
 }
 
 .perf-value {
-  font-size: 34rpx;
-  font-weight: 600;
+  font-size: 32rpx;
+  font-weight: 700;
   color: #1F1F1F;
 }
 
 .perf-unit {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #8C8C8C;
   margin-left: 4rpx;
 }
 
 .perf-label {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #8C8C8C;
 }
 
@@ -399,13 +481,90 @@ export default {
   align-items: center;
 }
 
+.perf-progress {
+  margin-top: 12rpx;
+}
+
+.progress-bar {
+  height: 8rpx;
+  background: #E8EEF7;
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FAAD14 0%, #FFC53D 100%);
+  border-radius: 4rpx;
+  transition: width 0.5s ease;
+}
+
 .rank-trend {
-  font-size: 22rpx;
-  margin-left: 8rpx;
+  font-size: 20rpx;
+  margin-left: 6rpx;
   font-weight: 500;
 
   &.trend-up { color: #52C41A; }
   &.trend-down { color: #FF4D4F; }
+}
+
+.weekly-chart {
+  background: #F8FAFF;
+  border-radius: 20rpx;
+  padding: 20rpx;
+}
+
+.chart-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1F1F1F;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.chart-bars {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 200rpx;
+  padding-top: 40rpx;
+}
+
+.chart-bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.bar-wrapper {
+  position: relative;
+  width: 36rpx;
+  flex: 1;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+}
+
+.bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #52C41A 0%, #73D13D 100%);
+  border-radius: 6rpx 6rpx 0 0;
+  transition: height 0.5s ease;
+  min-height: 8rpx;
+}
+
+.bar-value {
+  position: absolute;
+  top: -32rpx;
+  font-size: 20rpx;
+  color: #8C8C8C;
+}
+
+.bar-label {
+  font-size: 20rpx;
+  color: #8C8C8C;
+  margin-top: 12rpx;
 }
 
 .mine-menu {
