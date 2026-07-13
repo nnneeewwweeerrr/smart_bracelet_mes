@@ -327,6 +327,30 @@ const mockHandlers = {
   })
 }
 
+// Alias: map actual API file URLs to existing mock handlers
+mockHandlers['GET /work-order/list'] = mockHandlers['GET /production/workorder/list']
+mockHandlers['GET /work-order/:id'] = mockHandlers['GET /production/workorder/:id']
+mockHandlers['POST /production-report/save'] = mockHandlers['POST /production/report']
+mockHandlers['GET /process/list'] = mockHandlers['GET /production/process/list']
+mockHandlers['GET /mini/production/dashboard'] = mockHandlers['GET /production/dashboard']
+mockHandlers['POST /mini/production/verify/material'] = mockHandlers['POST /production/report/verify-material']
+mockHandlers['GET /quality-task/list'] = mockHandlers['GET /quality/task/list']
+mockHandlers['POST /quality-result/save'] = mockHandlers['POST /quality/result']
+mockHandlers['GET /mini/quality/statistics'] = mockHandlers['GET /quality/statistics']
+mockHandlers['GET /warehouse/list'] = mockHandlers['GET /stock/warehouse/list']
+mockHandlers['GET /material/list'] = mockHandlers['GET /purchase/material/list']
+mockHandlers['GET /stock-in/list'] = mockHandlers['GET /stock/in/list']
+mockHandlers['GET /stock-out/list'] = mockHandlers['GET /stock/out/list']
+mockHandlers['POST /stock-in/save'] = mockHandlers['POST /stock/in']
+mockHandlers['POST /stock-out/save'] = mockHandlers['POST /stock/out']
+mockHandlers['POST /exception/save'] = mockHandlers['POST /exception']
+mockHandlers['PUT /exception/handle/:id'] = mockHandlers['PUT /exception/:id/handle']
+mockHandlers['GET /exception/batch-trace/:workNo'] = mockHandlers['GET /production/trace/reverse']
+mockHandlers['GET /exception/batch-trace/:batchNo'] = mockHandlers['GET /production/trace/forward']
+mockHandlers['GET /auth/info'] = mockHandlers['GET /system/user/info']
+mockHandlers['GET /operation-log/list'] = mockHandlers['GET /system/log/list']
+mockHandlers['GET /operation-log/count'] = mockHandlers['GET /system/log/count']
+
 function request(options) {
   if (MOCK_MODE) {
     const key = (options.method || 'GET') + ' ' + options.url

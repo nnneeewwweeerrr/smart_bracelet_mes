@@ -82,7 +82,7 @@
     </view>
 
     <view class="mine-menu">
-      <view class="menu-item">
+      <view class="menu-item" @click="goTo('/pages/mine/settings')">
         <view class="menu-icon-wrap">
           <text class="menu-icon-text">设</text>
         </view>

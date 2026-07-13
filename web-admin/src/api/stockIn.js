@@ -17,7 +17,7 @@ export function getStockInDetail(id) {
 
 export function createStockIn(data) {
   return request({
-    url: '/stock-in',
+    url: '/stock-in/save',
     method: 'post',
     data
   })

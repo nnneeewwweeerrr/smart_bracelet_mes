@@ -103,7 +103,7 @@ const routes = [
         path: 'stock',
         name: 'Stock',
         component: () => import('../views/stock/index.vue'),
-        meta: { title: '库存查询', icon: 'Warehouse' }
+        meta: { title: '库存查询', icon: 'DataAnalysis' }
       },
       {
         path: 'stock-in',
@@ -155,13 +155,13 @@ const routes = [
       },
       {
         path: 'sn-trace',
-        name: 'SnTrace',
+        name: 'SnTraceAdmin',
         component: () => import('../views/sn-trace/index.vue'),
         meta: { title: 'SN全生命周期追溯', icon: 'Key' }
       },
       {
         path: 'sop-board',
-        name: 'SopBoard',
+        name: 'SopBoardAdmin',
         component: () => import('../views/sop-board/index.vue'),
         meta: { title: 'SOP电子看板', icon: 'Monitor' }
       },

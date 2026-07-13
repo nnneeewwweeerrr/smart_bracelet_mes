@@ -10,7 +10,7 @@ export function login(data) {
 
 export function register(data) {
   return request({
-    url: '/auth/register',
+    url: '/user/register',
     method: 'post',
     data
   })

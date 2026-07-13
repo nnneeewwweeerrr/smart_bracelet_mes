@@ -17,7 +17,7 @@ export function getStockOutDetail(id) {
 
 export function createStockOut(data) {
   return request({
-    url: '/stock-out',
+    url: '/stock-out/save',
     method: 'post',
     data
   })

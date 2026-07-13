@@ -202,7 +202,7 @@ public class AiChatController {
                     sb.append("总产量: ").append(totalGood + totalBad).append("\n");
                     break;
                 case "yield":
-                    List<QualityResult> results = qualityResultService.list();
+                    List<QualityResult> results = qualityResultService.page(new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(1, 100)).getRecords();
                     sb.append("【实时良率数据】\n");
                     sb.append("质检记录总数: ").append(results.size()).append("\n");
                     long passCount = results.stream()
@@ -216,7 +216,7 @@ public class AiChatController {
                     sb.append(String.format("良率: %.2f%%\n", yieldRate));
                     break;
                 case "workorder":
-                    List<WorkOrder> orders = workOrderService.list();
+                    List<WorkOrder> orders = workOrderService.page(new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(1, 100)).getRecords();
                     sb.append("【实时工单进度数据】\n");
                     sb.append("工单总数: ").append(orders.size()).append("\n");
                     long pending = orders.stream().filter(w -> w.getStatus() != null && w.getStatus() == 0).count();

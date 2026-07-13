@@ -17,7 +17,7 @@ export function getWarehouseDetail(id) {
 
 export function createWarehouse(data) {
   return request({
-    url: '/warehouse',
+    url: '/warehouse/save',
     method: 'post',
     data
   })
@@ -25,7 +25,7 @@ export function createWarehouse(data) {
 
 export function updateWarehouse(data) {
   return request({
-    url: '/warehouse',
+    url: '/warehouse/update',
     method: 'put',
     data
   })
@@ -33,7 +33,7 @@ export function updateWarehouse(data) {
 
 export function deleteWarehouse(id) {
   return request({
-    url: '/warehouse/' + id,
+    url: '/warehouse/delete/' + id,
     method: 'delete'
   })
 }

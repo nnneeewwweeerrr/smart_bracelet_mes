@@ -104,6 +104,12 @@
       }
     },
     {
+      "path": "pages/production/sn-trace",
+      "style": {
+        "navigationBarTitleText": "SN全生命周期追溯"
+      }
+    },
+    {
       "path": "pages/production/repair",
       "style": {
         "navigationBarTitleText": "不良品维修"

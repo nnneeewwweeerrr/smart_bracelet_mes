@@ -108,7 +108,7 @@ const supplierList = ref([
 const statCards = ref([
   { title: '采购单总数', value: 89, icon: 'ShoppingBag', color: '#409EFF' },
   { title: '采购总金额', value: '¥1,856,200', icon: 'Money', color: '#67C23A' },
-  { title: '待到货', value: 12, icon: 'Truck', color: '#E6A23C' },
+  { title: '待到货', value: 12, icon: 'Van', color: '#E6A23C' },
   { title: '本月新增', value: 25, icon: 'Plus', color: '#F56C6C' }
 ])
 

@@ -481,9 +481,9 @@ const menuTree = ref([
     id: 4, name: '采购管理', path: 'purchase', icon: 'ShoppingCart', type: '菜单', sort: 4, status: '启用', children: []
   },
   {
-    id: 5, name: '仓储管理', path: '', icon: 'Warehouse', type: '目录', sort: 5, status: '启用',
+    id: 5, name: '仓储管理', path: '', icon: 'Goods', type: '目录', sort: 5, status: '启用',
     children: [
-      { id: 51, name: '库存查询', path: 'stock', icon: 'Warehouse', type: '菜单', sort: 1, status: '启用' },
+      { id: 51, name: '库存查询', path: 'stock', icon: 'DataAnalysis', type: '菜单', sort: 1, status: '启用' },
       { id: 52, name: '入库记录', path: 'stock-in', icon: 'Bottom', type: '菜单', sort: 2, status: '启用' },
       { id: 53, name: '出库记录', path: 'stock-out', icon: 'Top', type: '菜单', sort: 3, status: '启用' },
       { id: 54, name: '库存流水', path: 'stock-flow', icon: 'List', type: '菜单', sort: 4, status: '启用' }

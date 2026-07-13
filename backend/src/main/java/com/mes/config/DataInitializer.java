@@ -59,7 +59,7 @@ public class DataInitializer implements CommandLineRunner {
             int updated = 0;
             for (String username : defaultUsernames) {
                 SysUser user = sysUserService.getByUsername(username);
-                if (user != null && (user.getPassword() == null || user.getPassword().length() < 50)) {
+                if (user != null && (user.getPassword() == null || user.getPassword().length() < 60)) {
                     user.setPassword(passwordEncoder.encode("123456"));
                     user.setUpdateTime(LocalDateTime.now());
                     sysUserService.updateById(user);
