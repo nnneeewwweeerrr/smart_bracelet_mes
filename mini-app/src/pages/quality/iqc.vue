@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
+﻿<template>
   <view class="iqc-page">
     <view class="task-select">
       <text class="section-title">选择质检任务</text>
