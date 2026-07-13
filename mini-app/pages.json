@@ -41,6 +41,12 @@
       "style": {
         "navigationBarTitleText": "个人中心"
       }
+    },
+    {
+      "path": "pages/mine/settings",
+      "style": {
+        "navigationBarTitleText": "系统设置"
+      }
     }
   ],
   "tabBar": {

@@ -128,6 +128,18 @@
             </view>
             <text class="action-text">异常上报</text>
           </view>
+          <view class="action-item" @click="goTo('/pages/quality/test-input')">
+            <view class="action-icon test-icon">
+              <text class="action-icon-text">测</text>
+            </view>
+            <text class="action-text">功能测试</text>
+          </view>
+          <view class="action-item" @click="goTo('/pages/production/repair')">
+            <view class="action-icon repair-icon">
+              <text class="action-icon-text">修</text>
+            </view>
+            <text class="action-text">不良品维修</text>
+          </view>
         </view>
       </view>
 
@@ -761,6 +773,14 @@ export default {
   background: linear-gradient(135deg, rgba(250, 173, 20, 0.1) 0%, rgba(255, 197, 61, 0.05) 100%);
   box-shadow: 0 6rpx 20rpx rgba(250, 173, 20, 0.12);
 }
+.test-icon { 
+  background: linear-gradient(135deg, rgba(147, 112, 219, 0.1) 0%, rgba(168, 140, 224, 0.05) 100%);
+  box-shadow: 0 6rpx 20rpx rgba(147, 112, 219, 0.12);
+}
+.repair-icon { 
+  background: linear-gradient(135deg, rgba(245, 108, 108, 0.1) 0%, rgba(255, 120, 117, 0.05) 100%);
+  box-shadow: 0 6rpx 20rpx rgba(245, 108, 108, 0.12);
+}
 
 .action-icon-text {
   font-size: $font-size-xl;
@@ -772,6 +792,8 @@ export default {
 .prod-icon .action-icon-text { color: #FAAD14; }
 .quality-icon .action-icon-text { color: #FF4D4F; }
 .exception-icon .action-icon-text { color: #FAAD14; }
+.test-icon .action-icon-text { color: #9370DB; }
+.repair-icon .action-icon-text { color: #F56C6C; }
 
 .action-text {
   font-size: $font-size-sm;

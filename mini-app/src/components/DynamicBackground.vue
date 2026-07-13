@@ -1,5 +1,5 @@
 <template>
-  <view class="dynamic-bg" :class="theme">
+  <view class="dynamic-bg" :class="[theme, { 'dynamic-bg-fixed': fixed }]">
     <view class="bg-gradient-layer"></view>
     
     <view class="circle-container">
@@ -45,6 +45,10 @@ export default {
     theme: {
       type: String,
       default: 'theme-primary'
+    },
+    fixed: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -76,13 +80,18 @@ export default {
 
 <style lang="scss" scoped>
 .dynamic-bg {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 0;
   overflow: hidden;
+  pointer-events: none;
+}
+
+.dynamic-bg-fixed {
+  position: fixed;
 }
 
 .bg-gradient-layer {
@@ -432,3 +441,4 @@ export default {
   }
 }
 </style>
+
