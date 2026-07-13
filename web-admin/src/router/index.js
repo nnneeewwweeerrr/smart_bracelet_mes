@@ -88,6 +88,18 @@ const routes = [
         meta: { title: '设备档案', icon: 'Cpu' }
       },
       {
+        path: 'equipment-fault',
+        name: 'EquipmentFault',
+        component: () => import('../views/equipment-fault/index.vue'),
+        meta: { title: '设备故障管理', icon: 'Warning' }
+      },
+      {
+        path: 'equipment-maintain',
+        name: 'EquipmentMaintain',
+        component: () => import('../views/equipment-maintain/index.vue'),
+        meta: { title: '设备维保记录', icon: 'Tools' }
+      },
+      {
         path: 'stock',
         name: 'Stock',
         component: () => import('../views/stock/index.vue'),
@@ -106,10 +118,28 @@ const routes = [
         meta: { title: '出库记录', icon: 'Top' }
       },
       {
+        path: 'stock-take',
+        name: 'StockTake',
+        component: () => import('../views/stock-take/index.vue'),
+        meta: { title: '库存盘点', icon: 'Document' }
+      },
+      {
+        path: 'stock-warning',
+        name: 'StockWarning',
+        component: () => import('../views/stock-warning/index.vue'),
+        meta: { title: '库存预警', icon: 'Bell' }
+      },
+      {
         path: 'work-order',
         name: 'WorkOrder',
         component: () => import('../views/work-order/index.vue'),
         meta: { title: '生产工单', icon: 'Tickets' }
+      },
+      {
+        path: 'production-plan',
+        name: 'ProductionPlan',
+        component: () => import('../views/production-plan/index.vue'),
+        meta: { title: '生产计划', icon: 'Calendar' }
       },
       {
         path: 'production-progress',
@@ -140,6 +170,12 @@ const routes = [
         name: 'QualityRecord',
         component: () => import('../views/quality-record/index.vue'),
         meta: { title: '质检记录', icon: 'CircleCheck' }
+      },
+      {
+        path: 'unqualified',
+        name: 'Unqualified',
+        component: () => import('../views/unqualified/index.vue'),
+        meta: { title: '不合格品管理', icon: 'Warning' }
       },
       {
         path: 'exception-workbench',
@@ -176,6 +212,36 @@ const routes = [
         name: 'AiStats',
         component: () => import('../views/ai-stats/index.vue'),
         meta: { title: '问答统计', icon: 'DataLine' }
+      },
+      {
+        path: 'order-statistics',
+        name: 'OrderStatistics',
+        component: () => import('../views/order-statistics/index.vue'),
+        meta: { title: '订单统计', icon: 'DataLine' }
+      },
+      {
+        path: 'production-statistics',
+        name: 'ProductionStatistics',
+        component: () => import('../views/production-statistics/index.vue'),
+        meta: { title: '生产统计', icon: 'DataLine' }
+      },
+      {
+        path: 'purchase-statistics',
+        name: 'PurchaseStatistics',
+        component: () => import('../views/purchase-statistics/index.vue'),
+        meta: { title: '采购统计', icon: 'DataLine' }
+      },
+      {
+        path: 'quality-statistics',
+        name: 'QualityStatistics',
+        component: () => import('../views/quality-statistics/index.vue'),
+        meta: { title: '质量统计', icon: 'DataLine' }
+      },
+      {
+        path: 'stock-statistics',
+        name: 'StockStatistics',
+        component: () => import('../views/stock-statistics/index.vue'),
+        meta: { title: '库存统计', icon: 'DataLine' }
       }
     ]
   }

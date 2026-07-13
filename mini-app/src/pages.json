@@ -104,6 +104,12 @@
       }
     },
     {
+      "path": "pages/production/repair",
+      "style": {
+        "navigationBarTitleText": "不良品维修"
+      }
+    },
+    {
       "path": "pages/quality/index",
       "style": {
         "navigationBarTitleText": "质检录入"
@@ -119,6 +125,18 @@
       "path": "pages/quality/task",
       "style": {
         "navigationBarTitleText": "质检任务"
+      }
+    },
+    {
+      "path": "pages/quality/test-dashboard",
+      "style": {
+        "navigationBarTitleText": "测试数据看板"
+      }
+    },
+    {
+      "path": "pages/quality/test-input",
+      "style": {
+        "navigationBarTitleText": "功能测试录入"
       }
     },
     {
@@ -155,6 +173,18 @@
       "path": "pages/mine/log",
       "style": {
         "navigationBarTitleText": "操作记录"
+      }
+    },
+    {
+      "path": "pages/mine/notifications",
+      "style": {
+        "navigationBarTitleText": "消息通知"
+      }
+    },
+    {
+      "path": "pages/mine/settings",
+      "style": {
+        "navigationBarTitleText": "设置"
       }
     },
     {

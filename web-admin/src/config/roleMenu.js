@@ -6,7 +6,9 @@ export const roleMenus = {
       icon: 'ShoppingCart',
       children: [
         { path: 'order', title: '订单管理', icon: 'Document' },
-        { path: 'purchase', title: '采购管理', icon: 'ShoppingBag' }
+        { path: 'purchase', title: '采购管理', icon: 'ShoppingBag' },
+        { path: 'order-statistics', title: '订单统计', icon: 'DataLine' },
+        { path: 'purchase-statistics', title: '采购统计', icon: 'DataLine' }
       ]
     },
     {
@@ -16,8 +18,16 @@ export const roleMenus = {
         { path: 'customer', title: '客户档案', icon: 'User' },
         { path: 'supplier', title: '供应商管理', icon: 'OfficeBuilding' },
         { path: 'material', title: '物料档案', icon: 'Box' },
-        { path: 'product', title: '产品档案', icon: 'Present' },
-        { path: 'equipment', title: '设备档案', icon: 'Cpu' }
+        { path: 'product', title: '产品档案', icon: 'Present' }
+      ]
+    },
+    {
+      title: '设备管理',
+      icon: 'Cpu',
+      children: [
+        { path: 'equipment', title: '设备档案', icon: 'Cpu' },
+        { path: 'equipment-fault', title: '设备故障管理', icon: 'Warning' },
+        { path: 'equipment-maintain', title: '设备维保记录', icon: 'Tools' }
       ]
     },
     {
@@ -26,7 +36,10 @@ export const roleMenus = {
       children: [
         { path: 'stock', title: '库存查询', icon: 'DataAnalysis' },
         { path: 'stock-in', title: '入库记录', icon: 'Bottom' },
-        { path: 'stock-out', title: '出库记录', icon: 'Top' }
+        { path: 'stock-out', title: '出库记录', icon: 'Top' },
+        { path: 'stock-take', title: '库存盘点', icon: 'Document' },
+        { path: 'stock-warning', title: '库存预警', icon: 'Bell' },
+        { path: 'stock-statistics', title: '库存统计', icon: 'DataLine' }
       ]
     },
     {
@@ -34,10 +47,12 @@ export const roleMenus = {
       icon: 'SetUp',
       children: [
         { path: 'work-order', title: '生产工单', icon: 'Tickets' },
+        { path: 'production-plan', title: '生产计划', icon: 'Calendar' },
         { path: 'production-progress', title: '生产进度', icon: 'TrendCharts' },
         { path: 'process-config', title: '工艺配置', icon: 'Setting' },
         { path: 'sn-trace', title: 'SN全生命周期追溯', icon: 'Key' },
-        { path: 'sop-board', title: 'SOP电子看板', icon: 'Monitor' }
+        { path: 'sop-board', title: 'SOP电子看板', icon: 'Monitor' },
+        { path: 'production-statistics', title: '生产统计', icon: 'DataLine' }
       ]
     },
     {
@@ -45,7 +60,9 @@ export const roleMenus = {
       icon: 'CircleCheck',
       children: [
         { path: 'quality-record', title: '质检记录', icon: 'CircleCheck' },
-        { path: 'exception-workbench', title: '异常处理', icon: 'Warning' }
+        { path: 'unqualified', title: '不合格品管理', icon: 'Warning' },
+        { path: 'exception-workbench', title: '异常处理', icon: 'Warning' },
+        { path: 'quality-statistics', title: '质量统计', icon: 'DataLine' }
       ]
     },
     {
