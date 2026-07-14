@@ -177,11 +177,13 @@
 
     <el-dialog v-model="roleDialogVisible" :title="roleDialogTitle" width="500px">
       <el-form :model="roleForm" :rules="roleRules" ref="roleFormRef" label-width="80px">
-        <el-form-item label="角色标识" prop="roleKey">
-          <el-input v-model="roleForm.roleKey" placeholder="请输入角色标识" />
-        </el-form-item>
         <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="roleForm.roleName" placeholder="请输入角色名称" />
+          <el-select v-model="roleForm.roleName" placeholder="请选择角色名称" style="width: 100%" @change="handleRoleNameChange">
+            <el-option v-for="item in roleNameOptions" :key="item.value" :label="item.label" :value="item.label" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="角色标识" prop="roleKey">
+          <el-input v-model="roleForm.roleKey" placeholder="自动填充" disabled />
         </el-form-item>
         <el-form-item label="角色描述" prop="description">
           <el-input v-model="roleForm.description" type="textarea" :rows="3" placeholder="请输入角色描述" />
@@ -268,17 +270,20 @@ import { roleNames } from '../../config/roleMenu'
 const activeTab = ref('user')
 
 const userList = ref([
-  { id: 1, username: 'admin', realName: '超级管理员', role: 'admin', phone: '13800000001', email: 'admin@example.com', status: '启用', createTime: '2024-01-01 10:00:00' },
-  { id: 2, username: 'order_clerk', realName: '张三', role: 'order_clerk', phone: '13800000002', email: 'zhangsan@example.com', status: '启用', createTime: '2024-01-02 10:00:00' },
-  { id: 3, username: 'purchase_clerk', realName: '李四', role: 'purchase_clerk', phone: '13800000003', email: 'lisi@example.com', status: '启用', createTime: '2024-01-03 10:00:00' },
-  { id: 4, username: 'warehouse_keeper', realName: '王五', role: 'warehouse_keeper', phone: '13800000004', email: 'wangwu@example.com', status: '启用', createTime: '2024-01-04 10:00:00' },
-  { id: 5, username: 'production_manager', realName: '赵六', role: 'production_manager', phone: '13800000005', email: 'zhaoliu@example.com', status: '启用', createTime: '2024-01-05 10:00:00' },
-  { id: 6, username: 'quality_inspector', realName: '钱七', role: 'quality_inspector', phone: '13800000006', email: 'qianqi@example.com', status: '启用', createTime: '2024-01-06 10:00:00' },
-  { id: 7, username: 'test001', realName: '测试员1', role: 'order_clerk', phone: '13800000007', email: 'test001@example.com', status: '禁用', createTime: '2024-01-07 10:00:00' }
+  { id: 1, username: 'admin', realName: '系统管理员', role: 'admin', phone: '13800000001', email: 'admin@mes.com', status: '启用', createTime: '2024-01-01 10:00:00' },
+  { id: 2, username: 'order_clerk', realName: '王订单', role: 'order_clerk', phone: '13800000002', email: 'order@mes.com', status: '启用', createTime: '2024-01-02 10:00:00' },
+  { id: 3, username: 'purchase_clerk', realName: '李采购', role: 'purchase_clerk', phone: '13800000003', email: 'purchase@mes.com', status: '启用', createTime: '2024-01-03 10:00:00' },
+  { id: 4, username: 'warehouse_keeper', realName: '张仓管', role: 'warehouse_keeper', phone: '13800000004', email: 'warehouse@mes.com', status: '启用', createTime: '2024-01-04 10:00:00' },
+  { id: 5, username: 'production_manager', realName: '赵生产', role: 'production_manager', phone: '13800000005', email: 'production@mes.com', status: '启用', createTime: '2024-01-05 10:00:00' },
+  { id: 6, username: 'quality_inspector', realName: '陈质检', role: 'quality_inspector', phone: '13800000006', email: 'quality@mes.com', status: '启用', createTime: '2024-01-06 10:00:00' },
+  { id: 7, username: 'equipment_admin', realName: '钱设备', role: 'equipment_admin', phone: '13800138009', email: 'equipment@mes.com', status: '启用', createTime: '2024-01-07 10:00:00' },
+  { id: 8, username: 'finance', realName: '周财务', role: 'finance', phone: '13800138010', email: 'finance@mes.com', status: '启用', createTime: '2024-01-08 10:00:00' },
+  { id: 9, username: 'guest', realName: '访客用户', role: 'guest', phone: '13800138011', email: 'guest@mes.com', status: '启用', createTime: '2024-01-09 10:00:00' },
+  { id: 10, username: 'exception_handler', realName: '吴异常', role: 'exception_handler', phone: '13800138012', email: 'exception@mes.com', status: '启用', createTime: '2024-01-10 10:00:00' }
 ])
 const userPage = ref(1)
 const userPageSize = ref(10)
-const userTotal = ref(7)
+const userTotal = ref(10)
 const userDialogVisible = ref(false)
 const userDialogTitle = ref('新增用户')
 const userFormRef = ref(null)
@@ -313,7 +318,11 @@ function getRoleTagType(role) {
     purchase_clerk: 'warning',
     warehouse_keeper: 'success',
     production_manager: 'info',
-    quality_inspector: ''
+    quality_inspector: '',
+    equipment_admin: 'primary',
+    finance: 'warning',
+    guest: 'info',
+    exception_handler: 'danger'
   }
   return map[role] || ''
 }
@@ -381,15 +390,20 @@ function handleDeleteUser(row) {
 
 const roleList = ref([
   { id: 1, roleKey: 'admin', roleName: '超级管理员', description: '拥有所有系统权限', status: '启用', createTime: '2024-01-01 10:00:00' },
-  { id: 2, roleKey: 'order_clerk', roleName: '订单员', description: '负责订单管理', status: '启用', createTime: '2024-01-02 10:00:00' },
-  { id: 3, roleKey: 'purchase_clerk', roleName: '采购员', description: '负责采购管理', status: '启用', createTime: '2024-01-03 10:00:00' },
-  { id: 4, roleKey: 'warehouse_keeper', roleName: '仓库管理员', description: '负责仓储管理', status: '启用', createTime: '2024-01-04 10:00:00' },
-  { id: 5, roleKey: 'production_manager', roleName: '生产主管', description: '负责生产管理', status: '启用', createTime: '2024-01-05 10:00:00' },
-  { id: 6, roleKey: 'quality_inspector', roleName: '质检员', description: '负责质量检验', status: '启用', createTime: '2024-01-06 10:00:00' }
+  { id: 2, roleKey: 'order_clerk', roleName: '订单专员', description: '负责订单管理相关工作', status: '启用', createTime: '2024-01-02 10:00:00' },
+  { id: 3, roleKey: 'purchase_clerk', roleName: '采购专员', description: '负责采购管理相关工作', status: '启用', createTime: '2024-01-03 10:00:00' },
+  { id: 4, roleKey: 'warehouse_keeper', roleName: '仓库管理员', description: '负责仓储管理相关工作', status: '启用', createTime: '2024-01-04 10:00:00' },
+  { id: 5, roleKey: 'production_manager', roleName: '生产主管', description: '负责生产管理相关工作', status: '启用', createTime: '2024-01-05 10:00:00' },
+  { id: 6, roleKey: 'quality_inspector', roleName: '质检人员', description: '负责质量管理相关工作', status: '启用', createTime: '2024-01-06 10:00:00' },
+  { id: 7, roleKey: 'worker', roleName: '一线工人', description: '负责生产报工、异常上报', status: '启用', createTime: '2024-01-07 10:00:00' },
+  { id: 8, roleKey: 'equipment_admin', roleName: '设备管理员', description: '负责设备管理和维护保养', status: '启用', createTime: '2024-01-08 10:00:00' },
+  { id: 9, roleKey: 'finance', roleName: '财务人员', description: '负责财务核算和成本统计', status: '启用', createTime: '2024-01-09 10:00:00' },
+  { id: 10, roleKey: 'guest', roleName: '访客', description: '只读权限，用于参观和查看', status: '启用', createTime: '2024-01-10 10:00:00' },
+  { id: 11, roleKey: 'exception_handler', roleName: '异常处理员', description: '负责异常接收、判定等级、处理闭环', status: '启用', createTime: '2024-01-11 10:00:00' }
 ])
 const rolePage = ref(1)
 const rolePageSize = ref(10)
-const roleTotal = ref(6)
+const roleTotal = ref(11)
 const roleDialogVisible = ref(false)
 const roleDialogTitle = ref('新增角色')
 const roleFormRef = ref(null)
@@ -400,9 +414,21 @@ const roleForm = ref({
   description: '',
   status: '启用'
 })
+const roleNameOptions = Object.entries(roleNames).map(([key, value]) => ({
+  value: key,
+  label: value
+}))
+
 const roleRules = {
   roleKey: [{ required: true, message: '请输入角色标识', trigger: 'blur' }],
-  roleName: [{ required: true, message: '请输入角色名称', trigger: 'blur' }]
+  roleName: [{ required: true, message: '请选择角色名称', trigger: 'change' }]
+}
+
+function handleRoleNameChange(roleName) {
+  const matched = roleNameOptions.find(item => item.label === roleName)
+  if (matched) {
+    roleForm.value.roleKey = matched.value
+  }
 }
 
 function handleAddRole() {

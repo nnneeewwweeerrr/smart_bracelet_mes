@@ -46,18 +46,29 @@ public class ExceptionRecord {
     @TableField("exception_status")
     private Integer exceptionStatus;
 
-    @TableField("exception_status")
-    private Integer status;
-
     @TableField("create_time")
     private LocalDateTime createTime;
 
     @TableField("update_time")
     private LocalDateTime updateTime;
 
-    @TableField("task_id")
     private Long workOrderId;
 
-    @TableField("exception_desc")
     private String description;
+
+    private Long handlerId;
+
+    private String handleReport;
+
+    private String handleResult;
+
+    private String imageUrls;
+
+    private String findProcess;
+
+    private String findOperator;
+
+    private String handlerName;
+
+    private String reporterName;
 }

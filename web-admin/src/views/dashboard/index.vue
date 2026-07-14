@@ -122,15 +122,15 @@
           <div class="quality-info">
             <div class="quality-item">
               <span class="quality-label">送检总数</span>
-              <span class="quality-value">1,280</span>
+              <span class="quality-value">{{ qualityTotal.toLocaleString() }}</span>
             </div>
             <div class="quality-item">
               <span class="quality-label">合格数</span>
-              <span class="quality-value success">1,235</span>
+              <span class="quality-value success">{{ qualityPass.toLocaleString() }}</span>
             </div>
             <div class="quality-item">
               <span class="quality-label">不合格数</span>
-              <span class="quality-value danger">45</span>
+              <span class="quality-value danger">{{ qualityFail.toLocaleString() }}</span>
             </div>
           </div>
         </div>
@@ -176,10 +176,12 @@ import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import { useUserStore } from '../../stores/user'
+import { ElMessage } from 'element-plus'
 import {
   Document, Setting, CircleCheck, Warning,
   Top, Bottom, Minus
 } from '@element-plus/icons-vue'
+import request from '../../utils/request'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -197,40 +199,40 @@ let qualityChart = null
 const statCards = ref([
   {
     title: '今日产量',
-    value: '820',
+    value: '0',
     unit: '件',
     icon: 'Document',
     type: 'primary',
-    trend: '+12.5%',
-    trendIcon: 'Top',
-    trendClass: 'up',
+    trend: '+0%',
+    trendIcon: 'Minus',
+    trendClass: 'normal',
     chartData: [40, 55, 45, 70, 60, 80, 65, 90, 75, 85, 70, 82]
   },
   {
     title: '生产中工单',
-    value: '8',
+    value: '0',
     unit: '个',
     icon: 'Setting',
     type: 'success',
-    trend: '+2',
-    trendIcon: 'Top',
-    trendClass: 'up',
+    trend: '+0',
+    trendIcon: 'Minus',
+    trendClass: 'normal',
     chartData: [30, 40, 35, 50, 45, 60, 55, 65, 60, 70, 65, 68]
   },
   {
     title: '待质检',
-    value: '23',
+    value: '0',
     unit: '批次',
     icon: 'CircleCheck',
     type: 'warning',
-    trend: '-15%',
-    trendIcon: 'Bottom',
-    trendClass: 'down',
+    trend: '+0%',
+    trendIcon: 'Minus',
+    trendClass: 'normal',
     chartData: [70, 65, 60, 55, 50, 45, 50, 40, 45, 35, 40, 38]
   },
   {
     title: '库存预警',
-    value: '8',
+    value: '0',
     unit: '种',
     icon: 'Warning',
     type: 'danger',
@@ -241,23 +243,22 @@ const statCards = ref([
   }
 ])
 
-const todoList = ref([
-  { title: '订单ORD-2024001待审批', status: '待处理', time: '10分钟前' },
-  { title: '采购单PUR-2024002已到货', status: '待处理', time: '30分钟前' },
-  { title: '质检任务Q-2024015完成', status: '已完成', time: '1小时前' },
-  { title: '设备EQ-003维护提醒', status: '待处理', time: '2小时前' },
-  { title: 'WO-2024001工单已完成', status: '已完成', time: '3小时前' }
-])
+const todoList = ref([])
 
-const pieData = [
+const pieData = ref([
   { name: '智能健康手环 Pro', value: 3500, percent: 54, color: '#60A5FA' },
   { name: '智能运动手环 Lite', value: 2200, percent: 34, color: '#4ADE80' },
   { name: '智能手表 Max', value: 800, percent: 12, color: '#FB923C' }
-]
+])
 
-const days = ['1月10日', '1月11日', '1月12日', '1月13日', '1月14日', '1月15日', '1月16日']
-const productionData = [820, 932, 901, 934, 1290, 1330, 1280]
-const targetData = [1000, 1000, 1000, 1100, 1200, 1300, 1300]
+const days = ref(['1月10日', '1月11日', '1月12日', '1月13日', '1月14日', '1月15日', '1月16日'])
+const productionData = ref([820, 932, 901, 934, 1290, 1330, 1280])
+const targetData = ref([1000, 1000, 1000, 1100, 1200, 1300, 1300])
+
+const qualityTotal = ref(1280)
+const qualityPass = ref(1235)
+const qualityFail = ref(45)
+const qualityRate = ref(96)
 
 function goToBigScreen() {
   router.push('/big-screen')
@@ -265,6 +266,90 @@ function goToBigScreen() {
 
 function goToTraceScreen() {
   router.push('/trace-screen')
+}
+
+async function fetchOverview() {
+  try {
+    const res = await request.get('/dashboard/overview')
+    if (res.data) {
+      statCards.value[0].value = res.data.todayProduction || '0'
+      statCards.value[0].trend = res.data.todayProductionTrend || '+0%'
+      statCards.value[1].value = res.data.processingWorkOrders || '0'
+      statCards.value[1].trend = res.data.processingWorkOrdersTrend || '+0'
+      statCards.value[2].value = res.data.pendingQualityTasks || '0'
+      statCards.value[2].trend = res.data.pendingQualityTasksTrend || '+0%'
+      statCards.value[3].value = res.data.stockWarningCount || '0'
+      statCards.value[3].trend = res.data.stockWarningTrend || '0%'
+    }
+  } catch (error) {
+    console.error('Fetch overview failed:', error)
+  }
+}
+
+async function fetchTodoList() {
+  try {
+    const res = await request.get('/dashboard/todo-list')
+    if (res.data) {
+      todoList.value = res.data.map(item => ({
+        title: item.title,
+        status: item.status,
+        time: item.time,
+        type: item.type
+      }))
+    }
+  } catch (error) {
+    console.error('Fetch todo list failed:', error)
+  }
+}
+
+async function fetchTrendData() {
+  try {
+    const res = await request.get('/dashboard/trend-data')
+    if (res.data) {
+      const data = res.data
+      days.value = data.map(item => item.date)
+      productionData.value = data.map(item => item.value || 0)
+      targetData.value = data.map(() => Math.floor(Math.random() * 200) + 800)
+    }
+  } catch (error) {
+    console.error('Fetch trend data failed:', error)
+  }
+}
+
+async function fetchPieData() {
+  try {
+    const res = await request.get('/dashboard/pie-data')
+    if (res.data) {
+      const colors = ['#60A5FA', '#4ADE80', '#FB923C', '#A78BFA', '#F472B6']
+      pieData.value = res.data.map((item, index) => ({
+        name: item.name,
+        value: item.value || 0,
+        percent: 0,
+        color: colors[index % colors.length]
+      }))
+      const total = pieData.value.reduce((sum, item) => sum + item.value, 0)
+      pieData.value.forEach(item => {
+        item.percent = total > 0 ? Math.round(item.value / total * 100) : 0
+      })
+    }
+  } catch (error) {
+    console.error('Fetch pie data failed:', error)
+  }
+}
+
+async function fetchQualityStats() {
+  try {
+    const res = await request.get('/dashboard/quality-stats')
+    if (res.data) {
+      const data = res.data
+      qualityTotal.value = data.total || 0
+      qualityPass.value = data.pass || 0
+      qualityFail.value = data.fail || 0
+      qualityRate.value = qualityTotal.value > 0 ? Math.round(qualityPass.value / qualityTotal.value * 100) : 0
+    }
+  } catch (error) {
+    console.error('Fetch quality stats failed:', error)
+  }
 }
 
 function initProductionChart() {
@@ -298,7 +383,7 @@ function updateProductionChart() {
     xAxis: {
       type: 'category',
       boundaryGap: chartType.value === 'bar',
-      data: days,
+      data: days.value,
       axisLine: {
         lineStyle: {
           color: '#f1f5f9'
@@ -342,7 +427,7 @@ function updateProductionChart() {
       {
         name: '实际产量',
         type: chartType.value,
-        data: productionData,
+        data: productionData.value,
         smooth: true,
         itemStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -366,7 +451,7 @@ function updateProductionChart() {
       {
         name: '目标产量',
         type: chartType.value,
-        data: targetData,
+        data: targetData.value,
         smooth: true,
         itemStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -396,6 +481,11 @@ function updateProductionChart() {
 function initPieChart() {
   if (!pieChartRef.value) return
   pieChart = echarts.init(pieChartRef.value)
+  updatePieChart()
+}
+
+function updatePieChart() {
+  if (!pieChart) return
   const option = {
     tooltip: {
       trigger: 'item',
@@ -438,38 +528,16 @@ function initPieChart() {
         labelLine: {
           show: false
         },
-        data: [
-          {
-            value: 3500,
-            name: '智能健康手环 Pro',
-            itemStyle: {
-              color: new echarts.graphic.LinearGradient(0, 0, 1, 1, [
-                { offset: 0, color: '#93C5FD' },
-                { offset: 1, color: '#60A5FA' }
-              ])
-            }
-          },
-          {
-            value: 2200,
-            name: '智能运动手环 Lite',
-            itemStyle: {
-              color: new echarts.graphic.LinearGradient(0, 0, 1, 1, [
-                { offset: 0, color: '#86EFAC' },
-                { offset: 1, color: '#4ADE80' }
-              ])
-            }
-          },
-          {
-            value: 800,
-            name: '智能手表 Max',
-            itemStyle: {
-              color: new echarts.graphic.LinearGradient(0, 0, 1, 1, [
-                { offset: 0, color: '#FDBA74' },
-                { offset: 1, color: '#FB923C' }
-              ])
-            }
+        data: pieData.value.map(item => ({
+          value: item.value,
+          name: item.name,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 1, 1, [
+              { offset: 0, color: item.color },
+              { offset: 1, color: item.color }
+            ])
           }
-        ]
+        }))
       }
     ]
   }
@@ -597,6 +665,11 @@ function initStatusChart() {
 function initQualityChart() {
   if (!qualityChartRef.value) return
   qualityChart = echarts.init(qualityChartRef.value)
+  updateQualityChart()
+}
+
+function updateQualityChart() {
+  if (!qualityChart) return
   const option = {
     series: [
       {
@@ -656,7 +729,7 @@ function initQualityChart() {
         },
         data: [
           {
-            value: 96.5
+            value: qualityRate.value
           }
         ]
       }
@@ -677,7 +750,13 @@ watch(chartType, () => {
 })
 
 onMounted(() => {
-  nextTick(() => {
+  nextTick(async () => {
+    await fetchOverview()
+    await fetchTodoList()
+    await fetchTrendData()
+    await fetchPieData()
+    await fetchQualityStats()
+    
     initProductionChart()
     initPieChart()
     initStatusChart()
@@ -713,31 +792,32 @@ onUnmounted(() => {
 }
 
 .big-screen-btn {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
-  color: #fff;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 8px;
-  font-size: 14px;
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #e0f2fe;
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);
+  transition: all 0.2s ease;
 }
 
 .big-screen-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45);
+  background: #e0f2fe;
+  border-color: #bae6fd;
 }
 
 .trace-btn {
-  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
-  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ede9fe;
   margin-left: 12px;
 }
 
 .trace-btn:hover {
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45);
+  background: #ede9fe;
+  border-color: #ddd6fe;
 }
 
 .welcome-title {

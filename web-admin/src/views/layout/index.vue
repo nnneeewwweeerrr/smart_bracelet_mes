@@ -94,6 +94,50 @@
             <span class="date-text">{{ currentDate }}</span>
             <span class="time-text">{{ currentTime }}</span>
           </div>
+          <el-dropdown 
+            ref="notificationRef"
+            @command="handleNotificationCommand" 
+            trigger="click"
+            @visible-change="handleNotificationVisibleChange"
+          >
+            <div class="notification-trigger">
+              <el-icon class="notification-icon"><Bell /></el-icon>
+              <span v-if="unreadCount > 0" class="notification-badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+            </div>
+            <template #dropdown>
+              <div class="notification-dropdown">
+                <div class="notification-header">
+                  <span class="notification-title">实时消息</span>
+                  <span class="notification-action" @click.stop="markAllAsRead">全部已读</span>
+                </div>
+                <div v-if="notificationList.length === 0" class="notification-empty">
+                  <el-icon :size="48" class="empty-icon"><Bell /></el-icon>
+                  <span>暂无消息</span>
+                </div>
+                <div v-else class="notification-list">
+                  <div 
+                    v-for="item in notificationList" 
+                    :key="item.id"
+                    class="notification-item"
+                    :class="{ 'notification-unread': !item.read }"
+                    @click="handleNotificationClick(item)"
+                  >
+                    <div class="notification-icon-wrapper" :class="getNotificationIconClass(item.type)">
+                      <el-icon><component :is="getNotificationIcon(item.type)" /></el-icon>
+                    </div>
+                    <div class="notification-content">
+                      <div class="notification-title-text">{{ getNotificationTitle(item.type) }}</div>
+                      <div class="notification-desc">{{ getNotificationDesc(item) }}</div>
+                      <div class="notification-time">{{ item.time }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="notificationList.length > 0" class="notification-footer">
+                  <span class="notification-action" @click.stop="goToMessagePage">查看更多</span>
+                </div>
+              </div>
+            </template>
+          </el-dropdown>
           <el-dropdown @command="handleCommand" trigger="click">
             <div class="user-dropdown-trigger">
               <el-avatar :size="32" class="header-avatar">
@@ -144,10 +188,11 @@ import { useUserStore } from '../../stores/user'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import {
   Fold, Expand, ArrowDown, UserFilled, SwitchButton,
-  Search, Watch, Key, Monitor
+  Search, Watch, Key, Monitor, Bell, Warning, TrendCharts, CircleCheck, CircleClose
 } from '@element-plus/icons-vue'
 import { getMenusByRole, roleNames } from '../../config/roleMenu'
 import AiAssistant from '../../components/AiAssistant.vue'
+import wsClient from '../../utils/websocket'
 
 const route = useRoute()
 const router = useRouter()
@@ -157,6 +202,10 @@ const isCollapse = ref(false)
 const currentDate = ref('')
 const currentTime = ref('')
 let timer = null
+
+const unreadCount = ref(0)
+const notificationList = ref([])
+const notificationRef = ref(null)
 
 const searchKeyword = ref('')
 const showSearchResult = ref(false)
@@ -235,6 +284,7 @@ onMounted(() => {
   updateDateTime()
   timer = setInterval(updateDateTime, 1000)
   document.addEventListener('click', handleClickOutside)
+  initNotifications()
 })
 
 onUnmounted(() => {
@@ -242,7 +292,97 @@ onUnmounted(() => {
     clearInterval(timer)
   }
   document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('message-update', handleMessageUpdate)
 })
+
+function initNotifications() {
+  notificationList.value = wsClient.getMessages()
+  unreadCount.value = wsClient.getUnreadCount()
+  document.addEventListener('message-update', handleMessageUpdate)
+}
+
+function handleMessageUpdate(e) {
+  notificationList.value = e.detail.messages
+  unreadCount.value = e.detail.count
+}
+
+function handleNotificationCommand(command) {
+  if (command === 'mark-all-read') {
+    markAllAsRead()
+  }
+}
+
+function handleNotificationVisibleChange(visible) {
+  if (visible) {
+    notificationList.value = wsClient.getMessages().slice(0, 10)
+  }
+}
+
+function handleNotificationClick(item) {
+  wsClient.markAsRead(item.id)
+  unreadCount.value = wsClient.getUnreadCount()
+  if (item.type === 'NEW_EXCEPTION') {
+    router.push('/exception-workbench')
+  } else if (item.type === 'PROGRESS_UPDATE') {
+    router.push('/production-progress')
+  }
+}
+
+function markAllAsRead() {
+  wsClient.markAllAsRead()
+  unreadCount.value = 0
+  notificationList.value = wsClient.getMessages().slice(0, 10)
+  ElMessage.success('已全部标记为已读')
+}
+
+function goToMessagePage() {
+  router.push('/exception-workbench')
+}
+
+function getNotificationIcon(type) {
+  const icons = {
+    NEW_EXCEPTION: Warning,
+    EXCEPTION_HANDLED: CircleCheck,
+    EXCEPTION_RESOLVED: CircleCheck,
+    PROGRESS_UPDATE: TrendCharts
+  }
+  return icons[type] || Bell
+}
+
+function getNotificationIconClass(type) {
+  const classes = {
+    NEW_EXCEPTION: 'icon-warning',
+    EXCEPTION_HANDLED: 'icon-info',
+    EXCEPTION_RESOLVED: 'icon-success',
+    PROGRESS_UPDATE: 'icon-success'
+  }
+  return classes[type] || 'icon-info'
+}
+
+function getNotificationTitle(type) {
+  const titles = {
+    NEW_EXCEPTION: '新异常告警',
+    EXCEPTION_HANDLED: '异常已处理',
+    EXCEPTION_RESOLVED: '异常已解决',
+    PROGRESS_UPDATE: '生产进度更新'
+  }
+  return titles[type] || '系统消息'
+}
+
+function getNotificationDesc(item) {
+  const payload = item.payload
+  if (item.type === 'NEW_EXCEPTION') {
+    const typeNames = ['', '设备故障', '质量异常', '物料短缺', '工艺问题', '人员异常', '其他']
+    return `【${typeNames[payload.exceptionType] || payload.exceptionTypeName || '异常'}】${payload.workOrderNo} - ${(payload.exceptionDesc || '').slice(0, 30)}${(payload.exceptionDesc || '').length > 30 ? '...' : ''}`
+  } else if (item.type === 'EXCEPTION_HANDLED') {
+    return `异常 ${payload.exceptionNo} 已开始处理`
+  } else if (item.type === 'EXCEPTION_RESOLVED') {
+    return `异常 ${payload.exceptionNo} 已解决`
+  } else if (item.type === 'PROGRESS_UPDATE') {
+    return `工单 ${payload.workOrderNo} 在 ${payload.processName} 工序新增报工 ${payload.addQuantity} 件`
+  }
+  return '查看详情'
+}
 
 const menuList = computed(() => {
   const role = userStore.userInfo?.role || 'admin'
@@ -635,6 +775,196 @@ function handleCommand(command) {
 
 .user-dropdown {
   min-width: 160px;
+}
+
+.notification-trigger {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 18px;
+  transition: all var(--transition-fast);
+  margin-left: 4px;
+}
+
+.notification-trigger:hover {
+  background: var(--bg-color);
+  color: var(--primary-color);
+}
+
+.notification-icon {
+  animation: bell-pulse 3s infinite;
+}
+
+@keyframes bell-pulse {
+  0%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(-10deg); }
+  20% { transform: rotate(10deg); }
+  30% { transform: rotate(-10deg); }
+  40% { transform: rotate(0deg); }
+}
+
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #f56c6c;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: badge-bounce 2s infinite;
+}
+
+@keyframes badge-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.notification-dropdown {
+  min-width: 360px;
+  max-height: 480px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.notification-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+  background: #fff;
+}
+
+.notification-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.notification-action {
+  font-size: 12px;
+  color: var(--primary-color);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.notification-action:hover {
+  color: var(--primary-dark);
+}
+
+.notification-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-placeholder);
+  font-size: 13px;
+}
+
+.empty-icon {
+  color: var(--border-color);
+  margin-bottom: 12px;
+}
+
+.notification-list {
+  flex: 1;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.notification-item:hover {
+  background: #fff;
+}
+
+.notification-unread {
+  background: rgba(59, 130, 246, 0.03);
+}
+
+.notification-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.notification-icon-wrapper.icon-warning {
+  background: rgba(245, 108, 108, 0.1);
+  color: #f56c6c;
+}
+
+.notification-icon-wrapper.icon-success {
+  background: rgba(82, 196, 26, 0.1);
+  color: #52c41a;
+}
+
+.notification-icon-wrapper.icon-info {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.notification-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-time {
+  font-size: 11px;
+  color: var(--text-placeholder);
+  margin-top: 6px;
+}
+
+.notification-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-light);
+  background: #fff;
+  text-align: center;
 }
 
 .content-wrapper {

@@ -19,7 +19,7 @@ const routes = [
     path: '/trace-screen',
     name: 'TraceScreen',
     component: () => import('../views/trace-screen/index.vue'),
-    meta: { title: '订单全链路追溯大屏', requiresAuth: false }
+    meta: { title: '订单全链路追溯', requiresAuth: false }
   },
   {
     path: '/sop-board',

@@ -98,10 +98,10 @@ const productList = ref([
 ])
 
 const statCards = ref([
-  { title: '订单总数', value: 156, icon: 'Document', color: '#409EFF' },
-  { title: '总金额(元)', value: '3,256,800', icon: 'Money', color: '#67C23A' },
-  { title: '已完成订单', value: 98, icon: 'CircleCheck', color: '#E6A23C' },
-  { title: '待处理订单', value: 23, icon: 'Clock', color: '#F56C6C' }
+  { title: '订单总数', value: 156, icon: 'Document', color: '#A7CBFF' },
+  { title: '总金额(元)', value: '3,256,800', icon: 'Money', color: '#95D5B2' },
+  { title: '已完成订单', value: 98, icon: 'CircleCheck', color: '#FFD6A5' },
+  { title: '待处理订单', value: 23, icon: 'Clock', color: '#FFADAD' }
 ])
 
 const productStats = ref([
@@ -115,32 +115,50 @@ function initTrendChart() {
   trendChart = echarts.init(trendChartRef.value)
   const option = {
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#e8e8e8',
+      borderWidth: 1,
+      textStyle: { color: '#606266' }
     },
     legend: {
       data: ['订单金额', '订单数量'],
-      top: 0
+      top: 0,
+      textStyle: { color: '#909399' }
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '3%',
+      top: '15%',
       containLabel: true
     },
     xAxis: {
       type: 'category',
-      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+      axisLine: { lineStyle: { color: '#f0f2f5' } },
+      axisLabel: { color: '#a8abb2' }
     },
     yAxis: [
       {
         type: 'value',
         name: '金额(元)',
-        position: 'left'
+        position: 'left',
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { lineStyle: { color: '#f5f7fa', type: 'dashed' } },
+        axisLabel: { color: '#a8abb2' },
+        nameTextStyle: { color: '#a8abb2' }
       },
       {
         type: 'value',
         name: '订单数',
-        position: 'right'
+        position: 'right',
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { show: false },
+        axisLabel: { color: '#a8abb2' },
+        nameTextStyle: { color: '#a8abb2' }
       }
     ],
     series: [
@@ -148,21 +166,25 @@ function initTrendChart() {
         name: '订单金额',
         type: 'line',
         smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
         data: [120000, 132000, 101000, 134000, 90000, 230000, 210000, 182000, 191000, 234000, 290000, 330000],
-        itemStyle: { color: '#409EFF' },
+        itemStyle: { color: '#A7CBFF' },
+        lineStyle: { width: 3, color: '#A7CBFF' },
         areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
-            { offset: 1, color: 'rgba(64, 158, 255, 0.05)' }
-          ])
+          color: 'rgba(167, 203, 255, 0.15)'
         }
       },
       {
         name: '订单数量',
         type: 'bar',
         yAxisIndex: 1,
+        barWidth: '40%',
         data: [12, 15, 10, 14, 8, 22, 20, 18, 19, 23, 28, 32],
-        itemStyle: { color: '#67C23A' }
+        itemStyle: {
+          borderRadius: [4, 4, 0, 0],
+          color: '#95D5B2'
+        }
       }
     ]
   }
@@ -175,43 +197,56 @@ function initStatusChart() {
   const option = {
     tooltip: {
       trigger: 'item',
-      formatter: '{a} <br/>{b}: {c} ({d}%)'
+      formatter: '{a} <br/>{b}: {c} ({d}%)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#e8e8e8',
+      borderWidth: 1,
+      textStyle: { color: '#606266' }
     },
     legend: {
-      orient: 'vertical',
-      left: 'left'
+      bottom: '5%',
+      left: 'center',
+      itemWidth: 12,
+      itemHeight: 12,
+      textStyle: { color: '#909399', fontSize: 12 },
+      padding: [10, 0, 0, 0]
     },
     series: [
       {
         name: '订单状态',
         type: 'pie',
-        radius: ['40%', '70%'],
-        avoidLabelOverlap: false,
+        radius: ['45%', '68%'],
+        center: ['50%', '42%'],
+        avoidLabelOverlap: true,
         itemStyle: {
-          borderRadius: 4,
+          borderRadius: 6,
           borderColor: '#fff',
-          borderWidth: 2
+          borderWidth: 3
         },
         label: {
-          show: false,
-          position: 'center'
+          show: false
         },
         emphasis: {
           label: {
             show: true,
-            fontSize: 16,
-            fontWeight: 'bold'
+            fontSize: 14,
+            fontWeight: 500
+          },
+          itemStyle: {
+            shadowBlur: 0,
+            shadowOffsetX: 0,
+            shadowColor: 'transparent'
           }
         },
         labelLine: {
           show: false
         },
         data: [
-          { value: 23, name: '待审批', itemStyle: { color: '#F56C6C' } },
-          { value: 18, name: '已审批', itemStyle: { color: '#409EFF' } },
-          { value: 35, name: '生产中', itemStyle: { color: '#E6A23C' } },
-          { value: 98, name: '已完成', itemStyle: { color: '#67C23A' } },
-          { value: 8, name: '已取消', itemStyle: { color: '#909399' } }
+          { value: 23, name: '待审批', itemStyle: { color: '#FFADAD' } },
+          { value: 18, name: '已审批', itemStyle: { color: '#A7CBFF' } },
+          { value: 35, name: '生产中', itemStyle: { color: '#95D5B2' } },
+          { value: 98, name: '已完成', itemStyle: { color: '#C8B6FF' } },
+          { value: 8, name: '已取消', itemStyle: { color: '#FFD6A5' } }
         ]
       }
     ]
@@ -260,13 +295,14 @@ onMounted(() => {
 
 .stat-content {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .stat-icon {
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -276,14 +312,15 @@ onMounted(() => {
 }
 
 .stat-info {
-  flex: 1;
+  width: 100%;
 }
 
 .stat-value {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: bold;
   color: #303133;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .stat-label {
@@ -294,6 +331,6 @@ onMounted(() => {
 
 .chart-container {
   width: 100%;
-  height: 350px;
+  height: 320px;
 }
 </style>

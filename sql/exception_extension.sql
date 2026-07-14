@@ -1,0 +1,9 @@
+ALTER TABLE exception_record ADD COLUMN exception_level VARCHAR(20) COMMENT '异常等级（GENERAL/SEVERE/URGENT）';
+ALTER TABLE exception_record ADD COLUMN handler_id BIGINT COMMENT '处理人ID';
+ALTER TABLE exception_record ADD COLUMN handle_report TEXT COMMENT '处理报告';
+ALTER TABLE exception_record ADD COLUMN handle_result VARCHAR(50) COMMENT '处理结果（REWORK/REJECT/SPECIAL）';
+ALTER TABLE exception_record ADD COLUMN image_urls TEXT COMMENT '异常照片URL（JSON数组）';
+ALTER TABLE exception_record ADD COLUMN find_process VARCHAR(100) COMMENT '发现工序';
+ALTER TABLE exception_record ADD COLUMN find_operator VARCHAR(50) COMMENT '发现人';
+ALTER TABLE exception_record ADD COLUMN handler_name VARCHAR(50) COMMENT '处理人姓名';
+ALTER TABLE exception_record ADD COLUMN reporter_name VARCHAR(50) COMMENT '上报人姓名';

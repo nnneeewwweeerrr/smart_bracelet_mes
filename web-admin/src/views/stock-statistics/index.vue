@@ -27,7 +27,7 @@
       <el-col :span="6" v-for="item in statCards" :key="item.title">
         <el-card class="stat-card" shadow="hover">
           <div class="stat-content">
-            <div class="stat-icon" :style="{ backgroundColor: item.color }">
+            <div class="stat-icon" :style="{ backgroundColor: item.background }">
               <el-icon :size="28"><component :is="item.icon" /></el-icon>
             </div>
             <div class="stat-info">
@@ -97,10 +97,10 @@ const searchForm = reactive({
 })
 
 const statCards = ref([
-  { title: '物料种类数', value: 256, icon: 'Box', color: '#409EFF' },
-  { title: '库存总数量', value: '156,800', icon: 'Files', color: '#67C23A' },
-  { title: '库存总金额', value: '¥5,680,000', icon: 'Money', color: '#E6A23C' },
-  { title: '预警物料数', value: 18, icon: 'Warning', color: '#F56C6C' }
+  { title: '物料种类数', value: 256, icon: 'Box', background: '#A7CBFF' },
+  { title: '库存总数量', value: '156,800', icon: 'Files', background: '#95D5B2' },
+  { title: '库存总金额', value: '¥5,680,000', icon: 'Money', background: '#C8B6FF' },
+  { title: '预警物料数', value: 18, icon: 'Warning', background: '#FFD6A5' }
 ])
 
 const turnoverStats = ref([
@@ -117,25 +117,55 @@ function initTrendChart() {
   trendChart = echarts.init(trendChartRef.value)
   const option = {
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      borderColor: '#e8e8e8',
+      borderWidth: 1,
+      textStyle: {
+        color: '#303133'
+      }
     },
     legend: {
       data: ['入库数量', '出库数量'],
-      top: 0
+      top: 0,
+      textStyle: {
+        color: '#606266'
+      }
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '3%',
+      top: '15%',
       containLabel: true
     },
     xAxis: {
       type: 'category',
-      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+      axisLine: {
+        lineStyle: {
+          color: '#e8e8e8'
+        }
+      },
+      axisLabel: {
+        color: '#909399'
+      }
     },
     yAxis: {
       type: 'value',
-      name: '数量'
+      name: '数量',
+      axisLine: {
+        show: false
+      },
+      axisTick: {
+        show: false
+      },
+      splitLine: {
+        lineStyle: {
+          type: 'dashed',
+          color: '#f0f2f5'
+        }
+      }
     },
     series: [
       {
@@ -143,26 +173,30 @@ function initTrendChart() {
         type: 'line',
         smooth: true,
         data: [12000, 15000, 10000, 14000, 18000, 22000, 20000, 16000, 19000, 23000, 25000, 28000],
-        itemStyle: { color: '#67C23A' },
+        itemStyle: { color: '#95D5B2' },
+        lineStyle: {
+          color: '#95D5B2',
+          width: 3
+        },
         areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(103, 194, 58, 0.3)' },
-            { offset: 1, color: 'rgba(103, 194, 58, 0.05)' }
-          ])
-        }
+          color: 'rgba(149, 213, 178, 0.15)'
+        },
+        symbolSize: 6
       },
       {
         name: '出库数量',
         type: 'line',
         smooth: true,
         data: [10000, 12000, 9000, 13000, 15000, 20000, 18000, 14000, 17000, 21000, 23000, 26000],
-        itemStyle: { color: '#F56C6C' },
+        itemStyle: { color: '#A7CBFF' },
+        lineStyle: {
+          color: '#A7CBFF',
+          width: 3
+        },
         areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(245, 108, 108, 0.3)' },
-            { offset: 1, color: 'rgba(245, 108, 108, 0.05)' }
-          ])
-        }
+          color: 'rgba(167, 203, 255, 0.15)'
+        },
+        symbolSize: 6
       }
     ]
   }
@@ -175,45 +209,55 @@ function initCategoryChart() {
   const option = {
     tooltip: {
       trigger: 'item',
-      formatter: '{a} <br/>{b}: {c} ({d}%)'
+      formatter: '{a} <br/>{b}: {c} ({d}%)',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      borderColor: '#e8e8e8',
+      borderWidth: 1,
+      textStyle: {
+        color: '#303133'
+      }
     },
     legend: {
-      orient: 'vertical',
-      left: 'left'
+      bottom: '2%',
+      left: 'center',
+      itemWidth: 12,
+      itemHeight: 12,
+      textStyle: {
+        color: '#606266'
+      }
     },
     series: [
       {
         name: '库存分类',
         type: 'pie',
-        radius: ['40%', '70%'],
-        center: ['60%', '50%'],
+        radius: ['40%', '65%'],
+        center: ['50%', '40%'],
         avoidLabelOverlap: false,
         itemStyle: {
-          borderRadius: 4,
+          borderRadius: 6,
           borderColor: '#fff',
-          borderWidth: 2
+          borderWidth: 3
         },
         label: {
-          show: false,
-          position: 'center'
+          show: false
         },
         emphasis: {
-          label: {
-            show: true,
-            fontSize: 16,
-            fontWeight: 'bold'
+          itemStyle: {
+            shadowBlur: 0,
+            shadowOffsetX: 0,
+            shadowColor: 'transparent'
           }
         },
         labelLine: {
           show: false
         },
         data: [
-          { value: 54000, name: '电子元件', itemStyle: { color: '#409EFF' } },
-          { value: 33000, name: '塑胶件', itemStyle: { color: '#67C23A' } },
-          { value: 8500, name: '电池', itemStyle: { color: '#E6A23C' } },
-          { value: 13200, name: '五金件', itemStyle: { color: '#F56C6C' } },
-          { value: 3200, name: '屏幕模组', itemStyle: { color: '#909399' } },
-          { value: 5500, name: '成品', itemStyle: { color: '#9b59b6' } }
+          { value: 54000, name: '电子元件', itemStyle: { color: '#A7CBFF' } },
+          { value: 33000, name: '塑胶件', itemStyle: { color: '#95D5B2' } },
+          { value: 8500, name: '电池', itemStyle: { color: '#FFD6A5' } },
+          { value: 13200, name: '五金件', itemStyle: { color: '#FFADAD' } },
+          { value: 3200, name: '屏幕模组', itemStyle: { color: '#C8B6FF' } },
+          { value: 5500, name: '成品', itemStyle: { color: '#90E0EF' } }
         ]
       }
     ]
@@ -262,13 +306,14 @@ onMounted(() => {
 
 .stat-content {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .stat-icon {
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -278,14 +323,15 @@ onMounted(() => {
 }
 
 .stat-info {
-  flex: 1;
+  width: 100%;
 }
 
 .stat-value {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: bold;
   color: #303133;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .stat-label {
