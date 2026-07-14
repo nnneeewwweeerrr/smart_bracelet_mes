@@ -123,6 +123,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Upload, Document, Files } from '@element-plus/icons-vue'
 import { getDocumentList, uploadDocument, deleteDocumentById, syncKnowledgeBaseApi } from '../../api/knowledge'
 

@@ -15,6 +15,10 @@
       </div>
       <div class="header-right">
         <span class="header-time">{{ currentTime }}</span>
+        <button class="switch-btn" @click="goToDigitalTwin">
+          <span class="btn-icon">🎥</span>
+          3D产线视角
+        </button>
         <button class="back-btn" @click="goBack">返回系统</button>
       </div>
     </div>
@@ -259,6 +263,10 @@ function updateTime() {
 
 function goBack() {
   router.push('/dashboard')
+}
+
+function goToDigitalTwin() {
+  router.push('/digital-twin')
 }
 
 function getEqStatusClass(status) {
@@ -667,6 +675,28 @@ onUnmounted(() => {
 .back-btn:hover {
   background: rgba(58,103,171,0.35);
   color: #fff;
+}
+
+.switch-btn {
+  background: rgba(59,130,246,0.25);
+  border: 1px solid rgba(96,165,250,0.5);
+  color: #93c5fd;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s;
+  margin-right: 10px;
+}
+
+.switch-btn:hover {
+  background: rgba(59,130,246,0.4);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(96,165,250,0.3);
+}
+
+.btn-icon {
+  margin-right: 4px;
 }
 
 /* 主体 */

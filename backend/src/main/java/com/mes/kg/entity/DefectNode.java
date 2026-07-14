@@ -1,32 +1,20 @@
 package com.mes.kg.entity;
 
 import lombok.Data;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Property;
-import org.springframework.data.neo4j.core.schema.Relationship;
+import lombok.EqualsAndHashCode;
 
-import java.util.List;
-
+/**
+ * 不良现象节点
+ */
 @Data
-@Node("Defect")
-public class DefectNode {
+@EqualsAndHashCode(callSuper = true)
+public class DefectNode extends GraphNode {
+    private String processId;
+    private String nextProcessId;
+    private Float defectRate;
 
-    @Id
-    private String code;
-
-    @Property("name")
-    private String name;
-
-    @Property("description")
-    private String description;
-
-    @Property("severity")
-    private String severity;
-
-    @Relationship(type = "CAUSED_BY", direction = Relationship.Direction.OUTGOING)
-    private List<CauseNode> causes;
-
-    @Relationship(type = "SOLVED_BY", direction = Relationship.Direction.OUTGOING)
-    private List<SolutionNode> solutions;
+    public DefectNode() {
+        super();
+        this.type = "defect";
+    }
 }

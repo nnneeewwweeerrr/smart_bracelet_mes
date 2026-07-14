@@ -1,26 +1,18 @@
 package com.mes.kg.entity;
 
 import lombok.Data;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Property;
+import lombok.EqualsAndHashCode;
 
+/**
+ * 设备节点
+ */
 @Data
-@Node("Equipment")
-public class EquipmentNode {
+@EqualsAndHashCode(callSuper = true)
+public class EquipmentNode extends GraphNode {
+    private String specification;
 
-    @Id
-    private String code;
-
-    @Property("name")
-    private String name;
-
-    @Property("model")
-    private String model;
-
-    @Property("location")
-    private String location;
-
-    @Property("status")
-    private String status;
+    public EquipmentNode() {
+        super();
+        this.type = "equipment";
+    }
 }

@@ -1,26 +1,19 @@
 package com.mes.kg.entity;
 
 import lombok.Data;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Property;
+import lombok.EqualsAndHashCode;
 
+/**
+ * 物料节点
+ */
 @Data
-@Node("Material")
-public class MaterialNode {
-
-    @Id
-    private String code;
-
-    @Property("name")
-    private String name;
-
-    @Property("specification")
+@EqualsAndHashCode(callSuper = true)
+public class MaterialNode extends GraphNode {
     private String specification;
+    private Float criticality;
 
-    @Property("supplier")
-    private String supplier;
-
-    @Property("unit")
-    private String unit;
+    public MaterialNode() {
+        super();
+        this.type = "material";
+    }
 }

@@ -135,6 +135,77 @@ public class SopController {
         return Result.success();
     }
 
+    // ==================== SOP版本管理 ====================
+
+    /**
+     * 查询工序的所有SOP版本列表
+     */
+    @GetMapping("/versions/{processId}")
+    public Result<List<Map<String, Object>>> getSopVersions(@PathVariable Long processId) {
+        LambdaQueryWrapper<ProcessSop> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ProcessSop::getProcessId, processId)
+                .orderByDesc(ProcessSop::getCreateTime);
+        List<ProcessSop> sopList = processSopService.list(wrapper);
+        List<Map<String, Object>> versions = sopList.stream().map(sop -> {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", sop.getId());
+            item.put("sopName", sop.getSopName());
+            item.put("sopVersion", sop.getSopVersion());
+            item.put("status", sop.getStatus());
+            item.put("createTime", sop.getCreateTime());
+            return item;
+        }).collect(Collectors.toList());
+        return Result.success(versions);
+    }
+
+    /**
+     * 按工序ID和版本号查询SOP详情
+     */
+    @GetMapping("/process/{processId}/version/{version}")
+    public Result<Map<String, Object>> getSopByVersion(
+            @PathVariable Long processId, @PathVariable String version) {
+        Map<String, Object> result = new HashMap<>();
+        ProcessInfo process = processInfoService.getById(processId);
+        result.put("process", process);
+
+        LambdaQueryWrapper<ProcessSop> sopWrapper = new LambdaQueryWrapper<>();
+        sopWrapper.eq(ProcessSop::getProcessId, processId)
+                .eq(ProcessSop::getSopVersion, version)
+                .orderByDesc(ProcessSop::getCreateTime)
+                .last("LIMIT 1");
+        ProcessSop sop = processSopService.getOne(sopWrapper);
+        result.put("sop", sop);
+
+        LambdaQueryWrapper<ProcessParamStandard> paramWrapper = new LambdaQueryWrapper<>();
+        paramWrapper.eq(ProcessParamStandard::getProcessId, processId)
+                .orderByAsc(ProcessParamStandard::getSortOrder);
+        result.put("paramStandards", processParamStandardService.list(paramWrapper));
+
+        LambdaQueryWrapper<ProcessMaterialBom> bomWrapper = new LambdaQueryWrapper<>();
+        bomWrapper.eq(ProcessMaterialBom::getProcessId, processId)
+                .orderByAsc(ProcessMaterialBom::getSortOrder);
+        List<ProcessMaterialBom> bomList = processMaterialBomService.list(bomWrapper);
+        List<Map<String, Object>> bomDetailList = new ArrayList<>();
+        for (ProcessMaterialBom bom : bomList) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", bom.getId());
+            item.put("processId", bom.getProcessId());
+            item.put("materialId", bom.getMaterialId());
+            item.put("quantity", bom.getQuantity());
+            item.put("isRequired", bom.getIsRequired());
+            item.put("sortOrder", bom.getSortOrder());
+            MaterialInfo material = materialInfoService.getById(bom.getMaterialId());
+            if (material != null) {
+                item.put("materialCode", material.getMaterialCode());
+                item.put("materialName", material.getMaterialName());
+                item.put("unit", material.getUnit());
+            }
+            bomDetailList.add(item);
+        }
+        result.put("materialBom", bomDetailList);
+        return Result.success(result);
+    }
+
     // ==================== 工艺参数标准管理 ====================
 
     /**

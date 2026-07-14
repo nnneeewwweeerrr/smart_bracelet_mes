@@ -8,6 +8,22 @@ export function getSopByProcessId(processId) {
   })
 }
 
+// 获取指定工序的所有SOP版本列表
+export function getSopVersionList(processId) {
+  return request({
+    url: '/sop/versions/' + processId,
+    method: 'get'
+  })
+}
+
+// 获取指定SOP版本详情
+export function getSopByVersion(processId, version) {
+  return request({
+    url: '/sop/process/' + processId + '/version/' + version,
+    method: 'get'
+  })
+}
+
 export function saveSop(data) {
   return request({
     url: '/sop/save',

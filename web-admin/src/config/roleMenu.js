@@ -49,6 +49,7 @@ export const roleMenus = {
         { path: 'work-order', title: '生产工单', icon: 'Tickets' },
         { path: 'production-plan', title: '生产计划', icon: 'Calendar' },
         { path: 'production-progress', title: '生产进度', icon: 'TrendCharts' },
+        { path: 'process-flow', title: '生产全流程联动', icon: 'Connection' },
         { path: 'process-config', title: '工艺配置', icon: 'Setting' },
         { path: 'sn-trace', title: 'SN全生命周期追溯', icon: 'Key' },
         { path: 'sop-board', title: 'SOP电子看板', icon: 'Monitor' },
@@ -152,6 +153,7 @@ export const roleMenus = {
       children: [
         { path: 'work-order', title: '生产工单', icon: 'Tickets' },
         { path: 'production-progress', title: '生产进度', icon: 'TrendCharts' },
+        { path: 'process-flow', title: '生产全流程联动', icon: 'Connection' },
         { path: 'process-config', title: '工艺配置', icon: 'Setting' },
         { path: 'sn-trace', title: 'SN全生命周期追溯', icon: 'Key' },
         { path: 'sop-board', title: 'SOP电子看板', icon: 'Monitor' },
@@ -297,8 +299,7 @@ export const roleMenus = {
       title: '质量管理',
       icon: 'CircleCheck',
       children: [
-        { path: 'quality-record', title: '质检记录', icon: 'CircleCheck' },
-        { path: 'quality-task', title: '质检任务', icon: 'Tickets' }
+        { path: 'quality-record', title: '质检记录', icon: 'CircleCheck' }
       ]
     },
     {

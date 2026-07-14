@@ -186,32 +186,40 @@ const stats = ref({
 const graphRef = ref(null);
 let chartInstance = null;
 const nodeTypeColors = {
- Process: '#93c5dd',
- Defect: '#f1a7b8',
- Cause: '#fae1a4',
- Solution: '#83d8cf',
- Material: '#e0c4c8',
- Equipment: '#a8d8e5'
+ process: '#3b82f6',
+ defect: '#ef4444',
+ cause: '#f59e0b',
+ solution: '#10b981',
+ material: '#8b5cf6',
+ equipment: '#06b6d4'
 };
+function lightenColor(color, percent) {
+ const num = parseInt(color.replace('#', ''), 16);
+ const amt = Math.round(2.55 * percent);
+ const R = Math.min(255, (num >> 16) + amt);
+ const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
+ const B = Math.min(255, (num & 0x0000FF) + amt);
+ return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+}
 function getNodeTypeLabel(type) {
  const map = {
- Process: '工序',
- Defect: '不良现象',
- Cause: '缺陷原因',
- Solution: '解决方案',
- Material: '物料',
- Equipment: '设备'
+ process: '工序',
+ defect: '不良现象',
+ cause: '缺陷原因',
+ solution: '解决方案',
+ material: '物料',
+ equipment: '设备'
  };
  return map[type] || type;
 }
 function getNodeTypeTag(type) {
  const map = {
- Process: 'primary',
- Defect: 'danger',
- Cause: 'warning',
- Solution: 'success',
- Material: 'purple',
- Equipment: 'info'
+ process: 'primary',
+ defect: 'danger',
+ cause: 'warning',
+ solution: 'success',
+ material: 'purple',
+ equipment: 'info'
  };
  return map[type] || 'info';
 }
@@ -262,9 +270,20 @@ function renderGraph(nodes, edges) {
  name: node.name,
  symbolSize: getSymbolSize(node.type),
  itemStyle: {
- color: nodeTypeColors[node.type] || '#64748b',
+ color: {
+ type: 'radial',
+ x: 0.3,
+ y: 0.3,
+ r: 0.7,
+ colorStops: [
+ { offset: 0, color: lightenColor(nodeTypeColors[node.type] || '#64748b', 30) },
+ { offset: 1, color: nodeTypeColors[node.type] || '#64748b' }
+ ]
+ },
  borderColor: '#fff',
- borderWidth: 2
+ borderWidth: 2,
+ shadowBlur: 10,
+ shadowColor: nodeTypeColors[node.type] || '#64748b'
  },
  label: {
  show: true,
@@ -278,15 +297,15 @@ function renderGraph(nodes, edges) {
  source: edge.source,
  target: edge.target,
  lineStyle: {
- color: getEdgeColor(edge.relationType),
- width: 2,
+ color: getEdgeColor(edge.type),
+ width: edge.weight ? edge.weight * 3 : 2,
  curveness: 0.2
  },
  label: {
  show: true,
  fontSize: 10,
- color: '#64748b',
- formatter: edge.relationType
+ color: getEdgeColor(edge.type),
+ formatter: edge.type
  }
  }));
  const option = {
@@ -346,9 +365,20 @@ function renderSearchResult(nodes) {
  name: node.name,
  symbolSize: getSymbolSize(node.type),
  itemStyle: {
- color: nodeTypeColors[node.type] || '#64748b',
+ color: {
+ type: 'radial',
+ x: 0.3,
+ y: 0.3,
+ r: 0.7,
+ colorStops: [
+ { offset: 0, color: lightenColor(nodeTypeColors[node.type] || '#64748b', 30) },
+ { offset: 1, color: nodeTypeColors[node.type] || '#64748b' }
+ ]
+ },
  borderColor: '#fff',
- borderWidth: 2
+ borderWidth: 2,
+ shadowBlur: 10,
+ shadowColor: nodeTypeColors[node.type] || '#64748b'
  },
  label: {
  show: true,
@@ -396,24 +426,25 @@ function renderSearchResult(nodes) {
 }
 function getSymbolSize(type) {
  const map = {
- Process: 45,
- Defect: 35,
- Cause: 30,
- Solution: 30,
- Material: 35,
- Equipment: 40
+ process: 45,
+ defect: 35,
+ cause: 30,
+ solution: 30,
+ material: 35,
+ equipment: 40
  };
  return map[type] || 35;
 }
 function getEdgeColor(relationType) {
  const map = {
- HAS_DEFECT: '#f1a7b8',
- CAUSED_BY: '#fae1a4',
- SOLVED_BY: '#83d8cf',
- USES_MATERIAL: '#e0c4c8',
- USES_EQUIPMENT: '#a8d8e5'
+ USES: '#8b5cf6',
+ REQUIRES: '#06b6d4',
+ LEADS_TO: '#ef4444',
+ CAUSES: '#f59e0b',
+ TREATS: '#10b981',
+ BELONGS_TO: '#3b82f6'
  };
- return map[relationType] || '#cbd5e1';
+ return map[relationType] || '#94a3b8';
 }
 function clearSelection() {
  selectedNode.value = null;
@@ -494,12 +525,12 @@ onMounted(() => {
   color: #fff;
 }
 
-.process-icon { background: #93c5dd; }
-.defect-icon { background: #f1a7b8; }
-.cause-icon { background: #fae1a4; }
-.solution-icon { background: #83d8cf; }
-.material-icon { background: #e0c4c8; }
-.equipment-icon { background: #a8d8e5; }
+.process-icon { background: #3b82f6; }
+.defect-icon { background: #ef4444; }
+.cause-icon { background: #f59e0b; }
+.solution-icon { background: #10b981; }
+.material-icon { background: #8b5cf6; }
+.equipment-icon { background: #06b6d4; }
 
 .stat-info {
   flex: 1;
@@ -670,10 +701,10 @@ onMounted(() => {
   border-radius: 4px;
 }
 
-.legend-color.process { background: #93c5dd; }
-.legend-color.defect { background: #f1a7b8; }
-.legend-color.cause { background: #fae1a4; }
-.legend-color.solution { background: #83d8cf; }
-.legend-color.material { background: #e0c4c8; }
-.legend-color.equipment { background: #a8d8e5; }
+.legend-color.process { background: #3b82f6; }
+.legend-color.defect { background: #ef4444; }
+.legend-color.cause { background: #f59e0b; }
+.legend-color.solution { background: #10b981; }
+.legend-color.material { background: #8b5cf6; }
+.legend-color.equipment { background: #06b6d4; }
 </style>

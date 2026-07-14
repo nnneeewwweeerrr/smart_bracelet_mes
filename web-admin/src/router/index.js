@@ -16,6 +16,12 @@ const routes = [
     meta: { title: '数字化车间大屏', requiresAuth: false }
   },
   {
+    path: '/digital-twin',
+    name: 'DigitalTwin',
+    component: () => import('../views/digital-twin/index.vue'),
+    meta: { title: '3D数字孪生产线', requiresAuth: false }
+  },
+  {
     path: '/trace-screen',
     name: 'TraceScreen',
     component: () => import('../views/trace-screen/index.vue'),
@@ -88,6 +94,12 @@ const routes = [
         meta: { title: '设备档案', icon: 'Cpu' }
       },
       {
+        path: 'equipment-monitor',
+        name: 'EquipmentMonitor',
+        component: () => import('../views/equipment-monitor/index.vue'),
+        meta: { title: '设备监控', icon: 'DataLine' }
+      },
+      {
         path: 'equipment-fault',
         name: 'EquipmentFault',
         component: () => import('../views/equipment-fault/index.vue'),
@@ -146,6 +158,12 @@ const routes = [
         name: 'ProductionProgress',
         component: () => import('../views/production-progress/index.vue'),
         meta: { title: '生产进度', icon: 'TrendCharts' }
+      },
+      {
+        path: 'process-flow',
+        name: 'ProcessFlow',
+        component: () => import('../views/process-flow/index.vue'),
+        meta: { title: '生产全流程联动', icon: 'Connection' }
       },
       {
         path: 'process-config',

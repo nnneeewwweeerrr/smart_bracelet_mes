@@ -12,6 +12,10 @@
         <button class="big-screen-btn trace-btn" @click="goToTraceScreen">
           <span>订单全链路追溯</span>
         </button>
+        <button class="big-screen-btn twin-btn" @click="goToDigitalTwin">
+          <span class="twin-icon">🧊</span>
+          <span>3D数字孪生产线</span>
+        </button>
       </div>
     </div>
 
@@ -266,6 +270,10 @@ function goToBigScreen() {
 
 function goToTraceScreen() {
   router.push('/trace-screen')
+}
+
+function goToDigitalTwin() {
+  router.push('/digital-twin')
 }
 
 async function fetchOverview() {
@@ -818,6 +826,40 @@ onUnmounted(() => {
 .trace-btn:hover {
   background: #ede9fe;
   border-color: #ddd6fe;
+}
+
+.twin-btn {
+  background: linear-gradient(135deg, #0c1426, #1a2332);
+  color: #60a5fa;
+  border: 1px solid #1e40af;
+  margin-left: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.twin-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(96,165,250,0.15), transparent);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.twin-btn:hover {
+  background: linear-gradient(135deg, #1a2332, #0c1426);
+  border-color: #3b82f6;
+  box-shadow: 0 0 20px rgba(59,130,246,0.3);
+}
+
+.twin-icon {
+  font-size: 16px;
+  margin-right: 4px;
 }
 
 .welcome-title {
