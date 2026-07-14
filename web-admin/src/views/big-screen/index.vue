@@ -356,29 +356,29 @@ function updateProductionChart() {
   if (!productionChart) return
   const d = screenData.value.production
   productionChart.setOption({
-    tooltip: { trigger: 'axis', backgroundColor: 'rgba(15,23,42,0.9)', borderColor: 'rgba(56,189,248,0.3)', borderWidth: 1, textStyle: { color: '#e2e8f0', fontSize: 12 } },
-    legend: { data: ['实际产量', '计划产量'], textStyle: { color: '#94a3b8', fontSize: 11 }, right: '5%', top: -2 },
-    grid: { left: '10%', right: '6%', bottom: '12%', top: '20px' },
+    tooltip: { trigger: 'axis', backgroundColor: 'rgba(15,23,42,0.9)', borderColor: 'rgba(58,103,171,0.3)', borderWidth: 1, textStyle: { color: '#e2e8f0', fontSize: 13 } },
+    legend: { data: ['实际产量', '计划产量'], textStyle: { color: '#94a3b8', fontSize: 12 }, right: '5%', top: 0 },
+    grid: { left: '12%', right: '6%', bottom: '14%', top: '24px' },
     xAxis: {
       type: 'category', data: d.dates || [],
       axisLine: { lineStyle: { color: 'rgba(148,163,184,0.2)' } },
       axisTick: { show: false },
-      axisLabel: { color: '#94a3b8', fontSize: 11 }
+      axisLabel: { color: '#94a3b8', fontSize: 12 }
     },
     yAxis: {
       type: 'value',
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#94a3b8', fontSize: 11 },
+      axisLabel: { color: '#94a3b8', fontSize: 12 },
       splitLine: { lineStyle: { color: 'rgba(148,163,184,0.1)', type: 'dashed' } }
     },
     series: [
       {
         name: '实际产量', type: 'bar', data: d.actualTrend || [],
-        barWidth: '35%',
+        barWidth: '40%',
         itemStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: '#7dd3fc' }, { offset: 1, color: '#0ea5e9' }
+            { offset: 0, color: '#a3e7f2' }, { offset: 1, color: '#3a67ab' }
           ]),
           borderRadius: [4, 4, 0, 0]
         }
@@ -386,9 +386,9 @@ function updateProductionChart() {
       {
         name: '计划产量', type: 'line', data: d.plannedTrend || [],
         smooth: true,
-        lineStyle: { color: '#fcd34d', width: 2, type: 'dashed' },
-        itemStyle: { color: '#fcd34d' },
-        symbol: 'circle', symbolSize: 6
+        lineStyle: { color: '#cafcc3', width: 2, type: 'dashed' },
+        itemStyle: { color: '#cafcc3' },
+        symbol: 'circle', symbolSize: 7
       }
     ]
   })
@@ -399,44 +399,44 @@ function updateYieldChart() {
   const d = screenData.value.yield
   const threshold = d.threshold || 95
   yieldChart.setOption({
-    tooltip: { trigger: 'axis', backgroundColor: 'rgba(15,23,42,0.9)', borderColor: 'rgba(56,189,248,0.3)', borderWidth: 1, textStyle: { color: '#e2e8f0', fontSize: 12 } },
-    legend: { data: ['良率', '不良率'], textStyle: { color: '#94a3b8', fontSize: 11 }, right: '5%', top: -2 },
-    grid: { left: '12%', right: '6%', bottom: '12%', top: '20px' },
+    tooltip: { trigger: 'axis', backgroundColor: 'rgba(15,23,42,0.9)', borderColor: 'rgba(58,103,171,0.3)', borderWidth: 1, textStyle: { color: '#e2e8f0', fontSize: 13 } },
+    legend: { data: ['良率', '不良率'], textStyle: { color: '#94a3b8', fontSize: 12 }, right: '5%', top: 0 },
+    grid: { left: '14%', right: '6%', bottom: '14%', top: '24px' },
     xAxis: {
       type: 'category', data: d.dates || [],
       axisLine: { lineStyle: { color: 'rgba(148,163,184,0.2)' } },
       axisTick: { show: false },
-      axisLabel: { color: '#94a3b8', fontSize: 11 }
+      axisLabel: { color: '#94a3b8', fontSize: 12 }
     },
     yAxis: {
       type: 'value', max: 100,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#94a3b8', fontSize: 11, formatter: '{value}%' },
+      axisLabel: { color: '#94a3b8', fontSize: 12, formatter: '{value}%' },
       splitLine: { lineStyle: { color: 'rgba(148,163,184,0.1)', type: 'dashed' } }
     },
     series: [
       {
         name: '良率', type: 'line', data: d.yieldRates || [], smooth: true,
-        lineStyle: { color: '#6ee7b7', width: 3 },
-        itemStyle: { color: '#6ee7b7' },
-        symbol: 'circle', symbolSize: 6,
+        lineStyle: { color: '#74A8FF', width: 3 },
+        itemStyle: { color: '#74A8FF' },
+        symbol: 'circle', symbolSize: 7,
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(110,231,183,0.2)' }, { offset: 1, color: 'rgba(110,231,183,0.02)' }
+            { offset: 0, color: 'rgba(116,168,255,0.2)' }, { offset: 1, color: 'rgba(116,168,255,0.02)' }
           ])
         },
         markLine: {
           data: [{ yAxis: threshold }],
-          lineStyle: { color: '#fca5a5', type: 'dashed', width: 2 },
-          label: { formatter: '预警线', color: '#fca5a5', fontSize: 10, position: 'insideStartTop' }
+          lineStyle: { color: '#d4a5a5', type: 'dashed', width: 2 },
+          label: { formatter: '预警线', color: '#d4a5a5', fontSize: 11, position: 'insideStartTop' }
         }
       },
       {
         name: '不良率', type: 'line', data: d.defectRates || [], smooth: true,
-        lineStyle: { color: '#fca5a5', width: 2 },
-        itemStyle: { color: '#fca5a5' },
-        symbol: 'circle', symbolSize: 5
+        lineStyle: { color: '#d4a5a5', width: 2 },
+        itemStyle: { color: '#d4a5a5' },
+        symbol: 'circle', symbolSize: 6
       }
     ]
   })
@@ -447,48 +447,48 @@ function updateWipChart() {
   const d = screenData.value.wip
   const counts = d.counts || []
   wipChart.setOption({
-    tooltip: { trigger: 'axis', backgroundColor: 'rgba(15,23,42,0.9)', borderColor: 'rgba(56,189,248,0.3)', borderWidth: 1, textStyle: { color: '#e2e8f0', fontSize: 12 } },
-    grid: { left: '10%', right: '8%', bottom: '12%', top: '20px' },
+    tooltip: { trigger: 'axis', backgroundColor: 'rgba(15,23,42,0.9)', borderColor: 'rgba(58,103,171,0.3)', borderWidth: 1, textStyle: { color: '#e2e8f0', fontSize: 13 } },
+    grid: { left: '12%', right: '8%', bottom: '14%', top: '24px' },
     xAxis: {
       type: 'category', data: d.processes || [],
       axisLine: { lineStyle: { color: 'rgba(148,163,184,0.2)' } },
       axisTick: { show: false },
-      axisLabel: { color: '#cbd5e1', fontSize: 12 }
+      axisLabel: { color: '#cbd5e1', fontSize: 13 }
     },
     yAxis: {
       type: 'value',
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#94a3b8', fontSize: 11 },
+      axisLabel: { color: '#94a3b8', fontSize: 12 },
       splitLine: { lineStyle: { color: 'rgba(148,163,184,0.1)', type: 'dashed' } }
     },
     series: [{
       type: 'bar', data: counts,
-      barWidth: '40%',
+      barWidth: '45%',
       itemStyle: {
         color: function(params) {
           const colorList = [
             new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#7dd3fc' }, { offset: 1, color: '#0ea5e9' }
+              { offset: 0, color: '#a3e7f2' }, { offset: 1, color: '#3a67ab' }
             ]),
             new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#86efac' }, { offset: 1, color: '#22c55e' }
+              { offset: 0, color: '#e8f5e9' }, { offset: 1, color: '#cafcc3' }
             ]),
             new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#fcd34d' }, { offset: 1, color: '#f59e0b' }
+              { offset: 0, color: '#bacbe3' }, { offset: 1, color: '#74A8FF' }
             ]),
             new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#93c5fd' }, { offset: 1, color: '#3b82f6' }
+              { offset: 0, color: '#cafcc3' }, { offset: 1, color: '#81c784' }
             ]),
             new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#f9a8d4' }, { offset: 1, color: '#ec4899' }
+              { offset: 0, color: '#def1f5' }, { offset: 1, color: '#9dc9d4' }
             ])
           ]
           return colorList[params.dataIndex % colorList.length]
         },
         borderRadius: [6, 6, 0, 0]
       },
-      label: { show: true, position: 'top', color: '#cbd5e1', fontSize: 13, fontWeight: '600' }
+      label: { show: true, position: 'top', color: '#cbd5e1', fontSize: 14, fontWeight: '600' }
     }]
   })
 }
@@ -499,31 +499,31 @@ function updateDefectChart() {
   const names = d.names || []
   const counts = d.counts || []
   defectChart.setOption({
-    tooltip: { trigger: 'axis', backgroundColor: 'rgba(15,23,42,0.9)', borderColor: 'rgba(56,189,248,0.3)', borderWidth: 1, textStyle: { color: '#e2e8f0', fontSize: 12 } },
-    grid: { left: '28%', right: '12%', bottom: '10%', top: '15px' },
+    tooltip: { trigger: 'axis', backgroundColor: 'rgba(15,23,42,0.9)', borderColor: 'rgba(58,103,171,0.3)', borderWidth: 1, textStyle: { color: '#e2e8f0', fontSize: 13 } },
+    grid: { left: '28%', right: '12%', bottom: '12%', top: '18px' },
     xAxis: {
       type: 'value',
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#94a3b8', fontSize: 11 },
+      axisLabel: { color: '#94a3b8', fontSize: 12 },
       splitLine: { lineStyle: { color: 'rgba(148,163,184,0.1)', type: 'dashed' } }
     },
     yAxis: {
       type: 'category', data: names,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#cbd5e1', fontSize: 12 }
+      axisLabel: { color: '#cbd5e1', fontSize: 13 }
     },
     series: [{
       type: 'bar', data: counts,
-      barWidth: '45%',
+      barWidth: '50%',
       itemStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-          { offset: 0, color: '#fca5a5' }, { offset: 1, color: '#f87171' }
+          { offset: 0, color: '#a07a7a' }, { offset: 1, color: '#d4a5a5' }
         ]),
         borderRadius: [0, 6, 6, 0]
       },
-      label: { show: true, position: 'right', color: '#fca5a5', fontSize: 12, fontWeight: '600' }
+      label: { show: true, position: 'right', color: '#d4a5a5', fontSize: 13, fontWeight: '600' }
     }]
   })
 }
@@ -573,13 +573,13 @@ onUnmounted(() => {
 
 /* 顶部标题栏 */
 .screen-header {
-  height: 80px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 30px;
-  background: linear-gradient(180deg, rgba(14,165,233,0.12) 0%, transparent 100%);
-  border-bottom: 1px solid rgba(14,165,233,0.15);
+  padding: 0 24px;
+  background: linear-gradient(180deg, rgba(58,103,171,0.15) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(58,103,171,0.2);
   flex-shrink: 0;
 }
 
@@ -587,7 +587,7 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .header-right {
@@ -595,14 +595,14 @@ onUnmounted(() => {
 }
 
 .header-date {
-  font-size: 14px;
+  font-size: 13px;
   color: #94a3b8;
 }
 
 .header-time {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
-  color: #7dd3fc;
+  color: #a3e7f2;
   font-family: 'Courier New', monospace;
   letter-spacing: 2px;
 }
@@ -612,7 +612,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .screen-title-wrap {
@@ -624,19 +624,19 @@ onUnmounted(() => {
 }
 
 .screen-title {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   color: #f1f5f9;
   margin: 0;
   letter-spacing: 6px;
-  background: linear-gradient(90deg, #7dd3fc, #38bdf8, #7dd3fc);
+  background: linear-gradient(90deg, #bacbe3, #3a67ab, #bacbe3);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .screen-title-sub {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 500;
   color: #cbd5e1;
   margin: 0;
@@ -646,17 +646,17 @@ onUnmounted(() => {
 .title-decoration {
   width: 100px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #38bdf8);
+  background: linear-gradient(90deg, transparent, #3a67ab);
 }
 
 .title-decoration.right {
-  background: linear-gradient(90deg, #38bdf8, transparent);
+  background: linear-gradient(90deg, #3a67ab, transparent);
 }
 
 .back-btn {
-  background: rgba(14,165,233,0.15);
-  border: 1px solid rgba(14,165,233,0.3);
-  color: #7dd3fc;
+  background: rgba(58,103,171,0.2);
+  border: 1px solid rgba(58,103,171,0.4);
+  color: #bacbe3;
   padding: 6px 16px;
   border-radius: 6px;
   cursor: pointer;
@@ -665,7 +665,7 @@ onUnmounted(() => {
 }
 
 .back-btn:hover {
-  background: rgba(14,165,233,0.3);
+  background: rgba(58,103,171,0.35);
   color: #fff;
 }
 
@@ -673,15 +673,15 @@ onUnmounted(() => {
 .screen-body {
   flex: 1;
   display: flex;
-  gap: 14px;
-  padding: 14px;
+  gap: 10px;
+  padding: 10px;
   overflow: hidden;
 }
 
 .column {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
 .column-left, .column-right {
@@ -695,9 +695,9 @@ onUnmounted(() => {
 /* 面板 */
 .panel {
   flex: 1;
-  background: linear-gradient(135deg, rgba(14,165,233,0.04) 0%, rgba(15,23,42,0.6) 100%);
-  border: 1px solid rgba(56,189,248,0.12);
-  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(58,103,171,0.06) 0%, rgba(15,23,42,0.6) 100%);
+  border: 1px solid rgba(58,103,171,0.15);
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -706,11 +706,11 @@ onUnmounted(() => {
 }
 
 .panel-small {
-  flex: 0.8;
+  flex: 0.75;
 }
 
 .panel-large {
-  flex: 1.2;
+  flex: 1.25;
 }
 
 .panel::before {
@@ -720,30 +720,30 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(125,211,252,0.25), transparent);
+  background: linear-gradient(90deg, transparent, rgba(186,203,227,0.3), transparent);
 }
 
 .panel-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  font-size: 15px;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
   font-weight: 600;
   color: #e2e8f0;
-  border-bottom: 1px solid rgba(56,189,248,0.08);
+  border-bottom: 1px solid rgba(58,103,171,0.1);
   flex-shrink: 0;
 }
 
 .title-icon {
   width: 3px;
-  height: 14px;
-  background: linear-gradient(180deg, #7dd3fc, #38bdf8);
+  height: 12px;
+  background: linear-gradient(180deg, #a3e7f2, #3a67ab);
   border-radius: 2px;
 }
 
 .title-en {
-  font-size: 10px;
+  font-size: 9px;
   color: #64748b;
   margin-left: auto;
   letter-spacing: 1px;
@@ -751,7 +751,7 @@ onUnmounted(() => {
 
 .panel-content {
   flex: 1;
-  padding: 10px 14px;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -769,8 +769,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  margin-bottom: 6px;
+  gap: 20px;
+  margin-bottom: 4px;
 }
 
 .prod-item {
@@ -781,32 +781,32 @@ onUnmounted(() => {
 }
 
 .prod-label {
-  font-size: 11px;
+  font-size: 12px;
   color: #94a3b8;
 }
 
 .prod-value {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 700;
   font-family: 'Courier New', monospace;
 }
 
 .prod-value.planned {
-  color: #fcd34d;
+  color: #cafcc3;
 }
 
 .prod-value.actual {
-  color: #7dd3fc;
+  color: #a3e7f2;
 }
 
 .prod-unit {
-  font-size: 10px;
+  font-size: 11px;
   color: #94a3b8;
 }
 
 .prod-divider {
   width: 1px;
-  height: 26px;
+  height: 30px;
   background: rgba(148,163,184,0.15);
 }
 
@@ -817,19 +817,19 @@ onUnmounted(() => {
 .progress-info {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 12px;
   color: #94a3b8;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 
 .progress-percent {
-  color: #7dd3fc;
+  color: #a3e7f2;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .progress-bar-bg {
-  height: 5px;
+  height: 6px;
   background: rgba(148,163,184,0.1);
   border-radius: 3px;
   overflow: hidden;
@@ -838,7 +838,7 @@ onUnmounted(() => {
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #0284c7, #38bdf8, #7dd3fc);
+  background: linear-gradient(90deg, #3a67ab, #74A8FF, #a3e7f2);
   border-radius: 3px;
   transition: width 1s ease;
   position: relative;
@@ -877,32 +877,32 @@ onUnmounted(() => {
 }
 
 .yield-label {
-  font-size: 11px;
+  font-size: 12px;
   color: #94a3b8;
 }
 
 .yield-value {
-  font-size: 18px;
+  font-size: 26px;
   font-weight: 700;
   font-family: 'Courier New', monospace;
 }
 
 .yield-value.good {
-  color: #6ee7b7;
+  color: #74A8FF;
 }
 
 .yield-value.good.warning {
-  color: #fca5a5;
+  color: #d4a5a5;
   animation: pulse 1s infinite;
 }
 
 .yield-value.bad {
-  color: #fca5a5;
+  color: #d4a5a5;
 }
 
 .yield-warning {
   font-size: 12px;
-  color: #fca5a5;
+  color: #d4a5a5;
   animation: pulse 1s infinite;
 }
 
@@ -918,7 +918,7 @@ onUnmounted(() => {
   gap: 28px;
   margin-bottom: 14px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(148,163,184,0.1);
+  border-bottom: 1px solid rgba(58,103,171,0.12);
 }
 
 .eq-stat {
@@ -928,29 +928,29 @@ onUnmounted(() => {
 }
 
 .eq-dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
 }
 
-.eq-dot.green { background: #86efac; box-shadow: 0 0 8px rgba(134,239,172,0.6); }
-.eq-dot.yellow { background: #fde68a; box-shadow: 0 0 8px rgba(253,230,138,0.6); }
-.eq-dot.red { background: #fca5a5; box-shadow: 0 0 8px rgba(252,165,165,0.6); }
-.eq-dot.blue { background: #7dd3fc; box-shadow: 0 0 8px rgba(125,211,252,0.6); }
+.eq-dot.green { background: #a3e7f2; box-shadow: 0 0 10px rgba(163,231,242,0.6); }
+.eq-dot.yellow { background: #cafcc3; box-shadow: 0 0 10px rgba(202,252,195,0.6); }
+.eq-dot.red { background: #ff6b6b; box-shadow: 0 0 10px rgba(255,107,107,0.6); }
+.eq-dot.blue { background: #74A8FF; box-shadow: 0 0 10px rgba(116,168,255,0.6); }
 
 .eq-num {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   font-family: 'Courier New', monospace;
 }
 
-.eq-num.green { color: #86efac; }
-.eq-num.yellow { color: #fde68a; }
-.eq-num.red { color: #fca5a5; }
-.eq-num.blue { color: #7dd3fc; }
+.eq-num.green { color: #a3e7f2; }
+.eq-num.yellow { color: #cafcc3; }
+.eq-num.red { color: #ff6b6b; }
+.eq-num.blue { color: #74A8FF; }
 
 .eq-text {
-  font-size: 12px;
+  font-size: 13px;
   color: #94a3b8;
 }
 
@@ -958,7 +958,7 @@ onUnmounted(() => {
   flex: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 6px;
   overflow-y: auto;
   align-content: start;
 }
@@ -967,36 +967,36 @@ onUnmounted(() => {
   background: rgba(148,163,184,0.05);
   border: 1px solid rgba(148,163,184,0.12);
   border-radius: 8px;
-  padding: 8px 6px;
+  padding: 6px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   position: relative;
   transition: all 0.3s;
 }
 
 .eq-card-light {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   margin-bottom: 2px;
 }
 
 .eq-card.status-running .eq-card-light {
-  background: #86efac;
-  box-shadow: 0 0 10px rgba(134,239,172,0.7);
+  background: #a3e7f2;
+  box-shadow: 0 0 10px rgba(163,231,242,0.7);
   animation: blink-green 2s infinite;
 }
 
 .eq-card.status-standby .eq-card-light {
-  background: #fde68a;
-  box-shadow: 0 0 8px rgba(253,230,138,0.6);
+  background: #cafcc3;
+  box-shadow: 0 0 8px rgba(202,252,195,0.6);
 }
 
 .eq-card.status-fault .eq-card-light {
-  background: #fca5a5;
-  box-shadow: 0 0 10px rgba(252,165,165,0.7);
+  background: #ff6b6b;
+  box-shadow: 0 0 10px rgba(255,107,107,0.7);
   animation: blink-red 1s infinite;
 }
 
@@ -1011,25 +1011,25 @@ onUnmounted(() => {
 }
 
 .eq-card-name {
-  font-size: 12px;
+  font-size: 13px;
   color: #e2e8f0;
   font-weight: 500;
   text-align: center;
 }
 
 .eq-card-code {
-  font-size: 10px;
+  font-size: 11px;
   color: #64748b;
 }
 
 .eq-card-status {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 
-.status-running .eq-card-status { color: #86efac; }
-.status-standby .eq-card-status { color: #fde68a; }
-.status-fault .eq-card-status { color: #fca5a5; }
+.status-running .eq-card-status { color: #a3e7f2; }
+.status-standby .eq-card-status { color: #cafcc3; }
+.status-fault .eq-card-status { color: #ff6b6b; }
 
 /* 生产汇总 */
 .summary-grid {
@@ -1044,8 +1044,8 @@ onUnmounted(() => {
 .summary-card {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 10px 16px;
+  gap: 12px;
+  padding: 8px 14px;
   background: rgba(148,163,184,0.05);
   border: 1px solid rgba(148,163,184,0.1);
   border-radius: 10px;
@@ -1054,31 +1054,31 @@ onUnmounted(() => {
 }
 
 .summary-card:hover {
-  background: rgba(56,189,248,0.08);
-  border-color: rgba(56,189,248,0.2);
+  background: rgba(58,103,171,0.1);
+  border-color: rgba(58,103,171,0.25);
 }
 
 .summary-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
   flex-shrink: 0;
 }
 
 .icon-prod {
-  background: linear-gradient(135deg, #7dd3fc, #38bdf8);
+  background: linear-gradient(135deg, #a3e7f2, #3a67ab);
 }
 
 .icon-yield {
-  background: linear-gradient(135deg, #86efac, #4ade80);
+  background: linear-gradient(135deg, #a3d5ff, #74A8FF);
 }
 
 .icon-device {
-  background: linear-gradient(135deg, #93c5fd, #60a5fa);
+  background: linear-gradient(135deg, #bacbe3, #74A8FF);
 }
 
 .icon-wip {
-  background: linear-gradient(135deg, #fcd34d, #fbbf24);
+  background: linear-gradient(135deg, #3a67ab, #74A8FF);
 }
 
 .summary-info {
@@ -1095,7 +1095,7 @@ onUnmounted(() => {
 }
 
 .summary-value {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   color: #f1f5f9;
   font-family: 'Courier New', monospace;
@@ -1103,6 +1103,6 @@ onUnmounted(() => {
 }
 
 .text-warning {
-  color: #fca5a5 !important;
+  color: #cafcc3 !important;
 }
 </style>

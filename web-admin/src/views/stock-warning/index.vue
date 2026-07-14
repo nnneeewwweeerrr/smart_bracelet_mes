@@ -217,10 +217,10 @@ const processRules = {
 }
 
 const statCards = computed(() => [
-  { title: '低库存预警', value: lowStockCount.value, icon: 'Warning', color: '#F56C6C' },
-  { title: '超储预警', value: highStockCount.value, icon: 'WarningFilled', color: '#E6A23C' },
-  { title: '待处理', value: pendingCount.value, icon: 'Clock', color: '#409EFF' },
-  { title: '已处理', value: processedCount.value, icon: 'CircleCheck', color: '#67C23A' }
+  { title: '低库存预警', value: lowStockCount.value, icon: 'Warning', color: '#f1a7b8' },
+  { title: '超储预警', value: highStockCount.value, icon: 'WarningFilled', color: '#fae1a4' },
+  { title: '待处理', value: pendingCount.value, icon: 'Clock', color: '#93c5dd' },
+  { title: '已处理', value: processedCount.value, icon: 'CircleCheck', color: '#83d8cf' }
 ])
 
 const mockData = ref([
@@ -490,12 +490,12 @@ onMounted(() => {
 }
 
 .text-danger {
-  color: #F56C6C;
+  color: #f1a7b8;
   font-weight: bold;
 }
 
 .text-warning {
-  color: #E6A23C;
+  color: #fae1a4;
   font-weight: bold;
 }
 </style>

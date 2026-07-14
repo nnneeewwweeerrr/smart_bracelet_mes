@@ -94,10 +94,10 @@ const searchForm = reactive({
 })
 
 const statCards = ref([
-  { title: '质检批次', value: 325, icon: 'Document', color: '#409EFF' },
-  { title: '总检验数', value: '85,600', icon: 'Files', color: '#67C23A' },
-  { title: '平均合格率', value: '96.8%', icon: 'CircleCheck', color: '#E6A23C' },
-  { title: '不合格数', value: '2,739', icon: 'CircleClose', color: '#F56C6C' }
+  { title: '质检批次', value: 325, icon: 'Document', color: '#A7CBFF' },
+  { title: '总检验数', value: '85,600', icon: 'Files', color: '#95D5B2' },
+  { title: '平均合格率', value: '96.8%', icon: 'CircleCheck', color: '#FFD6A5' },
+  { title: '不合格数', value: '2,739', icon: 'CircleClose', color: '#FFADAD' }
 ])
 
 const processQualityStats = ref([
@@ -115,27 +115,54 @@ function initTrendChart() {
   trendChart = echarts.init(trendChartRef.value)
   const option = {
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      borderColor: '#e8e8e8',
+      borderWidth: 1
     },
     legend: {
       data: ['合格率', '目标值'],
-      top: 0
+      top: 0,
+      textStyle: {
+        color: '#606266'
+      }
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '3%',
+      top: '15%',
       containLabel: true
     },
     xAxis: {
       type: 'category',
-      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+      axisLine: {
+        lineStyle: {
+          color: '#e8e8e8'
+        }
+      },
+      axisLabel: {
+        color: '#909399'
+      }
     },
     yAxis: {
       type: 'value',
       name: '合格率(%)',
       min: 90,
-      max: 100
+      max: 100,
+      axisLine: {
+        show: false
+      },
+      axisTick: {
+        show: false
+      },
+      splitLine: {
+        lineStyle: {
+          type: 'dashed',
+          color: '#f0f2f5'
+        }
+      }
     },
     series: [
       {
@@ -143,14 +170,20 @@ function initTrendChart() {
         type: 'line',
         smooth: true,
         data: [95.2, 94.8, 95.6, 96.1, 95.9, 96.5, 96.8, 97.0, 96.5, 97.2, 97.5, 97.8],
-        itemStyle: { color: '#67C23A' },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(103, 194, 58, 0.3)' },
-            { offset: 1, color: 'rgba(103, 194, 58, 0.05)' }
-          ])
+        itemStyle: { color: '#95D5B2' },
+        lineStyle: {
+          width: 3,
+          color: '#95D5B2'
         },
+        areaStyle: {
+          color: 'rgba(149, 213, 178, 0.15)'
+        },
+        symbol: 'circle',
+        symbolSize: 6,
         markPoint: {
+          itemStyle: {
+            color: '#95D5B2'
+          },
           data: [
             { type: 'max', name: '最高' },
             { type: 'min', name: '最低' }
@@ -160,9 +193,9 @@ function initTrendChart() {
       {
         name: '目标值',
         type: 'line',
-        lineStyle: { type: 'dashed' },
+        lineStyle: { type: 'dashed', color: '#FFADAD' },
         data: [95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95],
-        itemStyle: { color: '#F56C6C' },
+        itemStyle: { color: '#FFADAD' },
         symbol: 'none'
       }
     ]
@@ -179,42 +212,42 @@ function initDefectChart() {
       formatter: '{a} <br/>{b}: {c} ({d}%)'
     },
     legend: {
-      orient: 'vertical',
-      left: 'left'
+      bottom: '2%',
+      left: 'center',
+      itemWidth: 12,
+      itemHeight: 12,
+      textStyle: {
+        color: '#606266'
+      }
     },
     series: [
       {
         name: '不合格类型',
         type: 'pie',
-        radius: ['40%', '70%'],
-        center: ['60%', '50%'],
+        radius: ['40%', '65%'],
+        center: ['50%', '40%'],
         avoidLabelOverlap: false,
         itemStyle: {
-          borderRadius: 4,
+          borderRadius: 6,
           borderColor: '#fff',
-          borderWidth: 2
+          borderWidth: 3
         },
         label: {
-          show: false,
-          position: 'center'
-        },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: 16,
-            fontWeight: 'bold'
-          }
+          show: false
         },
         labelLine: {
           show: false
         },
+        emphasis: {
+          itemStyle: {}
+        },
         data: [
-          { value: 850, name: '外观不良', itemStyle: { color: '#F56C6C' } },
-          { value: 620, name: '功能异常', itemStyle: { color: '#E6A23C' } },
-          { value: 480, name: '尺寸偏差', itemStyle: { color: '#409EFF' } },
-          { value: 350, name: '焊接不良', itemStyle: { color: '#67C23A' } },
-          { value: 280, name: '包装问题', itemStyle: { color: '#909399' } },
-          { value: 159, name: '其他', itemStyle: { color: '#9b59b6' } }
+          { value: 850, name: '外观不良', itemStyle: { color: '#FFADAD' } },
+          { value: 620, name: '功能异常', itemStyle: { color: '#FFD6A5' } },
+          { value: 480, name: '尺寸偏差', itemStyle: { color: '#A7CBFF' } },
+          { value: 350, name: '焊接不良', itemStyle: { color: '#95D5B2' } },
+          { value: 280, name: '包装问题', itemStyle: { color: '#C8B6FF' } },
+          { value: 159, name: '其他', itemStyle: { color: '#90E0EF' } }
         ]
       }
     ]
@@ -270,7 +303,7 @@ onMounted(() => {
 .stat-icon {
   width: 60px;
   height: 60px;
-  border-radius: 12px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;

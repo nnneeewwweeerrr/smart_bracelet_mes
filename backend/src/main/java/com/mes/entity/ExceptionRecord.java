@@ -29,4 +29,22 @@ public class ExceptionRecord {
     private LocalDateTime reportTime;
 
     private LocalDateTime handleTime;
+
+    private String exceptionLevel;
+
+    private Long handlerId;
+
+    private String handleReport;
+
+    private String handleResult;
+
+    private String imageUrls;
+
+    private String findProcess;
+
+    private String findOperator;
+
+    private String handlerName;
+
+    private String reporterName;
 }

@@ -38,8 +38,9 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/auth/login", "/api/auth/register", "/api/auth/init-password", "/api/user/register", "/api/mini/**", "/api/big-screen/**", "/api/trace/**", "/api/sop/**", "/api/sn-trace/**", "/api/ai/**", "/api/document/**", "/api/kg/**").permitAll()
+                .antMatchers("/api/auth/login", "/api/auth/register", "/api/auth/init-password", "/api/user/register", "/api/mini/**", "/api/big-screen/**", "/api/trace/**", "/api/sop/**", "/api/sn-trace/**", "/api/ai/**", "/api/document/**", "/api/kg/**", "/api/exception-handle/**", "/api/dashboard/**").permitAll()
                 .antMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .antMatchers("/ws/**").permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);

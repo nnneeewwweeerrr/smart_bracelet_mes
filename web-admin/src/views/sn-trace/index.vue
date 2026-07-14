@@ -3,6 +3,7 @@
     <!-- 顶部标题 -->
     <div class="screen-header">
       <div class="header-left">
+        <el-button class="back-btn" @click="goBack" :icon="ArrowLeft" circle plain />
         <div class="title-text">
           <span class="title-main">SN全生命周期追溯</span>
           <span class="title-sub">Smart Bracelet Full Lifecycle Traceability</span>
@@ -382,9 +383,17 @@
 
 <script setup>
 import { ref, reactive, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { ArrowLeft } from '@element-plus/icons-vue'
 import { getReverseTrace, getForwardTrace } from '../../api/snTrace'
 import * as echarts from 'echarts'
+
+const router = useRouter()
+
+function goBack() {
+  router.back()
+}
 
 const traceMode = ref('reverse')
 const searchCode = ref('')
@@ -583,6 +592,19 @@ onUnmounted(() => {
   margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 1px solid rgba(0, 170, 255, 0.2);
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.back-btn {
+  --el-button-bg-color: rgba(0, 170, 255, 0.1);
+  --el-button-border-color: rgba(0, 170, 255, 0.4);
+  --el-button-text-color: #00d4ff;
+  --el-button-hover-bg-color: rgba(0, 170, 255, 0.2);
+  --el-button-hover-border-color: rgba(0, 170, 255, 0.6);
+  --el-button-hover-text-color: #00e5ff;
 }
 .title-text { display: flex; flex-direction: column; }
 .title-main {

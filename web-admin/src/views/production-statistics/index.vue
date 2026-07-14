@@ -102,10 +102,10 @@ const productList = ref([
 ])
 
 const statCards = ref([
-  { title: '生产工单', value: 45, icon: 'SetUp', color: '#409EFF' },
-  { title: '总产量', value: '68,500', icon: 'Box', color: '#67C23A' },
-  { title: '平均合格率', value: '96.8%', icon: 'CircleCheck', color: '#E6A23C' },
-  { title: '设备稼动率', value: '89.2%', icon: 'Cpu', color: '#9b59b6' }
+  { title: '生产工单', value: 45, icon: 'SetUp', color: '#A7CBFF' },
+  { title: '总产量', value: '68,500', icon: 'Box', color: '#95D5B2' },
+  { title: '平均合格率', value: '96.8%', icon: 'CircleCheck', color: '#FFD6A5' },
+  { title: '设备稼动率', value: '89.2%', icon: 'Cpu', color: '#C8B6FF' }
 ])
 
 const processStats = ref([
@@ -122,13 +122,20 @@ function initOutputChart() {
   outputChart = echarts.init(outputChartRef.value)
   const option = {
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      borderColor: '#e8e8e8',
+      borderWidth: 1
     },
     legend: {
       data: ['计划产量', '实际产量'],
-      top: 0
+      top: 0,
+      textStyle: {
+        color: '#606266'
+      }
     },
     grid: {
+      top: '15%',
       left: '3%',
       right: '4%',
       bottom: '3%',
@@ -136,11 +143,31 @@ function initOutputChart() {
     },
     xAxis: {
       type: 'category',
-      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+      axisLine: {
+        lineStyle: {
+          color: '#e8e8e8'
+        }
+      },
+      axisLabel: {
+        color: '#909399'
+      }
     },
     yAxis: {
       type: 'value',
-      name: '产量'
+      name: '产量',
+      axisLine: {
+        show: false
+      },
+      axisTick: {
+        show: false
+      },
+      splitLine: {
+        lineStyle: {
+          type: 'dashed',
+          color: '#f0f2f5'
+        }
+      }
     },
     series: [
       {
@@ -148,21 +175,17 @@ function initOutputChart() {
         type: 'line',
         smooth: true,
         data: [5000, 5500, 6000, 5800, 6500, 7000, 6800, 7200, 7500, 7800, 8000, 8500],
-        itemStyle: { color: '#409EFF' },
-        lineStyle: { type: 'dashed' }
+        itemStyle: { color: '#B5C7D9' },
+        lineStyle: { type: 'dashed', color: '#B5C7D9' }
       },
       {
         name: '实际产量',
         type: 'line',
         smooth: true,
         data: [4800, 5300, 5900, 5600, 6300, 6800, 6600, 7000, 7300, 7600, 7800, 8200],
-        itemStyle: { color: '#67C23A' },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(103, 194, 58, 0.3)' },
-            { offset: 1, color: 'rgba(103, 194, 58, 0.05)' }
-          ])
-        }
+        itemStyle: { color: '#95D5B2' },
+        lineStyle: { color: '#95D5B2', width: 3 },
+        symbolSize: 6
       }
     ]
   }
@@ -178,39 +201,36 @@ function initProductChart() {
       formatter: '{a} <br/>{b}: {c} ({d}%)'
     },
     legend: {
-      orient: 'vertical',
-      left: 'left'
+      bottom: '5%',
+      left: 'center',
+      itemWidth: 12,
+      itemHeight: 12,
+      textStyle: {
+        color: '#606266'
+      }
     },
     series: [
       {
         name: '产品产量',
         type: 'pie',
-        radius: ['40%', '70%'],
-        center: ['60%', '50%'],
+        radius: ['45%', '68%'],
+        center: ['50%', '42%'],
         avoidLabelOverlap: false,
         itemStyle: {
-          borderRadius: 4,
+          borderRadius: 6,
           borderColor: '#fff',
-          borderWidth: 2
+          borderWidth: 3
         },
         label: {
-          show: false,
-          position: 'center'
-        },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: 16,
-            fontWeight: 'bold'
-          }
+          show: false
         },
         labelLine: {
           show: false
         },
         data: [
-          { value: 32000, name: '智能手环Pro', itemStyle: { color: '#409EFF' } },
-          { value: 25000, name: '智能手环Lite', itemStyle: { color: '#67C23A' } },
-          { value: 11500, name: '智能手环Ultra', itemStyle: { color: '#E6A23C' } }
+          { value: 32000, name: '智能手环Pro', itemStyle: { color: '#A7CBFF' } },
+          { value: 25000, name: '智能手环Lite', itemStyle: { color: '#95D5B2' } },
+          { value: 11500, name: '智能手环Ultra', itemStyle: { color: '#FFD6A5' } }
         ]
       }
     ]
@@ -266,7 +286,7 @@ onMounted(() => {
 .stat-icon {
   width: 60px;
   height: 60px;
-  border-radius: 12px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;

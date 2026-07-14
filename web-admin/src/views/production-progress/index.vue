@@ -57,6 +57,10 @@
       <div class="card-header">
         <span class="card-title">生产进度监控</span>
         <div class="header-right">
+          <span class="conn-status" :class="{ connected: wsConnected }">
+            <span class="status-dot"></span>
+            {{ wsConnected ? '实时连接中' : '连接断开' }}
+          </span>
           <span class="update-time">
             <el-icon><Clock /></el-icon>
             数据更新：{{ lastUpdateTime }}
@@ -71,7 +75,7 @@
           v-for="item in filteredData"
           :key="item.id"
           class="progress-item"
-          :class="{ 'item-expanded': expandedIds.includes(item.id) }"
+          :class="{ 'item-expanded': expandedIds.includes(item.id), 'flash': flashId === item.id }"
         >
           <div class="item-header" @click="toggleExpand(item.id)">
             <div class="item-left">
@@ -186,12 +190,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ElMessage, ElNotification } from 'element-plus'
+import wsClient from '../../utils/websocket'
+import request from '../../utils/request'
 
 const loading = ref(false)
 const lastUpdateTime = ref('')
 const expandedIds = ref([])
+const wsConnected = ref(false)
+const flashId = ref(null)
 
 const searchForm = reactive({
   workOrderNo: '',
@@ -208,10 +216,10 @@ const statusOptions = [
 ]
 
 const statCards = ref([
-  { title: '今日产量', value: 1280, icon: 'DataLine', color: '#409EFF', trend: '+12%', trendIcon: 'Top', trendClass: 'up' },
-  { title: '生产中工单', value: 8, icon: 'Setting', color: '#67C23A', trend: '+2', trendIcon: 'Top', trendClass: 'up' },
-  { title: '待开工单', value: 5, icon: 'Clock', color: '#E6A23C', trend: '-1', trendIcon: 'Bottom', trendClass: 'down' },
-  { title: '异常工单', value: 1, icon: 'Warning', color: '#F56C6C', trend: '0', trendIcon: 'Minus', trendClass: 'normal' }
+  { title: '今日产量', value: 1280, icon: 'DataLine', color: '#93c5dd', trend: '+12%', trendIcon: 'Top', trendClass: 'up' },
+  { title: '生产中工单', value: 8, icon: 'Setting', color: '#83d8cf', trend: '+2', trendIcon: 'Top', trendClass: 'up' },
+  { title: '待开工单', value: 5, icon: 'Clock', color: '#fae1a4', trend: '-1', trendIcon: 'Bottom', trendClass: 'down' },
+  { title: '异常工单', value: 1, icon: 'Warning', color: '#f1a7b8', trend: '0', trendIcon: 'Minus', trendClass: 'normal' }
 ])
 
 const mockData = ref([
@@ -343,19 +351,21 @@ const mockData = ref([
   }
 ])
 
+const workOrderData = ref([])
+
 const filteredData = computed(() => {
-  let result = [...mockData.value]
+  let result = [...workOrderData.value]
   if (searchForm.workOrderNo) {
-    result = result.filter(item => item.workOrderNo.includes(searchForm.workOrderNo))
+    result = result.filter(item => item.workOrderNo && item.workOrderNo.includes(searchForm.workOrderNo))
   }
   if (searchForm.productName) {
-    result = result.filter(item => item.productName.includes(searchForm.productName))
+    result = result.filter(item => item.productName && item.productName.includes(searchForm.productName))
   }
   if (searchForm.status !== '') {
     result = result.filter(item => item.status === searchForm.status)
   }
   if (searchForm.manager) {
-    result = result.filter(item => item.manager.includes(searchForm.manager))
+    result = result.filter(item => item.manager && item.manager.includes(searchForm.manager))
   }
   return result
 })
@@ -385,12 +395,31 @@ function toggleExpand(id) {
   }
 }
 
-function handleSearch() {
+async function fetchWorkOrders() {
   loading.value = true
-  setTimeout(() => {
+  try {
+    const res = await request.get('/production-progress/list')
+    if (res.data) {
+      workOrderData.value = res.data || []
+      updateStatCards()
+    }
+  } catch (error) {
+    console.error('Fetch work orders failed:', error)
+    workOrderData.value = []
+  } finally {
     loading.value = false
-    updateLastUpdateTime()
-  }, 300)
+  }
+}
+
+function updateStatCards() {
+  const list = workOrderData.value
+  statCards.value[1].value = list.filter(i => i.status === 1).length
+  statCards.value[2].value = list.filter(i => i.status === 0).length
+  statCards.value[3].value = list.filter(i => i.status === 3).length || list.filter(i => i.status === 4).length
+}
+
+function handleSearch() {
+  updateLastUpdateTime()
 }
 
 function handleReset() {
@@ -398,16 +427,13 @@ function handleReset() {
   searchForm.productName = ''
   searchForm.status = ''
   searchForm.manager = ''
-  handleSearch()
+  updateLastUpdateTime()
 }
 
-function handleRefresh() {
-  loading.value = true
-  setTimeout(() => {
-    loading.value = false
-    updateLastUpdateTime()
-    ElMessage.success('数据已刷新')
-  }, 500)
+async function handleRefresh() {
+  await fetchWorkOrders()
+  updateLastUpdateTime()
+  ElMessage.success('数据已刷新')
 }
 
 function handleStartProcess(workOrder, process) {
@@ -425,9 +451,29 @@ function updateLastUpdateTime() {
   lastUpdateTime.value = new Date().toLocaleString('zh-CN', { hour12: false })
 }
 
+function handleProgressUpdate(data) {
+  fetchWorkOrders()
+  flashId.value = data.workOrderId
+  setTimeout(() => { flashId.value = null }, 2000)
+  updateLastUpdateTime()
+  ElNotification({
+    title: '生产进度更新',
+    message: `工单 ${data.workOrderNo} 在 ${data.processName} 工序新增报工 ${data.addQuantity} 件`,
+    type: 'success',
+    duration: 4000
+  })
+}
+
 onMounted(() => {
   updateLastUpdateTime()
-  expandedIds.value = [1, 6]
+  fetchWorkOrders()
+  wsClient.connect()
+  wsConnected.value = true
+  wsClient.on('PROGRESS_UPDATE', handleProgressUpdate)
+})
+
+onUnmounted(() => {
+  wsClient.off('PROGRESS_UPDATE', handleProgressUpdate)
 })
 </script>
 
@@ -487,11 +533,11 @@ onMounted(() => {
 }
 
 .stat-trend.up {
-  color: #67C23A;
+  color: #83d8cf;
 }
 
 .stat-trend.down {
-  color: #F56C6C;
+  color: #f1a7b8;
 }
 
 .stat-trend.normal {
@@ -546,9 +592,53 @@ onMounted(() => {
   transition: all 0.3s;
 }
 
+.progress-item.flash {
+  animation: flashBorder 2s ease-out;
+}
+
+@keyframes flashBorder {
+  0% {
+    border-color: #83d8cf;
+    box-shadow: 0 0 20px rgba(131, 216, 207, 0.3);
+  }
+  100% {
+    border-color: #e4e7ed;
+    box-shadow: none;
+  }
+}
+
+.conn-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #909399;
+}
+
+.conn-status .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #f1a7b8;
+}
+
+.conn-status.connected {
+  color: #83d8cf;
+}
+
+.conn-status.connected .status-dot {
+  background-color: #83d8cf;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 .progress-item:hover {
-  border-color: #409EFF;
-  box-shadow: 0 2px 12px 0 rgba(64, 158, 255, 0.1);
+  border-color: #93c5dd;
+  box-shadow: 0 2px 12px 0 rgba(147, 197, 221, 0.2);
 }
 
 .item-header {
@@ -614,7 +704,7 @@ onMounted(() => {
 .quantity-info .finished {
   font-size: 18px;
   font-weight: bold;
-  color: #409EFF;
+  color: #93c5dd;
 }
 
 .quantity-info .divider {

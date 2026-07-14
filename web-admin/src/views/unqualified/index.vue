@@ -425,10 +425,10 @@ const showHandleType = computed(() => {
 })
 
 const statCards = computed(() => [
-  { title: '待处理', value: pendingCount.value, icon: 'Warning', color: '#F56C6C' },
-  { title: '处理中', value: processingCount.value, icon: 'Clock', color: '#E6A23C' },
-  { title: '已处理', value: processedCount.value, icon: 'CircleCheck', color: '#67C23A' },
-  { title: '本月累计', value: mockData.value.length, icon: 'Document', color: '#409EFF' }
+  { title: '待处理', value: pendingCount.value, icon: 'Warning', color: '#f1a7b8' },
+  { title: '处理中', value: processingCount.value, icon: 'Clock', color: '#fae1a4' },
+  { title: '已处理', value: processedCount.value, icon: 'CircleCheck', color: '#83d8cf' },
+  { title: '本月累计', value: mockData.value.length, icon: 'Document', color: '#93c5dd' }
 ])
 
 const pendingCount = computed(() => mockData.value.filter(item => item.status === 0).length)

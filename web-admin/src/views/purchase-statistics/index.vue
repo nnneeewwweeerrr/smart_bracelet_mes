@@ -106,10 +106,10 @@ const supplierList = ref([
 ])
 
 const statCards = ref([
-  { title: '采购单总数', value: 89, icon: 'ShoppingBag', color: '#409EFF' },
-  { title: '采购总金额', value: '¥1,856,200', icon: 'Money', color: '#67C23A' },
-  { title: '待到货', value: 12, icon: 'Van', color: '#E6A23C' },
-  { title: '本月新增', value: 25, icon: 'Plus', color: '#F56C6C' }
+  { title: '采购单总数', value: 89, icon: 'ShoppingBag', color: '#A7CBFF' },
+  { title: '采购总金额', value: '¥1,856,200', icon: 'Money', color: '#C8B6FF' },
+  { title: '待到货', value: 12, icon: 'Van', color: '#FFD6A5' },
+  { title: '本月新增', value: 25, icon: 'Plus', color: '#95D5B2' }
 ])
 
 const supplierStats = ref([
@@ -125,32 +125,71 @@ function initTrendChart() {
   trendChart = echarts.init(trendChartRef.value)
   const option = {
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      borderColor: '#e8e8e8',
+      borderWidth: 1,
+      textStyle: {
+        color: '#303133'
+      }
     },
     legend: {
       data: ['采购金额', '采购单数'],
-      top: 0
+      top: 0,
+      textStyle: {
+        color: '#606266'
+      }
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '3%',
+      top: '15%',
       containLabel: true
     },
     xAxis: {
       type: 'category',
-      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+      axisLine: {
+        lineStyle: {
+          color: '#e8e8e8'
+        }
+      },
+      axisLabel: {
+        color: '#909399'
+      }
     },
     yAxis: [
       {
         type: 'value',
         name: '金额(元)',
-        position: 'left'
+        position: 'left',
+        axisLine: {
+          show: false
+        },
+        axisTick: {
+          show: false
+        },
+        splitLine: {
+          lineStyle: {
+            type: 'dashed',
+            color: '#f0f2f5'
+          }
+        }
       },
       {
         type: 'value',
         name: '单数',
-        position: 'right'
+        position: 'right',
+        axisLine: {
+          show: false
+        },
+        axisTick: {
+          show: false
+        },
+        splitLine: {
+          show: false
+        }
       }
     ],
     series: [
@@ -159,20 +198,23 @@ function initTrendChart() {
         type: 'line',
         smooth: true,
         data: [95000, 108000, 89000, 125000, 110000, 156000, 142000, 168000, 155000, 178000, 195000, 210000],
-        itemStyle: { color: '#E6A23C' },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(230, 162, 60, 0.3)' },
-            { offset: 1, color: 'rgba(230, 162, 60, 0.05)' }
-          ])
-        }
+        itemStyle: { color: '#FFD6A5' },
+        lineStyle: {
+          width: 3,
+          color: '#FFD6A5'
+        },
+        symbolSize: 6
       },
       {
         name: '采购单数',
         type: 'bar',
         yAxisIndex: 1,
         data: [5, 8, 6, 9, 7, 10, 8, 12, 10, 11, 13, 15],
-        itemStyle: { color: '#67C23A' }
+        barWidth: '40%',
+        itemStyle: {
+          color: '#95D5B2',
+          borderRadius: [4, 4, 0, 0]
+        }
       }
     ]
   }
@@ -188,41 +230,38 @@ function initMaterialChart() {
       formatter: '{a} <br/>{b}: {c} ({d}%)'
     },
     legend: {
-      orient: 'vertical',
-      left: 'left'
+      bottom: '5%',
+      left: 'center',
+      itemWidth: 12,
+      itemHeight: 12,
+      textStyle: {
+        color: '#606266'
+      }
     },
     series: [
       {
         name: '物料采购',
         type: 'pie',
-        radius: ['40%', '70%'],
-        center: ['60%', '50%'],
+        radius: ['45%', '68%'],
+        center: ['50%', '42%'],
         avoidLabelOverlap: false,
         itemStyle: {
-          borderRadius: 4,
+          borderRadius: 6,
           borderColor: '#fff',
-          borderWidth: 2
+          borderWidth: 3
         },
         label: {
-          show: false,
-          position: 'center'
-        },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: 16,
-            fontWeight: 'bold'
-          }
+          show: false
         },
         labelLine: {
           show: false
         },
         data: [
-          { value: 685, name: '电子元件', itemStyle: { color: '#409EFF' } },
-          { value: 356, name: '塑胶件', itemStyle: { color: '#67C23A' } },
-          { value: 420, name: '电池', itemStyle: { color: '#E6A23C' } },
-          { value: 185, name: '五金件', itemStyle: { color: '#F56C6C' } },
-          { value: 210, name: '屏幕模组', itemStyle: { color: '#909399' } }
+          { value: 685, name: '电子元件', itemStyle: { color: '#A7CBFF' } },
+          { value: 356, name: '塑胶件', itemStyle: { color: '#95D5B2' } },
+          { value: 420, name: '电池', itemStyle: { color: '#FFD6A5' } },
+          { value: 185, name: '五金件', itemStyle: { color: '#FFADAD' } },
+          { value: 210, name: '屏幕模组', itemStyle: { color: '#C8B6FF' } }
         ]
       }
     ]
@@ -271,13 +310,14 @@ onMounted(() => {
 
 .stat-content {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .stat-icon {
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -288,13 +328,15 @@ onMounted(() => {
 
 .stat-info {
   flex: 1;
+  width: 100%;
 }
 
 .stat-value {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: bold;
   color: #303133;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .stat-label {

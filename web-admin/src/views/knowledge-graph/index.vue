@@ -186,12 +186,12 @@ const stats = ref({
 const graphRef = ref(null);
 let chartInstance = null;
 const nodeTypeColors = {
- Process: '#3b82f6',
- Defect: '#ef4444',
- Cause: '#f59e0b',
- Solution: '#10b981',
- Material: '#8b5cf6',
- Equipment: '#06b6d4'
+ Process: '#93c5dd',
+ Defect: '#f1a7b8',
+ Cause: '#fae1a4',
+ Solution: '#83d8cf',
+ Material: '#e0c4c8',
+ Equipment: '#a8d8e5'
 };
 function getNodeTypeLabel(type) {
  const map = {
@@ -348,9 +348,7 @@ function renderSearchResult(nodes) {
  itemStyle: {
  color: nodeTypeColors[node.type] || '#64748b',
  borderColor: '#fff',
- borderWidth: 2,
- shadowBlur: 10,
- shadowColor: nodeTypeColors[node.type]
+ borderWidth: 2
  },
  label: {
  show: true,
@@ -409,13 +407,13 @@ function getSymbolSize(type) {
 }
 function getEdgeColor(relationType) {
  const map = {
- HAS_DEFECT: '#ef4444',
- CAUSED_BY: '#f59e0b',
- SOLVED_BY: '#10b981',
- USES_MATERIAL: '#8b5cf6',
- USES_EQUIPMENT: '#06b6d4'
+ HAS_DEFECT: '#f1a7b8',
+ CAUSED_BY: '#fae1a4',
+ SOLVED_BY: '#83d8cf',
+ USES_MATERIAL: '#e0c4c8',
+ USES_EQUIPMENT: '#a8d8e5'
  };
- return map[relationType] || '#94a3b8';
+ return map[relationType] || '#cbd5e1';
 }
 function clearSelection() {
  selectedNode.value = null;
@@ -496,12 +494,12 @@ onMounted(() => {
   color: #fff;
 }
 
-.process-icon { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-.defect-icon { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-.cause-icon { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-.solution-icon { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-.material-icon { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
-.equipment-icon { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+.process-icon { background: #93c5dd; }
+.defect-icon { background: #f1a7b8; }
+.cause-icon { background: #fae1a4; }
+.solution-icon { background: #83d8cf; }
+.material-icon { background: #e0c4c8; }
+.equipment-icon { background: #a8d8e5; }
 
 .stat-info {
   flex: 1;
@@ -672,10 +670,10 @@ onMounted(() => {
   border-radius: 4px;
 }
 
-.legend-color.process { background: #3b82f6; }
-.legend-color.defect { background: #ef4444; }
-.legend-color.cause { background: #f59e0b; }
-.legend-color.solution { background: #10b981; }
-.legend-color.material { background: #8b5cf6; }
-.legend-color.equipment { background: #06b6d4; }
+.legend-color.process { background: #93c5dd; }
+.legend-color.defect { background: #f1a7b8; }
+.legend-color.cause { background: #fae1a4; }
+.legend-color.solution { background: #83d8cf; }
+.legend-color.material { background: #e0c4c8; }
+.legend-color.equipment { background: #a8d8e5; }
 </style>
