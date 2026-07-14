@@ -1,5 +1,7 @@
-﻿<template>
+<template>
   <view class="task-page">
+    <DynamicBackground theme="theme-success"></DynamicBackground>
+    <view class="page-content">
     <view class="filter-bar">
       <u-tabs :list="statusList" :current="currentStatus" @click="onStatusChange" :activeStyle="{ color: '#3B7CFF', fontWeight: 'bold' }" :inactiveStyle="{ color: '#8C8C8C' }" lineColor="#3B7CFF" :lineWidth="30"></u-tabs>
     </view>
@@ -26,6 +28,7 @@
         </view>
         <text class="task-time">{{ item.createTime }}</text>
       </view>
+    </view>
     </view>
   </view>
 </template>
@@ -97,7 +100,13 @@ export default {
 <style lang="scss" scoped>
 .task-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
+  position: relative;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
 }
 
 .filter-bar {

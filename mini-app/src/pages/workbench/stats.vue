@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="stats-page">
     <DynamicBackground theme="theme-primary" />
     <view class="page-content">
@@ -197,7 +197,7 @@ export default {
 <style lang="scss" scoped>
 .stats-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding: 24rpx;
   padding-bottom: 40rpx;
   position: relative;

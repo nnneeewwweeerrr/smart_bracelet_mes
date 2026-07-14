@@ -19,9 +19,13 @@ public class StockOutController {
 
     @GetMapping("/list")
     public Result<IPage<StockOut>> list(@RequestParam(defaultValue = "1") Integer pageNum,
-                                        @RequestParam(defaultValue = "10") Integer pageSize) {
+                                        @RequestParam(defaultValue = "10") Integer pageSize,
+                                        @RequestParam(required = false) String keyword) {
         Page<StockOut> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<StockOut> wrapper = new LambdaQueryWrapper<>();
+        if (keyword != null && !keyword.isEmpty()) {
+            wrapper.like(StockOut::getOutNo, keyword);
+        }
         wrapper.orderByDesc(StockOut::getCreateTime);
         return Result.success(stockOutService.page(page, wrapper));
     }

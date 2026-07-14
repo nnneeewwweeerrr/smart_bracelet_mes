@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="stock-page">
     <DynamicBackground theme="theme-primary" />
     <view class="page-content">
@@ -125,7 +125,7 @@ export default {
 <style lang="scss" scoped>
 .stock-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding: 0;
   padding-bottom: $tabbar-height;
   position: relative;

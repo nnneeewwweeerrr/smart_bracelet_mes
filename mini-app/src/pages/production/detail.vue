@@ -251,33 +251,6 @@ export default {
       } catch {
         this.detail = {}
       }
-      this.loadMockData()
-    },
-    loadMockData() {
-      this.requiredMaterials = [
-        { id: 1, name: '主控芯片', code: 'IC-MCU-001', batch: 'IC20240105', verified: false },
-        { id: 2, name: '心率传感器', code: 'SENSOR-HR-001', batch: 'HR20240108', verified: false },
-        { id: 3, name: '屏幕模组', code: 'LCD-001', batch: 'LCD20240110', verified: false }
-      ]
-
-      this.processParams = [
-        { key: 'temperature', label: '温度', value: '360°C', range: '标准: 350-370°C', status: 'normal' },
-        { key: 'humidity', label: '湿度', value: '45%RH', range: '标准: 40-60%RH', status: 'normal' },
-        { key: 'pressure', label: '压力', value: '0.5MPa', range: '标准: 0.4-0.6MPa', status: 'normal' },
-        { key: 'speed', label: '速度', value: '120mm/s', range: '标准: 100-150mm/s', status: 'normal' }
-      ]
-
-      this.sopDetail = {
-        processName: this.detail.processName || 'SMT贴片',
-        productName: this.detail.productName || '智能运动手环A1',
-        steps: [
-          { stepNo: 1, stepName: 'PCB板检查', description: '检查PCB板外观，确认无损伤、无氧化，板面清洁无异物', mediaUrl: '', mediaType: '' },
-          { stepNo: 2, stepName: '物料核对', description: '核对元件清单，确认物料型号与BOM一致，批次信息正确', mediaUrl: '', mediaType: '' },
-          { stepNo: 3, stepName: '贴片机设置', description: '将PCB板放入贴片机，设置贴片参数，确认吸嘴状态正常', mediaUrl: '', mediaType: '' },
-          { stepNo: 4, stepName: '贴片执行', description: '启动贴片程序，监控贴片过程，确认元件贴装精度', mediaUrl: '', mediaType: '' },
-          { stepNo: 5, stepName: 'AOI检测', description: '进行AOI光学检测，确认焊点质量，无虚焊连锡', mediaUrl: '', mediaType: '' }
-        ]
-      }
     },
     async handleScanMaterial() {
       try {
@@ -353,7 +326,7 @@ export default {
 <style lang="scss" scoped>
 .detail-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding-bottom: 160rpx;
   position: relative;
 }

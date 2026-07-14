@@ -1,5 +1,7 @@
-﻿<template>
+<template>
   <view class="profile-page">
+    <DynamicBackground theme="theme-primary"></DynamicBackground>
+    <view class="page-content">
     <view class="profile-card">
       <u-form :model="form" labelPosition="left" labelWidth="160rpx">
         <u-form-item label="用户名">
@@ -35,6 +37,7 @@
         <u-cell title="修改密码" isLink @click="showPwdPopup = true"></u-cell>
       </u-cell-group>
     </view>
+    </view>
 
     <u-popup :show="showPwdPopup" mode="bottom" round="24" @close="showPwdPopup = false" closeable>
       <view class="pwd-popup">
@@ -59,10 +62,12 @@
 </template>
 
 <script>
+import DynamicBackground from '@/components/DynamicBackground'
 import { getUser, setUser } from '@/utils/auth'
 import { updateUserInfo, changePassword } from '@/api/user'
 
 export default {
+  components: { DynamicBackground },
   data() {
     return {
       form: {},
@@ -132,7 +137,13 @@ export default {
 <style lang="scss" scoped>
 .profile-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
+  position: relative;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
   padding: 24rpx;
 }
 
