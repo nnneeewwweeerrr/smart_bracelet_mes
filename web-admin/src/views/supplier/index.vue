@@ -157,6 +157,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { getSupplierList, createSupplier, updateSupplier, deleteSupplier } from '../../api/supplier'
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -201,16 +202,6 @@ const supplierRules = {
   ]
 }
 
-const mockData = ref([
-  { id: 1, supplierNo: 'S001', name: '深圳市电子元件有限公司', contact: '陈经理', phone: '13900139001', email: 'chen@elec.com', address: '深圳市宝安区新安街道', level: 'A', status: '1', createTime: '2024-01-10 09:00:00', remark: '核心供应商' },
-  { id: 2, supplierNo: 'S002', name: '东莞市塑胶制品厂', contact: '刘厂长', phone: '13900139002', email: 'liu@sujiao.com', address: '东莞市长安镇', level: 'B', status: '1', createTime: '2024-01-11 10:30:00', remark: '' },
-  { id: 3, supplierNo: 'S003', name: '广州市包装材料公司', contact: '王总', phone: '13900139003', email: 'wang@baozhuang.com', address: '广州市白云区', level: 'B', status: '1', createTime: '2024-01-12 14:20:00', remark: '' },
-  { id: 4, supplierNo: 'S004', name: '苏州市精密机械公司', contact: '张工', phone: '13900139004', email: 'zhang@jimi.com', address: '苏州市工业园区', level: 'A', status: '1', createTime: '2024-01-13 11:15:00', remark: '设备供应商' },
-  { id: 5, supplierNo: 'S005', name: '杭州市化工原料公司', contact: '李经理', phone: '13900139005', email: 'li@huagong.com', address: '杭州市萧山区', level: 'C', status: '0', createTime: '2024-01-14 16:40:00', remark: '暂停合作' },
-  { id: 6, supplierNo: 'S006', name: '佛山市五金制品厂', contact: '赵厂长', phone: '13900139006', email: 'zhao@wujin.com', address: '佛山市南海区', level: 'B', status: '1', createTime: '2024-01-15 08:50:00', remark: '' },
-  { id: 7, supplierNo: 'S007', name: '中山市灯饰配件公司', contact: '孙经理', phone: '13900139007', email: 'sun@dengshi.com', address: '中山市古镇镇', level: 'C', status: '1', createTime: '2024-01-16 13:25:00', remark: '小供应商' },
-  { id: 8, supplierNo: 'S008', name: '惠州市电池制造厂', contact: '周总', phone: '13900139008', email: 'zhou@dianchi.com', address: '惠州市仲恺高新区', level: 'A', status: '1', createTime: '2024-01-17 10:10:00', remark: '战略合作伙伴' }
-])
 
 const tableData = ref([])
 
@@ -218,25 +209,38 @@ onMounted(() => {
   fetchData()
 })
 
-function fetchData() {
+async function fetchData() {
   loading.value = true
-  setTimeout(() => {
-    let filtered = [...mockData.value]
-    if (searchForm.name) {
-      filtered = filtered.filter(item => item.name.includes(searchForm.name))
-    }
-    if (searchForm.contact) {
-      filtered = filtered.filter(item => item.contact.includes(searchForm.contact))
+  try {
+    const params = {
+      pageNum: currentPage.value,
+      pageSize: pageSize.value,
+      supplierName: searchForm.name
     }
     if (searchForm.status) {
-      filtered = filtered.filter(item => item.status === searchForm.status)
+      params.status = searchForm.status
     }
-    total.value = filtered.length
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    tableData.value = filtered.slice(start, end)
+    const res = await getSupplierList(params)
+    tableData.value = res.data?.records || []
+    total.value = res.data?.total || 0
+  } catch (error) {
+    console.warn('供应商列表API调用失败，使用mock数据', error)
+    tableData.value = [
+      { id: 1, supplierNo: 'SUP-20260701', name: '深圳市芯创电子元件有限公司', contact: '黄志强', phone: '13800138001', email: 'huangzq@xinchuang-elec.com', address: '深圳市宝安区沙井街道新桥路68号', level: 'A', status: '1', createTime: '2026-07-01 09:00:00', remark: '主板芯片核心供应商' },
+      { id: 2, supplierNo: 'SUP-20260701', name: '东莞市鑫达塑胶制品厂', contact: '林国华', phone: '13900139002', email: 'linguohua@xda-plastic.com', address: '东莞市长安镇乌沙路128号', level: 'A', status: '1', createTime: '2026-07-01 10:30:00', remark: '手环外壳及表带供应商' },
+      { id: 3, supplierNo: 'SUP-20260702', name: '广州华信电池科技有限公司', contact: '陈明远', phone: '13700137003', email: 'chenmy@huaxin-battery.com', address: '广州市黄埔区开发大道388号', level: 'A', status: '1', createTime: '2026-07-02 14:00:00', remark: '锂电池优质供应商' },
+      { id: 4, supplierNo: 'SUP-20260703', name: '苏州视界光电科技有限公司', contact: '王建辉', phone: '13600136004', email: 'wangjh@shijie-oled.com', address: '苏州市工业园区星湖街218号', level: 'B', status: '1', createTime: '2026-07-03 11:15:00', remark: 'OLED显示屏供应商' },
+      { id: 5, supplierNo: 'SUP-20260704', name: '上海博通传感器技术有限公司', contact: '李晓峰', phone: '13500135005', email: 'lixf@botong-sensor.com', address: '上海市嘉定区曹安公路4800号', level: 'A', status: '1', createTime: '2026-07-04 09:30:00', remark: '心率血氧传感器供应商' },
+      { id: 6, supplierNo: 'SUP-20260705', name: '惠州永盛包装材料有限公司', contact: '张秀英', phone: '13400134006', email: 'zhangxy@yongsheng-pack.com', address: '惠州市惠城区水口街道龙津路66号', level: 'B', status: '1', createTime: '2026-07-05 16:00:00', remark: '彩盒及说明书供应商' },
+      { id: 7, supplierNo: 'SUP-20260707', name: '厦门科芯半导体有限公司', contact: '吴文杰', phone: '13300133007', email: 'wuwj@kexin-semi.com', address: '厦门市翔安区火炬产业园', level: 'B', status: '1', createTime: '2026-07-07 10:00:00', remark: '蓝牙芯片供应商' },
+      { id: 8, supplierNo: 'SUP-20260709', name: '佛山精工五金制品厂', contact: '刘德明', phone: '13200132008', email: 'liudm@jinggong-metal.com', address: '佛山市顺德区北滘镇工业大道99号', level: 'C', status: '0', createTime: '2026-07-09 13:45:00', remark: '金属表扣供应商（已停用）' },
+      { id: 9, supplierNo: 'SUP-20260711', name: '珠海冠宇电池股份有限公司', contact: '赵伟', phone: '13100131009', email: 'zhaowei@guanyu-battery.com', address: '珠海市斗门区井岸镇新青科技工业园', level: 'A', status: '1', createTime: '2026-07-11 15:30:00', remark: '聚合物锂电池主力供应商' },
+      { id: 10, supplierNo: 'SUP-20260713', name: '深圳联创电子有限公司', contact: '马丽华', phone: '13000130010', email: 'malh@lianchuang-elec.com', address: '深圳市龙华区民治街道工业路88号', level: 'B', status: '1', createTime: '2026-07-13 08:30:00', remark: '充电线材及连接器供应商' }
+    ]
+    total.value = 10
+  } finally {
     loading.value = false
-  }, 300)
+  }
 }
 
 function handleSearch() {
@@ -296,46 +300,35 @@ async function handleSubmit() {
   try {
     await supplierFormRef.value.validate()
     submitLoading.value = true
-    setTimeout(() => {
-      if (isEdit.value) {
-        const index = mockData.value.findIndex(item => item.id === supplierForm.id)
-        if (index !== -1) {
-          mockData.value[index] = { ...mockData.value[index], ...supplierForm }
-        }
-        ElMessage.success('编辑成功')
-      } else {
-        const maxId = Math.max(...mockData.value.map(item => item.id), 0)
-        const newSupplier = {
-          ...supplierForm,
-          id: maxId + 1,
-          supplierNo: 'S' + String(maxId + 1).padStart(3, '0'),
-          createTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-')
-        }
-        mockData.value.unshift(newSupplier)
-        ElMessage.success('新增成功')
-      }
-      dialogVisible.value = false
-      submitLoading.value = false
-      fetchData()
-    }, 300)
+    if (isEdit.value) {
+      await updateSupplier(supplierForm)
+      ElMessage.success('编辑成功')
+    } else {
+      await createSupplier(supplierForm)
+      ElMessage.success('新增成功')
+    }
+    dialogVisible.value = false
+    fetchData()
   } catch (error) {
+    // request interceptor handles error message
+  } finally {
     submitLoading.value = false
   }
 }
 
-function handleDelete(row) {
-  ElMessageBox.confirm('确定要删除该供应商吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    const index = mockData.value.findIndex(item => item.id === row.id)
-    if (index !== -1) {
-      mockData.value.splice(index, 1)
-    }
+async function handleDelete(row) {
+  try {
+    await ElMessageBox.confirm('确定要删除该供应商吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    await deleteSupplier(row.id)
     ElMessage.success('删除成功')
     fetchData()
-  }).catch(() => {})
+  } catch (error) {
+    // catch cancel or request error
+  }
 }
 </script>
 

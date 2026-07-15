@@ -1,6 +1,7 @@
 package com.mes.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -37,4 +38,22 @@ public class EquipmentInfo {
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
+
+    @TableField(exist = false)
+    private String equipmentNo;
+
+    @TableField(exist = false)
+    private String name;
+
+    @TableField(exist = false)
+    private String type;
+
+    @TableField(exist = false)
+    private String workshop;
+
+    @TableField(exist = false)
+    private String manager;
+
+    @TableField(exist = false)
+    private String phone;
 }

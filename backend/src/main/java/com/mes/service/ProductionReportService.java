@@ -5,11 +5,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mes.entity.ProductionReport;
 
+import java.util.List;
+
 public interface ProductionReportService extends IService<ProductionReport> {
 
     IPage<ProductionReport> pageList(Page<ProductionReport> page, Long workOrderId, Long workerId);
 
     boolean saveReport(ProductionReport report);
+
+    List<ProductionReport> listByWorkOrderId(Long workOrderId);
 
     /**
      * 带双重防错校验的报工保存

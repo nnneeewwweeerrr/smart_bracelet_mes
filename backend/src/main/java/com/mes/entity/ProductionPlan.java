@@ -1,6 +1,7 @@
 package com.mes.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -17,6 +18,8 @@ public class ProductionPlan {
 
     private String planNo;
 
+    private String planName;
+
     private Long orderId;
 
     private Long productId;
@@ -29,5 +32,16 @@ public class ProductionPlan {
 
     private Integer status;
 
+    private String manager;
+
+    private String remark;
+
     private LocalDateTime createTime;
+
+    // ===== 虚拟字段（前端展示用）=====
+    @TableField(exist = false)
+    private String productName;
+
+    @TableField(exist = false)
+    private Integer quantity;
 }

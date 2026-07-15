@@ -1,6 +1,7 @@
 package com.mes.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -32,4 +33,25 @@ public class StockOut {
     private Integer status;
 
     private LocalDateTime createTime;
+
+    @TableField(exist = false)
+    private String stockOutNo;
+
+    @TableField(exist = false)
+    private String warehouse;
+
+    @TableField(exist = false)
+    private String relatedNo;
+
+    @TableField(exist = false)
+    private String type;
+
+    @TableField(exist = false)
+    private Integer itemCount;
+
+    @TableField(exist = false)
+    private BigDecimal totalQuantity;
+
+    @TableField(exist = false)
+    private BigDecimal totalAmount;
 }

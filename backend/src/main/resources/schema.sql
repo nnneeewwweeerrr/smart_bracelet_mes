@@ -180,12 +180,15 @@ CREATE TABLE IF NOT EXISTS `process_info` (
 CREATE TABLE IF NOT EXISTS `production_plan` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '计划ID',
     `plan_no` VARCHAR(50) UNIQUE COMMENT '计划编号',
+    `plan_name` VARCHAR(100) COMMENT '计划名称',
     `order_id` BIGINT COMMENT '订单ID',
     `product_id` BIGINT COMMENT '产品ID',
     `planned_quantity` INT NOT NULL COMMENT '计划产量',
     `start_date` DATETIME COMMENT '计划开始日期',
     `end_date` DATETIME COMMENT '计划结束日期',
     `status` INT DEFAULT 0 COMMENT '计划状态(0待执行,1执行中,2已完成)',
+    `manager` VARCHAR(50) COMMENT '负责人',
+    `remark` VARCHAR(500) COMMENT '备注',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     INDEX `idx_plan_no` (`plan_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='生产计划表';
@@ -198,6 +201,10 @@ CREATE TABLE IF NOT EXISTS `work_order` (
     `process_id` BIGINT COMMENT '工序ID',
     `quantity` INT NOT NULL COMMENT '工单数量',
     `status` INT DEFAULT 0 COMMENT '工单状态(0待派发,1执行中,2已完成)',
+    `manager` VARCHAR(50) COMMENT '负责人',
+    `remark` VARCHAR(500) COMMENT '备注',
+    `plan_start_date` DATE COMMENT '计划开始日期',
+    `plan_end_date` DATE COMMENT '计划完成日期',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     INDEX `idx_work_no` (`work_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='工单号表';
@@ -310,3 +317,35 @@ CREATE TABLE IF NOT EXISTS `ai_chat_history` (
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     INDEX `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI对话记录表';
+
+CREATE TABLE IF NOT EXISTS `equipment_fault` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '故障ID',
+    `fault_no` VARCHAR(50) UNIQUE COMMENT '故障编号',
+    `equipment_id` BIGINT COMMENT '设备ID',
+    `fault_level` INT COMMENT '故障等级(1一般/2严重/3紧急)',
+    `fault_desc` TEXT COMMENT '故障描述',
+    `reporter` VARCHAR(50) COMMENT '报修人',
+    `report_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '报修时间',
+    `status` INT DEFAULT 0 COMMENT '状态(0待处理/1维修中/2已修复/3无法修复)',
+    `handler` VARCHAR(50) COMMENT '处理人',
+    `solution` TEXT COMMENT '处理方案',
+    `repair_hours` DECIMAL(5,1) COMMENT '维修时长(小时)',
+    `handle_time` DATETIME COMMENT '处理时间',
+    `process` VARCHAR(100) COMMENT '所在工序',
+    `remark` TEXT COMMENT '备注',
+    `assignee_id` BIGINT COMMENT '派工维修人员ID',
+    `assign_time` DATETIME COMMENT '派工时间',
+    `assign_type` VARCHAR(20) COMMENT '派工类型(manual手动/auto自动)',
+    INDEX `idx_fault_no` (`fault_no`),
+    INDEX `idx_equipment_id` (`equipment_id`),
+    INDEX `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设备故障记录表';
+
+-- ALTER TABLE 兼容已有数据库（continue-on-error=true，重复添加会自动跳过）
+ALTER TABLE `production_plan` ADD COLUMN `plan_name` VARCHAR(100) COMMENT '计划名称';
+ALTER TABLE `production_plan` ADD COLUMN `manager` VARCHAR(50) COMMENT '负责人';
+ALTER TABLE `production_plan` ADD COLUMN `remark` VARCHAR(500) COMMENT '备注';
+ALTER TABLE `work_order` ADD COLUMN `manager` VARCHAR(50) COMMENT '负责人';
+ALTER TABLE `work_order` ADD COLUMN `remark` VARCHAR(500) COMMENT '备注';
+ALTER TABLE `work_order` ADD COLUMN `plan_start_date` DATE COMMENT '计划开始日期';
+ALTER TABLE `work_order` ADD COLUMN `plan_end_date` DATE COMMENT '计划完成日期';

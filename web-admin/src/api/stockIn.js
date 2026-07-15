@@ -29,3 +29,18 @@ export function approveStockIn(id) {
     method: 'post'
   })
 }
+
+export function updateStockIn(data) {
+  return request({
+    url: '/stock-in/update',
+    method: 'put',
+    data
+  })
+}
+
+export function deleteStockIn(id) {
+  return request({
+    url: '/stock-in/delete/' + id,
+    method: 'delete'
+  })
+}

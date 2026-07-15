@@ -21,14 +21,6 @@
         <el-form-item label="故障编号">
           <el-input v-model="searchForm.faultNo" placeholder="请输入故障编号" clearable style="width: 180px" />
         </el-form-item>
-        <el-form-item label="设备名称">
-          <el-input v-model="searchForm.equipmentName" placeholder="请输入设备名称" clearable style="width: 180px" />
-        </el-form-item>
-        <el-form-item label="故障等级">
-          <el-select v-model="searchForm.faultLevel" placeholder="全部等级" clearable style="width: 140px">
-            <el-option v-for="item in faultLevelOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
         <el-form-item label="故障状态">
           <el-select v-model="searchForm.status" placeholder="全部状态" clearable style="width: 140px">
             <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
@@ -71,16 +63,32 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="240" fixed="right" align="center">
+        <el-table-column label="操作" width="320" fixed="right" align="center">
           <template #default="{ row }">
             <el-button type="primary" link @click="handleView(row)">查看</el-button>
             <el-button
+              v-if="row.status === 0"
               type="warning"
               link
-              @click="handleProcess(row)"
-              :disabled="row.status === 2 || row.status === 3"
+              @click="handleAssign(row)"
             >
-              处理
+              手动派工
+            </el-button>
+            <el-button
+              v-if="row.status === 0"
+              type="success"
+              link
+              @click="handleAutoAssign(row)"
+            >
+              自动派工
+            </el-button>
+            <el-button
+              v-if="row.status === 1"
+              type="primary"
+              link
+              @click="handleProcess(row)"
+            >
+              处理故障
             </el-button>
             <el-button
               type="danger"
@@ -215,7 +223,6 @@
       <el-form ref="processFormRef" :model="processForm" :rules="processRules" label-width="100px">
         <el-form-item label="处理状态" prop="status">
           <el-radio-group v-model="processForm.status">
-            <el-radio :value="1">维修中</el-radio>
             <el-radio :value="2">已修复</el-radio>
             <el-radio :value="3">无法修复</el-radio>
           </el-radio-group>
@@ -235,6 +242,26 @@
         <el-button type="primary" :loading="processSubmitLoading" @click="handleProcessSubmit">确定</el-button>
       </template>
     </el-dialog>
+
+    <el-dialog
+      v-model="assignVisible"
+      title="手动派工"
+      width="400px"
+      :close-on-click-modal="false"
+    >
+      <el-form ref="assignFormRef" :model="assignForm" :rules="assignRules" label-width="100px">
+        <el-form-item label="维修人员" prop="assigneeId">
+          <el-select v-model="assignForm.assigneeId" placeholder="请选择维修人员" style="width: 100%">
+            <el-option label="张维修" :value="10" />
+            <el-option label="李维修" :value="11" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="assignVisible = false">取消</el-button>
+        <el-button type="primary" :loading="assignLoading" @click="handleAssignSubmit">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -245,21 +272,22 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 const loading = ref(false)
 const submitLoading = ref(false)
 const processSubmitLoading = ref(false)
+const assignLoading = ref(false)
 const dialogVisible = ref(false)
 const viewVisible = ref(false)
 const processVisible = ref(false)
+const assignVisible = ref(false)
 const isEdit = ref(false)
 const isView = ref(false)
 const faultFormRef = ref(null)
 const processFormRef = ref(null)
+const assignFormRef = ref(null)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
 const searchForm = reactive({
   faultNo: '',
-  equipmentName: '',
-  faultLevel: '',
   status: ''
 })
 
@@ -279,10 +307,15 @@ const currentItem = reactive({})
 
 const processForm = reactive({
   id: null,
-  status: 1,
+  status: 2,
   handler: '',
   repairHours: 0,
   solution: ''
+})
+
+const assignForm = reactive({
+  id: null,
+  assigneeId: null
 })
 
 const faultLevelOptions = [
@@ -325,110 +358,69 @@ const processRules = {
   ]
 }
 
-const equipmentList = ref([
-  { id: 1, equipmentCode: 'EQ-001', equipmentName: 'SMT贴片机01' },
-  { id: 2, equipmentCode: 'EQ-002', equipmentName: 'SMT贴片机02' },
-  { id: 3, equipmentCode: 'EQ-003', equipmentName: '回流焊机01' },
-  { id: 4, equipmentCode: 'EQ-004', equipmentName: '回流焊机02' },
-  { id: 5, equipmentCode: 'EQ-005', equipmentName: '自动组装线01' },
-  { id: 6, equipmentCode: 'EQ-006', equipmentName: '自动组装线02' },
-  { id: 7, equipmentCode: 'EQ-007', equipmentName: '测试台01' },
-  { id: 8, equipmentCode: 'EQ-008', equipmentName: '测试台02' },
-  { id: 9, equipmentCode: 'EQ-009', equipmentName: '自动包装机01' },
-  { id: 10, equipmentCode: 'EQ-010', equipmentName: '自动包装机02' }
-])
+const assignRules = {
+  assigneeId: [
+    { required: true, message: '请选择维修人员', trigger: 'change' }
+  ]
+}
 
-const mockData = ref([
-  {
-    id: 1,
-    faultNo: 'EF-20240115001',
-    equipmentId: 4,
-    equipmentName: '回流焊机02',
-    faultLevel: 3,
-    faultDesc: '设备突然跳闸，无法启动，疑似加热模块故障',
-    reporter: '李操作',
-    process: 'SMT车间B区',
-    status: 1,
-    handler: '王维修',
-    solution: '正在检查加热模块，预计今天下午修好',
-    reportTime: '2024-01-15 09:30:00',
-    remark: '紧急，影响生产'
-  },
-  {
-    id: 2,
-    faultNo: 'EF-20240114001',
-    equipmentId: 7,
-    equipmentName: '测试台01',
-    faultLevel: 2,
-    faultDesc: '心率测试模块读数不准，偏差较大',
-    reporter: '张测试',
-    process: '测试车间',
-    status: 2,
-    handler: '赵维修',
-    solution: '已更换传感器模块，校准完成',
-    repairHours: 3,
-    handleTime: '2024-01-14 16:00:00',
-    reportTime: '2024-01-14 10:00:00',
-    remark: ''
-  },
-  {
-    id: 3,
-    faultNo: 'EF-20240113001',
-    equipmentId: 9,
-    equipmentName: '自动包装机01',
-    faultLevel: 1,
-    faultDesc: '热封温度偶尔不稳定，包装袋封口不平整',
-    reporter: '周包装',
-    process: '包装车间',
-    status: 0,
-    reportTime: '2024-01-13 14:30:00',
-    remark: '问题不大，但需要处理'
-  },
-  {
-    id: 4,
-    faultNo: 'EF-20240112001',
-    equipmentId: 2,
-    equipmentName: 'SMT贴片机02',
-    faultLevel: 2,
-    faultDesc: '吸嘴磨损，贴片偏移，需要更换吸嘴',
-    reporter: '郑操作',
-    process: 'SMT车间A区',
-    status: 2,
-    handler: '王维修',
-    solution: '已更换吸嘴，校准完成',
-    repairHours: 1.5,
-    handleTime: '2024-01-12 11:00:00',
-    reportTime: '2024-01-12 08:30:00',
-    remark: ''
-  },
-  {
-    id: 5,
-    faultNo: 'EF-20240115002',
-    equipmentId: 5,
-    equipmentName: '自动组装线01',
-    faultLevel: 3,
-    faultDesc: '传送皮带断裂，整条线停产',
-    reporter: '孙组长',
-    process: '组装车间A区',
-    status: 3,
-    handler: '李维修',
-    solution: '皮带已老化，需要订购新皮带，预计3天后到货',
-    handleTime: '2024-01-15 11:00:00',
-    reportTime: '2024-01-15 10:00:00',
-    remark: '已安排使用备用线'
-  }
-])
+const mockEquipmentList = [
+  { id: 1, equipmentName: '贴片焊接机-001', equipmentNo: 'SMT-001' },
+  { id: 2, equipmentName: '贴片焊接机-002', equipmentNo: 'SMT-002' },
+  { id: 3, equipmentName: '注塑机-001', equipmentNo: 'INJ-001' },
+  { id: 4, equipmentName: '注塑机-002', equipmentNo: 'INJ-002' },
+  { id: 5, equipmentName: '激光雕刻机', equipmentNo: 'LAS-001' },
+  { id: 6, equipmentName: '质量检测机', equipmentNo: 'TST-001' },
+  { id: 7, equipmentName: '包装机', equipmentNo: 'PKG-001' },
+  { id: 8, equipmentName: '电路板测试仪', equipmentNo: 'TST-002' }
+]
+
+const mockData = [
+  { id: 1, faultNo: 'FAULT-20260701001', equipmentName: '贴片焊接机-001', equipmentNo: 'SMT-001', faultLevel: 3, faultDesc: '焊接头温度异常，无法完成焊接', status: 0, reportTime: '2026-07-01 09:30:00', reporter: '张三', handler: '', process: '贴片工序', completeTime: '', remark: '' },
+  { id: 2, faultNo: 'FAULT-20260701002', equipmentName: '注塑机-001', equipmentNo: 'INJ-001', faultLevel: 2, faultDesc: '注塑压力不稳定，产品出现气泡', status: 1, reportTime: '2026-07-01 10:15:00', reporter: '李四', handler: '张维修', process: '注塑工序', completeTime: '', remark: '正在维修中' },
+  { id: 3, faultNo: 'FAULT-20260702001', equipmentName: '激光雕刻机', equipmentNo: 'LAS-001', faultLevel: 1, faultDesc: '激光功率下降，雕刻深度不足', status: 2, reportTime: '2026-07-02 14:20:00', reporter: '王五', handler: '李维修', process: '雕刻工序', completeTime: '2026-07-02 16:30:00', remark: '更换激光管后恢复正常' },
+  { id: 4, faultNo: 'FAULT-20260702002', equipmentName: '质量检测机', equipmentNo: 'TST-001', faultLevel: 2, faultDesc: '检测传感器读数异常', status: 0, reportTime: '2026-07-02 15:45:00', reporter: '赵六', handler: '', process: '检测工序', completeTime: '', remark: '' },
+  { id: 5, faultNo: 'FAULT-20260703001', equipmentName: '包装机', equipmentNo: 'PKG-001', faultLevel: 1, faultDesc: '包装膜张力调节困难', status: 1, reportTime: '2026-07-03 08:00:00', reporter: '孙七', handler: '张维修', process: '包装工序', completeTime: '', remark: '' },
+  { id: 6, faultNo: 'FAULT-20260703002', equipmentName: '贴片焊接机-002', equipmentNo: 'SMT-002', faultLevel: 3, faultDesc: '送料器卡料，生产线中断', status: 2, reportTime: '2026-07-03 11:30:00', reporter: '周八', handler: '李维修', process: '贴片工序', completeTime: '2026-07-03 13:00:00', remark: '清理送料器，恢复生产' },
+  { id: 7, faultNo: 'FAULT-20260704001', equipmentName: '电路板测试仪', equipmentNo: 'TST-002', faultLevel: 1, faultDesc: '部分测试点接触不良', status: 3, reportTime: '2026-07-04 09:00:00', reporter: '吴九', handler: '张维修', process: '测试工序', completeTime: '2026-07-04 10:30:00', remark: '无法修复，需更换设备' },
+  { id: 8, faultNo: 'FAULT-20260704002', equipmentName: '注塑机-002', equipmentNo: 'INJ-002', faultLevel: 2, faultDesc: '模具更换困难，定位不准', status: 0, reportTime: '2026-07-04 14:00:00', reporter: '郑十', handler: '', process: '注塑工序', completeTime: '', remark: '' },
+  { id: 9, faultNo: 'FAULT-20260705001', equipmentName: '贴片焊接机-001', equipmentNo: 'SMT-001', faultLevel: 1, faultDesc: '吸嘴堵塞，元件吸取率下降', status: 1, reportTime: '2026-07-05 10:20:00', reporter: '张三', handler: '李维修', process: '贴片工序', completeTime: '', remark: '' },
+  { id: 10, faultNo: 'FAULT-20260705002', equipmentName: '激光雕刻机', equipmentNo: 'LAS-001', faultLevel: 2, faultDesc: '冷却系统故障，设备过热', status: 2, reportTime: '2026-07-05 16:00:00', reporter: '王五', handler: '张维修', process: '雕刻工序', completeTime: '2026-07-05 18:00:00', remark: '更换冷却液，清理散热片' },
+  { id: 11, faultNo: 'FAULT-20260706001', equipmentName: '质量检测机', equipmentNo: 'TST-001', faultLevel: 3, faultDesc: '设备死机，无法启动', status: 0, reportTime: '2026-07-06 08:30:00', reporter: '赵六', handler: '', process: '检测工序', completeTime: '', remark: '' },
+  { id: 12, faultNo: 'FAULT-20260706002', equipmentName: '包装机', equipmentNo: 'PKG-001', faultLevel: 1, faultDesc: '封口温度偏低，包装不牢固', status: 2, reportTime: '2026-07-06 13:45:00', reporter: '孙七', handler: '李维修', process: '包装工序', completeTime: '2026-07-06 15:00:00', remark: '调整温度参数' },
+  { id: 13, faultNo: 'FAULT-20260707001', equipmentName: '注塑机-001', equipmentNo: 'INJ-001', faultLevel: 2, faultDesc: '液压油泄漏', status: 1, reportTime: '2026-07-07 11:00:00', reporter: '李四', handler: '张维修', process: '注塑工序', completeTime: '', remark: '等待配件' },
+  { id: 14, faultNo: 'FAULT-20260707002', equipmentName: '贴片焊接机-002', equipmentNo: 'SMT-002', faultLevel: 1, faultDesc: '程序运行缓慢', status: 0, reportTime: '2026-07-07 15:30:00', reporter: '周八', handler: '', process: '贴片工序', completeTime: '', remark: '' },
+  { id: 15, faultNo: 'FAULT-20260708001', equipmentName: '电路板测试仪', equipmentNo: 'TST-002', faultLevel: 2, faultDesc: '测试软件报错', status: 2, reportTime: '2026-07-08 09:45:00', reporter: '吴九', handler: '李维修', process: '测试工序', completeTime: '2026-07-08 11:00:00', remark: '重新安装测试软件' },
+  { id: 16, faultNo: 'FAULT-20260708002', equipmentName: '激光雕刻机', equipmentNo: 'LAS-001', faultLevel: 3, faultDesc: '激光器故障，无法工作', status: 0, reportTime: '2026-07-08 14:00:00', reporter: '王五', handler: '', process: '雕刻工序', completeTime: '', remark: '' },
+  { id: 17, faultNo: 'FAULT-20260709001', equipmentName: '注塑机-002', equipmentNo: 'INJ-002', faultLevel: 1, faultDesc: '料斗堵塞', status: 2, reportTime: '2026-07-09 10:15:00', reporter: '郑十', handler: '张维修', process: '注塑工序', completeTime: '2026-07-09 11:30:00', remark: '清理料斗' },
+  { id: 18, faultNo: 'FAULT-20260709002', equipmentName: '质量检测机', equipmentNo: 'TST-001', faultLevel: 2, faultDesc: '显示屏花屏', status: 1, reportTime: '2026-07-09 16:30:00', reporter: '赵六', handler: '李维修', process: '检测工序', completeTime: '', remark: '' },
+  { id: 19, faultNo: 'FAULT-20260710001', equipmentName: '包装机', equipmentNo: 'PKG-001', faultLevel: 3, faultDesc: '电机烧毁，包装线停机', status: 0, reportTime: '2026-07-10 08:00:00', reporter: '孙七', handler: '', process: '包装工序', completeTime: '', remark: '' },
+  { id: 20, faultNo: 'FAULT-20260710002', equipmentName: '贴片焊接机-001', equipmentNo: 'SMT-001', faultLevel: 1, faultDesc: '指示灯不亮', status: 3, reportTime: '2026-07-10 13:00:00', reporter: '张三', handler: '张维修', process: '贴片工序', completeTime: '2026-07-10 14:00:00', remark: '无法修复，需更换指示灯模块' }
+]
+
+const equipmentList = ref(mockEquipmentList)
 
 const statCards = computed(() => [
   { title: '待处理', value: pendingCount.value, icon: 'Warning', color: '#f1a7b8' },
   { title: '维修中', value: repairingCount.value, icon: 'Clock', color: '#fae1a4' },
   { title: '已修复', value: fixedCount.value, icon: 'CircleCheck', color: '#83d8cf' },
-  { title: '本月累计', value: mockData.value.length, icon: 'Document', color: '#93c5dd' }
+  { title: '本月累计', value: total.value, icon: 'Document', color: '#93c5dd' }
 ])
 
-const pendingCount = computed(() => mockData.value.filter(item => item.status === 0).length)
-const repairingCount = computed(() => mockData.value.filter(item => item.status === 1).length)
-const fixedCount = computed(() => mockData.value.filter(item => item.status === 2).length)
+const filteredData = computed(() => {
+  let data = [...mockData]
+  if (searchForm.faultNo) {
+    data = data.filter(item => item.faultNo.includes(searchForm.faultNo))
+  }
+  if (searchForm.status !== '') {
+    data = data.filter(item => item.status === Number(searchForm.status))
+  }
+  return data
+})
+
+const pendingCount = computed(() => filteredData.value.filter(item => item.status === 0).length)
+const repairingCount = computed(() => filteredData.value.filter(item => item.status === 1).length)
+const fixedCount = computed(() => filteredData.value.filter(item => item.status === 2).length)
 
 const tableData = ref([])
 
@@ -448,7 +440,7 @@ function getFaultLevelTag(level) {
 }
 
 function getStatusType(status) {
-  const types = ['danger', 'warning', 'success', 'info']
+  const types = ['warning', 'primary', 'success', 'info']
   return types[status] || 'info'
 }
 
@@ -457,26 +449,24 @@ function getStatusText(status) {
   return texts[status] || '未知'
 }
 
+function fetchEquipmentList() {
+  equipmentList.value = mockEquipmentList
+}
+
 function fetchData() {
   loading.value = true
   setTimeout(() => {
-    let filtered = [...mockData.value]
+    let filteredData = [...mockData]
     if (searchForm.faultNo) {
-      filtered = filtered.filter(item => item.faultNo.includes(searchForm.faultNo))
-    }
-    if (searchForm.equipmentName) {
-      filtered = filtered.filter(item => item.equipmentName.includes(searchForm.equipmentName))
-    }
-    if (searchForm.faultLevel !== '') {
-      filtered = filtered.filter(item => item.faultLevel === searchForm.faultLevel)
+      filteredData = filteredData.filter(item => item.faultNo.includes(searchForm.faultNo))
     }
     if (searchForm.status !== '') {
-      filtered = filtered.filter(item => item.status === searchForm.status)
+      filteredData = filteredData.filter(item => item.status === Number(searchForm.status))
     }
-    total.value = filtered.length
+    total.value = filteredData.length
     const start = (currentPage.value - 1) * pageSize.value
     const end = start + pageSize.value
-    tableData.value = filtered.slice(start, end)
+    tableData.value = filteredData.slice(start, end)
     loading.value = false
   }, 300)
 }
@@ -488,8 +478,6 @@ function handleSearch() {
 
 function handleReset() {
   searchForm.faultNo = ''
-  searchForm.equipmentName = ''
-  searchForm.faultLevel = ''
   searchForm.status = ''
   currentPage.value = 1
   fetchData()
@@ -507,10 +495,7 @@ function handleCurrentChange(page) {
 }
 
 function handleAdd() {
-  isEdit.value = false
-  isView.value = false
-  resetForm()
-  dialogVisible.value = true
+  ElMessage.info('演示模式，无法操作')
 }
 
 function handleView(row) {
@@ -519,27 +504,11 @@ function handleView(row) {
 }
 
 function handleProcess(row) {
-  processForm.id = row.id
-  processForm.status = row.status === 0 ? 1 : row.status
-  processForm.handler = row.handler || ''
-  processForm.repairHours = row.repairHours || 0
-  processForm.solution = row.solution || ''
-  processVisible.value = true
+  ElMessage.info('演示模式，无法操作')
 }
 
 function handleDelete(row) {
-  ElMessageBox.confirm(`确定要删除故障记录「${row.faultNo}」吗？`, '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    const index = mockData.value.findIndex(item => item.id === row.id)
-    if (index !== -1) {
-      mockData.value.splice(index, 1)
-    }
-    ElMessage.success('删除成功')
-    fetchData()
-  }).catch(() => {})
+  ElMessage.info('演示模式，无法操作')
 }
 
 function handleEquipmentChange(val) {
@@ -564,90 +533,28 @@ function resetForm() {
   }
 }
 
-async function handleSubmit() {
-  if (!faultFormRef.value) return
-  
-  try {
-    await faultFormRef.value.validate()
-    submitLoading.value = true
-    
-    setTimeout(() => {
-      if (isEdit.value) {
-        const index = mockData.value.findIndex(item => item.id === faultForm.id)
-        if (index !== -1) {
-          mockData.value[index] = {
-            ...mockData.value[index],
-            equipmentId: faultForm.equipmentId,
-            equipmentName: faultForm.equipmentName,
-            faultLevel: faultForm.faultLevel,
-            faultDesc: faultForm.faultDesc,
-            reporter: faultForm.reporter,
-            process: faultForm.process,
-            remark: faultForm.remark
-          }
-        }
-        ElMessage.success('编辑成功')
-      } else {
-        const maxId = Math.max(...mockData.value.map(item => item.id), 0)
-        const now = new Date()
-        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '')
-        const newItem = {
-          id: maxId + 1,
-          faultNo: 'EF-' + dateStr + String(maxId + 1).padStart(3, '0'),
-          equipmentId: faultForm.equipmentId,
-          equipmentName: faultForm.equipmentName,
-          faultLevel: faultForm.faultLevel,
-          faultDesc: faultForm.faultDesc,
-          reporter: faultForm.reporter,
-          process: faultForm.process,
-          status: 0,
-          reportTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-'),
-          remark: faultForm.remark
-        }
-        mockData.value.unshift(newItem)
-        ElMessage.success('报修成功')
-      }
-      
-      dialogVisible.value = false
-      submitLoading.value = false
-      fetchData()
-    }, 300)
-  } catch (error) {
-    submitLoading.value = false
-  }
+function handleSubmit() {
+  ElMessage.info('演示模式，无法操作')
 }
 
-async function handleProcessSubmit() {
-  if (!processFormRef.value) return
-  
-  try {
-    await processFormRef.value.validate()
-    processSubmitLoading.value = true
-    
-    setTimeout(() => {
-      const item = mockData.value.find(i => i.id === processForm.id)
-      if (item) {
-        item.status = processForm.status
-        item.handler = processForm.handler
-        item.solution = processForm.solution
-        if (processForm.status === 2) {
-          item.repairHours = processForm.repairHours
-          item.handleTime = new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-')
-        } else if (processForm.status === 3) {
-          item.handleTime = new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-')
-        }
-      }
-      ElMessage.success('处理成功')
-      processVisible.value = false
-      processSubmitLoading.value = false
-      fetchData()
-    }, 300)
-  } catch (error) {
-    processSubmitLoading.value = false
-  }
+function handleProcessSubmit() {
+  ElMessage.info('演示模式，无法操作')
+}
+
+function handleAssign(row) {
+  ElMessage.info('演示模式，无法操作')
+}
+
+function handleAssignSubmit() {
+  ElMessage.info('演示模式，无法操作')
+}
+
+function handleAutoAssign(row) {
+  ElMessage.info('演示模式，无法操作')
 }
 
 onMounted(() => {
+  fetchEquipmentList()
   fetchData()
 })
 </script>

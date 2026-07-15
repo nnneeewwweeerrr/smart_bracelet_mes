@@ -84,7 +84,6 @@
             >
               开始生产
             </el-button>
-            <el-button type="warning" link @click="handleViewSop(row)">SOP看板</el-button>
             <el-button
               type="danger"
               link
@@ -223,10 +222,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-
-const router = useRouter()
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -290,127 +286,35 @@ const workOrderRules = {
 }
 
 const orderList = ref([
-  { id: 1, orderNo: 'ORD-2024001', productName: '智能健康手环 Pro', quantity: 1000 },
-  { id: 2, orderNo: 'ORD-2024002', productName: '智能运动手环 Lite', quantity: 500 },
-  { id: 3, orderNo: 'ORD-2024003', productName: '智能健康手环 Pro', quantity: 2000 },
-  { id: 5, orderNo: 'ORD-2024005', productName: '智能运动手环 Lite', quantity: 800 }
+  { id: 1, orderNo: 'ORD-2026001', productName: '智能健康手环 Pro', quantity: 1000 },
+  { id: 2, orderNo: 'ORD-2026002', productName: '智能运动手环 Lite', quantity: 500 },
+  { id: 3, orderNo: 'ORD-2026003', productName: '智能健康手环 Pro', quantity: 2000 },
+  { id: 4, orderNo: 'ORD-2026004', productName: '智能运动手环 Lite', quantity: 800 },
+  { id: 5, orderNo: 'ORD-2026005', productName: '智能手表 Max', quantity: 600 },
+  { id: 6, orderNo: 'ORD-2026006', productName: '智能健康手环 Pro', quantity: 1500 }
 ])
 
 const productList = ref([
   { id: 1, name: '智能健康手环 Pro', spec: 'SH-P001' },
   { id: 2, name: '智能运动手环 Lite', spec: 'SH-L002' },
-  { id: 3, name: '智能手表 Max', spec: 'SW-M003' }
+  { id: 3, name: '智能手表 Max', spec: 'SW-M003' },
+  { id: 4, name: '智能心率手环', spec: 'SH-H004' },
+  { id: 5, name: '智能睡眠手环', spec: 'SH-S005' }
 ])
 
 const mockData = ref([
-  {
-    id: 1,
-    workOrderNo: 'WO-2024001',
-    orderId: 3,
-    orderNo: 'ORD-2024003',
-    productId: 1,
-    productName: '智能健康手环 Pro',
-    spec: 'SH-P001',
-    quantity: 1000,
-    finishedQuantity: 650,
-    status: 1,
-    planStartDate: '2024-01-15',
-    planEndDate: '2024-01-25',
-    manager: '李主管',
-    createTime: '2024-01-14 10:00:00',
-    remark: '紧急订单，优先排产',
-    processList: [
-      { processName: 'SMT贴片', equipment: 'SMT贴片机01', quantity: 1000, finishedQuantity: 1000, status: 'finished' },
-      { processName: '回流焊接', equipment: '回流焊机01', quantity: 1000, finishedQuantity: 1000, status: 'finished' },
-      { processName: '组装', equipment: '自动组装线01', quantity: 1000, finishedQuantity: 650, status: 'processing' },
-      { processName: '测试', equipment: '测试台01', quantity: 1000, finishedQuantity: 0, status: 'pending' },
-      { processName: '包装', equipment: '自动包装机01', quantity: 1000, finishedQuantity: 0, status: 'pending' }
-    ]
-  },
-  {
-    id: 2,
-    workOrderNo: 'WO-2024002',
-    orderId: 2,
-    orderNo: 'ORD-2024002',
-    productId: 2,
-    productName: '智能运动手环 Lite',
-    spec: 'SH-L002',
-    quantity: 500,
-    finishedQuantity: 500,
-    status: 2,
-    planStartDate: '2024-01-10',
-    planEndDate: '2024-01-18',
-    manager: '王主管',
-    createTime: '2024-01-09 14:30:00',
-    remark: '',
-    processList: [
-      { processName: 'SMT贴片', equipment: 'SMT贴片机01', quantity: 500, finishedQuantity: 500, status: 'finished' },
-      { processName: '回流焊接', equipment: '回流焊机01', quantity: 500, finishedQuantity: 500, status: 'finished' },
-      { processName: '组装', equipment: '自动组装线01', quantity: 500, finishedQuantity: 500, status: 'finished' },
-      { processName: '测试', equipment: '测试台01', quantity: 500, finishedQuantity: 500, status: 'finished' },
-      { processName: '包装', equipment: '自动包装机01', quantity: 500, finishedQuantity: 500, status: 'finished' }
-    ]
-  },
-  {
-    id: 3,
-    workOrderNo: 'WO-2024003',
-    orderId: 1,
-    orderNo: 'ORD-2024001',
-    productId: 1,
-    productName: '智能健康手环 Pro',
-    spec: 'SH-P001',
-    quantity: 800,
-    finishedQuantity: 0,
-    status: 0,
-    planStartDate: '2024-01-20',
-    planEndDate: '2024-01-30',
-    manager: '张主管',
-    createTime: '2024-01-17 09:00:00',
-    remark: '新订单排产',
-    processList: []
-  },
-  {
-    id: 4,
-    workOrderNo: 'WO-2024004',
-    orderId: 5,
-    orderNo: 'ORD-2024005',
-    productId: 2,
-    productName: '智能运动手环 Lite',
-    spec: 'SH-L002',
-    quantity: 600,
-    finishedQuantity: 200,
-    status: 1,
-    planStartDate: '2024-01-16',
-    planEndDate: '2024-01-26',
-    manager: '赵主管',
-    createTime: '2024-01-15 16:00:00',
-    remark: '',
-    processList: [
-      { processName: 'SMT贴片', equipment: 'SMT贴片机02', quantity: 600, finishedQuantity: 600, status: 'finished' },
-      { processName: '回流焊接', equipment: '回流焊机02', quantity: 600, finishedQuantity: 600, status: 'finished' },
-      { processName: '组装', equipment: '自动组装线02', quantity: 600, finishedQuantity: 200, status: 'processing' },
-      { processName: '测试', equipment: '测试台02', quantity: 600, finishedQuantity: 0, status: 'pending' },
-      { processName: '包装', equipment: '自动包装机01', quantity: 600, finishedQuantity: 0, status: 'pending' }
-    ]
-  },
-  {
-    id: 5,
-    workOrderNo: 'WO-2024005',
-    orderId: null,
-    orderNo: '-',
-    productId: 3,
-    productName: '智能手表 Max',
-    spec: 'SW-M003',
-    quantity: 200,
-    finishedQuantity: 0,
-    status: 3,
-    planStartDate: '2024-01-12',
-    planEndDate: '2024-01-22',
-    manager: '李主管',
-    createTime: '2024-01-11 11:00:00',
-    remark: '设计变更，取消工单',
-    processList: []
-  }
+  { id: 1, workOrderNo: 'WO-2026001', orderNo: 'ORD-2026001', productName: '智能健康手环 Pro', spec: 'SH-P001', quantity: 1000, finishedQuantity: 650, status: 1, planStartDate: '2026-07-10', planEndDate: '2026-07-18', manager: '张工', remark: '加急订单', createTime: '2026-07-08 10:30:00', orderId: 1, productId: 1, processList: [{ processName: 'SMT贴片', equipment: 'SMT贴片机01', quantity: 1000, finishedQuantity: 1000, status: 'finished' }, { processName: '回流焊接', equipment: '回流焊机01', quantity: 1000, finishedQuantity: 1000, status: 'finished' }, { processName: '组装', equipment: '自动组装线01', quantity: 1000, finishedQuantity: 650, status: 'processing' }, { processName: '测试', equipment: '测试台01', quantity: 1000, finishedQuantity: 0, status: 'pending' }, { processName: '包装', equipment: '自动包装机01', quantity: 1000, finishedQuantity: 0, status: 'pending' }] },
+  { id: 2, workOrderNo: 'WO-2026002', orderNo: 'ORD-2026002', productName: '智能运动手环 Lite', spec: 'SH-L002', quantity: 500, finishedQuantity: 500, status: 2, planStartDate: '2026-07-05', planEndDate: '2026-07-12', manager: '李工', remark: '', createTime: '2026-07-03 14:20:00', orderId: 2, productId: 2, processList: [{ processName: 'SMT贴片', equipment: 'SMT贴片机02', quantity: 500, finishedQuantity: 500, status: 'finished' }, { processName: '回流焊接', equipment: '回流焊机01', quantity: 500, finishedQuantity: 500, status: 'finished' }, { processName: '组装', equipment: '自动组装线01', quantity: 500, finishedQuantity: 500, status: 'finished' }, { processName: '测试', equipment: '测试台02', quantity: 500, finishedQuantity: 500, status: 'finished' }, { processName: '包装', equipment: '自动包装机01', quantity: 500, finishedQuantity: 500, status: 'finished' }] },
+  { id: 3, workOrderNo: 'WO-2026003', orderNo: 'ORD-2026003', productName: '智能健康手环 Pro', spec: 'SH-P001', quantity: 800, finishedQuantity: 0, status: 0, planStartDate: '2026-07-15', planEndDate: '2026-07-22', manager: '王工', remark: '新批次订单', createTime: '2026-07-12 09:00:00', orderId: 3, productId: 1, processList: [{ processName: 'SMT贴片', equipment: 'SMT贴片机01', quantity: 800, finishedQuantity: 0, status: 'pending' }, { processName: '回流焊接', equipment: '回流焊机01', quantity: 800, finishedQuantity: 0, status: 'pending' }, { processName: '组装', equipment: '自动组装线01', quantity: 800, finishedQuantity: 0, status: 'pending' }, { processName: '测试', equipment: '测试台01', quantity: 800, finishedQuantity: 0, status: 'pending' }, { processName: '包装', equipment: '自动包装机01', quantity: 800, finishedQuantity: 0, status: 'pending' }] },
+  { id: 4, workOrderNo: 'WO-2026004', orderNo: 'ORD-2026004', productName: '智能运动手环 Lite', spec: 'SH-L002', quantity: 600, finishedQuantity: 200, status: 1, planStartDate: '2026-07-12', planEndDate: '2026-07-20', manager: '赵工', remark: '', createTime: '2026-07-10 11:45:00', orderId: 4, productId: 2, processList: [{ processName: 'SMT贴片', equipment: 'SMT贴片机02', quantity: 600, finishedQuantity: 600, status: 'finished' }, { processName: '回流焊接', equipment: '回流焊机02', quantity: 600, finishedQuantity: 600, status: 'finished' }, { processName: '组装', equipment: '自动组装线02', quantity: 600, finishedQuantity: 200, status: 'processing' }, { processName: '测试', equipment: '测试台01', quantity: 600, finishedQuantity: 0, status: 'pending' }, { processName: '包装', equipment: '自动包装机02', quantity: 600, finishedQuantity: 0, status: 'pending' }] },
+  { id: 5, workOrderNo: 'WO-2026005', orderNo: 'ORD-2026005', productName: '智能手表 Max', spec: 'SW-M003', quantity: 600, finishedQuantity: 600, status: 2, planStartDate: '2026-07-01', planEndDate: '2026-07-10', manager: '刘工', remark: '首批量产订单', createTime: '2026-06-28 16:30:00', orderId: 5, productId: 3, processList: [{ processName: 'SMT贴片', equipment: 'SMT贴片机01', quantity: 600, finishedQuantity: 600, status: 'finished' }, { processName: '回流焊接', equipment: '回流焊机01', quantity: 600, finishedQuantity: 600, status: 'finished' }, { processName: '组装', equipment: '自动组装线01', quantity: 600, finishedQuantity: 600, status: 'finished' }, { processName: '测试', equipment: '测试台02', quantity: 600, finishedQuantity: 600, status: 'finished' }, { processName: '包装', equipment: '自动包装机01', quantity: 600, finishedQuantity: 600, status: 'finished' }] },
+  { id: 6, workOrderNo: 'WO-2026006', orderNo: 'ORD-2026006', productName: '智能健康手环 Pro', spec: 'SH-P001', quantity: 1500, finishedQuantity: 450, status: 1, planStartDate: '2026-07-14', planEndDate: '2026-07-25', manager: '张工', remark: '大客户订单', createTime: '2026-07-11 08:15:00', orderId: 6, productId: 1, processList: [{ processName: 'SMT贴片', equipment: 'SMT贴片机01', quantity: 1500, finishedQuantity: 1500, status: 'finished' }, { processName: '回流焊接', equipment: '回流焊机01', quantity: 1500, finishedQuantity: 1500, status: 'finished' }, { processName: '组装', equipment: '自动组装线01', quantity: 1500, finishedQuantity: 450, status: 'processing' }, { processName: '测试', equipment: '测试台01', quantity: 1500, finishedQuantity: 0, status: 'pending' }, { processName: '包装', equipment: '自动包装机01', quantity: 1500, finishedQuantity: 0, status: 'pending' }] },
+  { id: 7, workOrderNo: 'WO-2026007', orderNo: 'ORD-2026001', productName: '智能心率手环', spec: 'SH-H004', quantity: 300, finishedQuantity: 0, status: 0, planStartDate: '2026-07-16', planEndDate: '2026-07-23', manager: '孙工', remark: '样品订单', createTime: '2026-07-13 13:00:00', orderId: 1, productId: 4, processList: [{ processName: 'SMT贴片', equipment: 'SMT贴片机02', quantity: 300, finishedQuantity: 0, status: 'pending' }, { processName: '回流焊接', equipment: '回流焊机02', quantity: 300, finishedQuantity: 0, status: 'pending' }, { processName: '组装', equipment: '自动组装线02', quantity: 300, finishedQuantity: 0, status: 'pending' }, { processName: '测试', equipment: '测试台02', quantity: 300, finishedQuantity: 0, status: 'pending' }, { processName: '包装', equipment: '自动包装机02', quantity: 300, finishedQuantity: 0, status: 'pending' }] },
+  { id: 8, workOrderNo: 'WO-2026008', orderNo: 'ORD-2026002', productName: '智能睡眠手环', spec: 'SH-S005', quantity: 400, finishedQuantity: 400, status: 2, planStartDate: '2026-07-03', planEndDate: '2026-07-10', manager: '周工', remark: '', createTime: '2026-07-01 10:00:00', orderId: 2, productId: 5, processList: [{ processName: 'SMT贴片', equipment: 'SMT贴片机02', quantity: 400, finishedQuantity: 400, status: 'finished' }, { processName: '回流焊接', equipment: '回流焊机02', quantity: 400, finishedQuantity: 400, status: 'finished' }, { processName: '组装', equipment: '自动组装线02', quantity: 400, finishedQuantity: 400, status: 'finished' }, { processName: '测试', equipment: '测试台02', quantity: 400, finishedQuantity: 400, status: 'finished' }, { processName: '包装', equipment: '自动包装机02', quantity: 400, finishedQuantity: 400, status: 'finished' }] },
+  { id: 9, workOrderNo: 'WO-2026009', orderNo: 'ORD-2026003', productName: '智能运动手环 Lite', spec: 'SH-L002', quantity: 700, finishedQuantity: 350, status: 1, planStartDate: '2026-07-11', planEndDate: '2026-07-19', manager: '吴工', remark: '', createTime: '2026-07-09 15:20:00', orderId: 3, productId: 2, processList: [{ processName: 'SMT贴片', equipment: 'SMT贴片机01', quantity: 700, finishedQuantity: 700, status: 'finished' }, { processName: '回流焊接', equipment: '回流焊机01', quantity: 700, finishedQuantity: 700, status: 'finished' }, { processName: '组装', equipment: '自动组装线01', quantity: 700, finishedQuantity: 350, status: 'processing' }, { processName: '测试', equipment: '测试台01', quantity: 700, finishedQuantity: 0, status: 'pending' }, { processName: '包装', equipment: '自动包装机01', quantity: 700, finishedQuantity: 0, status: 'pending' }] },
+  { id: 10, workOrderNo: 'WO-2026010', orderNo: 'ORD-2026004', productName: '智能健康手环 Pro', spec: 'SH-P001', quantity: 900, finishedQuantity: 0, status: 3, planStartDate: '2026-07-08', planEndDate: '2026-07-16', manager: '郑工', remark: '订单已取消', createTime: '2026-07-06 09:30:00', orderId: 4, productId: 1, processList: [{ processName: 'SMT贴片', equipment: 'SMT贴片机01', quantity: 900, finishedQuantity: 0, status: 'pending' }, { processName: '回流焊接', equipment: '回流焊机01', quantity: 900, finishedQuantity: 0, status: 'pending' }, { processName: '组装', equipment: '自动组装线01', quantity: 900, finishedQuantity: 0, status: 'pending' }, { processName: '测试', equipment: '测试台01', quantity: 900, finishedQuantity: 0, status: 'pending' }, { processName: '包装', equipment: '自动包装机01', quantity: 900, finishedQuantity: 0, status: 'pending' }] },
+  { id: 11, workOrderNo: 'WO-2026011', orderNo: 'ORD-2026005', productName: '智能手表 Max', spec: 'SW-M003', quantity: 800, finishedQuantity: 200, status: 1, planStartDate: '2026-07-13', planEndDate: '2026-07-24', manager: '陈工', remark: '', createTime: '2026-07-10 14:00:00', orderId: 5, productId: 3, processList: [{ processName: 'SMT贴片', equipment: 'SMT贴片机01', quantity: 800, finishedQuantity: 800, status: 'finished' }, { processName: '回流焊接', equipment: '回流焊机01', quantity: 800, finishedQuantity: 800, status: 'finished' }, { processName: '组装', equipment: '自动组装线01', quantity: 800, finishedQuantity: 200, status: 'processing' }, { processName: '测试', equipment: '测试台02', quantity: 800, finishedQuantity: 0, status: 'pending' }, { processName: '包装', equipment: '自动包装机01', quantity: 800, finishedQuantity: 0, status: 'pending' }] },
+  { id: 12, workOrderNo: 'WO-2026012', orderNo: 'ORD-2026006', productName: '智能心率手环', spec: 'SH-H004', quantity: 500, finishedQuantity: 500, status: 2, planStartDate: '2026-07-06', planEndDate: '2026-07-13', manager: '黄工', remark: '', createTime: '2026-07-04 11:15:00', orderId: 6, productId: 4, processList: [{ processName: 'SMT贴片', equipment: 'SMT贴片机02', quantity: 500, finishedQuantity: 500, status: 'finished' }, { processName: '回流焊接', equipment: '回流焊机02', quantity: 500, finishedQuantity: 500, status: 'finished' }, { processName: '组装', equipment: '自动组装线02', quantity: 500, finishedQuantity: 500, status: 'finished' }, { processName: '测试', equipment: '测试台02', quantity: 500, finishedQuantity: 500, status: 'finished' }, { processName: '包装', equipment: '自动包装机02', quantity: 500, finishedQuantity: 500, status: 'finished' }] }
 ])
 
 const tableData = ref([])
@@ -431,8 +335,9 @@ onMounted(() => {
 
 function fetchData() {
   loading.value = true
-  setTimeout(() => {
+  try {
     let filtered = [...mockData.value]
+    
     if (searchForm.workOrderNo) {
       filtered = filtered.filter(item => item.workOrderNo.includes(searchForm.workOrderNo))
     }
@@ -445,12 +350,18 @@ function fetchData() {
     if (searchForm.status !== '') {
       filtered = filtered.filter(item => item.status === searchForm.status)
     }
+    
     total.value = filtered.length
     const start = (currentPage.value - 1) * pageSize.value
     const end = start + pageSize.value
     tableData.value = filtered.slice(start, end)
+  } catch (error) {
+    console.error('Fetch work orders failed:', error)
+    tableData.value = []
+    total.value = 0
+  } finally {
     loading.value = false
-  }, 300)
+  }
 }
 
 function handleSearch() {
@@ -519,42 +430,23 @@ function handleAskAi() {
   window.dispatchEvent(new CustomEvent('ask-ai', { detail: { question } }))
 }
 
-function handleViewSop(row) {
-  const firstProcess = row.processList && row.processList.length > 0 ? row.processList[0] : null
-  const processId = firstProcess?.id || row.id
-  const processName = firstProcess?.processName || ''
-  const query = { processId }
-  if (processName) query.processName = processName
-  router.push({ path: '/sop-board', query })
-}
-
 function handleDelete(row) {
-  ElMessageBox.confirm(`确定要删除工单「${row.workOrderNo}」吗？`, '提示', {
+  ElMessageBox.confirm(`确定要删除工单「${row.workOrderNo || row.workNo}」吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    const index = mockData.value.findIndex(item => item.id === row.id)
-    if (index !== -1) {
-      mockData.value.splice(index, 1)
-    }
-    ElMessage.success('删除成功')
-    fetchData()
+    ElMessage.info('演示模式，无法操作')
   }).catch(() => {})
 }
 
 function handleStart(row) {
-  ElMessageBox.confirm(`确定要开始生产工单「${row.workOrderNo}」吗？`, '确认', {
+  ElMessageBox.confirm(`确定要开始生产工单「${row.workOrderNo || row.workNo}」吗？`, '确认', {
     confirmButtonText: '开始生产',
     cancelButtonText: '取消',
     type: 'success'
   }).then(() => {
-    const order = mockData.value.find(item => item.id === row.id)
-    if (order) {
-      order.status = 1
-    }
-    ElMessage.success('已开始生产')
-    fetchData()
+    ElMessage.info('演示模式，无法操作')
   }).catch(() => {})
 }
 
@@ -595,57 +487,9 @@ async function handleSubmit() {
   
   try {
     await workOrderFormRef.value.validate()
-    submitLoading.value = true
-    
-    setTimeout(() => {
-      if (isEdit.value) {
-        const index = mockData.value.findIndex(item => item.id === workOrderForm.id)
-        if (index !== -1) {
-          mockData.value[index] = {
-            ...mockData.value[index],
-            orderId: workOrderForm.orderId,
-            orderNo: workOrderForm.orderNo,
-            productId: workOrderForm.productId,
-            productName: workOrderForm.productName,
-            spec: workOrderForm.spec,
-            quantity: workOrderForm.quantity,
-            planStartDate: workOrderForm.planStartDate,
-            planEndDate: workOrderForm.planEndDate,
-            manager: workOrderForm.manager,
-            remark: workOrderForm.remark
-          }
-        }
-        ElMessage.success('编辑成功')
-      } else {
-        const maxId = Math.max(...mockData.value.map(item => item.id), 0)
-        const newWorkOrder = {
-          id: maxId + 1,
-          workOrderNo: 'WO-2024' + String(maxId + 1).padStart(3, '0'),
-          orderId: workOrderForm.orderId,
-          orderNo: workOrderForm.orderNo,
-          productId: workOrderForm.productId,
-          productName: workOrderForm.productName,
-          spec: workOrderForm.spec,
-          quantity: workOrderForm.quantity,
-          finishedQuantity: 0,
-          status: 0,
-          planStartDate: workOrderForm.planStartDate,
-          planEndDate: workOrderForm.planEndDate,
-          manager: workOrderForm.manager,
-          createTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-'),
-          remark: workOrderForm.remark,
-          processList: []
-        }
-        mockData.value.unshift(newWorkOrder)
-        ElMessage.success('新增成功')
-      }
-      
-      dialogVisible.value = false
-      submitLoading.value = false
-      fetchData()
-    }, 300)
+    ElMessage.info('演示模式，无法操作')
   } catch (error) {
-    submitLoading.value = false
+    ElMessage.error('表单验证失败')
   }
 }
 </script>

@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @TableName("work_order")
@@ -33,9 +35,41 @@ public class WorkOrder {
     @TableField("status")
     private Integer status;
 
+    @TableField("manager")
+    private String manager;
+
+    @TableField("remark")
+    private String remark;
+
+    @TableField("plan_start_date")
+    private LocalDate planStartDate;
+
+    @TableField("plan_end_date")
+    private LocalDate planEndDate;
+
     @TableField("create_time")
     private LocalDateTime createTime;
 
+    // ===== 虚拟字段（前端展示用）=====
+    @TableField(exist = false)
+    private String workOrderNo;
+
+    @TableField(exist = false)
+    private String orderNo;
+
+    @TableField(exist = false)
+    private String productName;
+
+    @TableField(exist = false)
+    private String spec;
+
+    @TableField(exist = false)
+    private Integer finishedQuantity;
+
+    @TableField(exist = false)
+    private List<?> processList;
+
+    // ===== 以下为原有虚拟字段 =====
     @TableField(exist = false)
     private String taskNo;
 

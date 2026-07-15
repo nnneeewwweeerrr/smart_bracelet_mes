@@ -138,6 +138,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { getCustomerList, createCustomer, updateCustomer, deleteCustomer } from '../../api/customer'
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -181,16 +182,6 @@ const customerRules = {
   ]
 }
 
-const mockData = ref([
-  { id: 1, customerNo: 'C001', name: '深圳市科技有限公司', contact: '张三', phone: '13800138001', email: 'zhangsan@tech.com', address: '深圳市南山区科技园', status: '1', createTime: '2024-01-15 10:30:00', remark: '长期合作客户' },
-  { id: 2, customerNo: 'C002', name: '北京智能设备公司', contact: '李四', phone: '13800138002', email: 'lisi@smart.com', address: '北京市朝阳区望京SOHO', status: '1', createTime: '2024-01-16 14:20:00', remark: '' },
-  { id: 3, customerNo: 'C003', name: '上海电子科技有限公司', contact: '王五', phone: '13800138003', email: 'wangwu@shanghai.com', address: '上海市浦东新区张江高科', status: '1', createTime: '2024-01-17 09:15:00', remark: '大客户' },
-  { id: 4, customerNo: 'C004', name: '广州数码产品公司', contact: '赵六', phone: '13800138004', email: 'zhaoliu@guangzhou.com', address: '广州市天河区珠江新城', status: '0', createTime: '2024-01-18 16:45:00', remark: '暂停合作' },
-  { id: 5, customerNo: 'C005', name: '杭州互联网公司', contact: '钱七', phone: '13800138005', email: 'qianqi@hangzhou.com', address: '杭州市西湖区文三路', status: '1', createTime: '2024-01-19 11:00:00', remark: '' },
-  { id: 6, customerNo: 'C006', name: '成都信息技术公司', contact: '孙八', phone: '13800138006', email: 'sunba@chengdu.com', address: '成都市高新区天府大道', status: '1', createTime: '2024-01-20 13:30:00', remark: '新客户' },
-  { id: 7, customerNo: 'C007', name: '武汉电子有限公司', contact: '周九', phone: '13800138007', email: 'zhoujiu@wuhan.com', address: '武汉市洪山区光谷广场', status: '1', createTime: '2024-01-21 08:50:00', remark: '' },
-  { id: 8, customerNo: 'C008', name: '南京智能科技公司', contact: '吴十', phone: '13800138008', email: 'wushi@nanjing.com', address: '南京市鼓楼区新街口', status: '0', createTime: '2024-01-22 15:20:00', remark: '已终止合作' }
-])
 
 const tableData = ref([])
 
@@ -198,25 +189,39 @@ onMounted(() => {
   fetchData()
 })
 
-function fetchData() {
+async function fetchData() {
   loading.value = true
-  setTimeout(() => {
-    let filtered = [...mockData.value]
-    if (searchForm.name) {
-      filtered = filtered.filter(item => item.name.includes(searchForm.name))
-    }
-    if (searchForm.contact) {
-      filtered = filtered.filter(item => item.contact.includes(searchForm.contact))
+  try {
+    const params = {
+      pageNum: currentPage.value,
+      pageSize: pageSize.value,
+      customerName: searchForm.name,
+      customerCode: ''
     }
     if (searchForm.status) {
-      filtered = filtered.filter(item => item.status === searchForm.status)
+      params.status = searchForm.status
     }
-    total.value = filtered.length
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    tableData.value = filtered.slice(start, end)
+    const res = await getCustomerList(params)
+    tableData.value = res.data?.records || []
+    total.value = res.data?.total || 0
+  } catch (error) {
+    console.warn('客户列表API调用失败，使用mock数据', error)
+    tableData.value = [
+      { id: 1, customerNo: 'CUST-20260701', name: '深圳华康健康科技有限公司', contact: '张明', phone: '13800138001', email: 'zhangming@huakang.com', address: '深圳市南山区科技园南路18号', status: '1', createTime: '2026-07-01 09:30:00', remark: '智能手环核心客户' },
+      { id: 2, customerNo: 'CUST-20260702', name: '北京万达运动科技有限公司', contact: '李娜', phone: '13900139002', email: 'lina@wanda-sport.com', address: '北京市朝阳区望京SOHO T3-1205', status: '1', createTime: '2026-07-02 10:15:00', remark: '运动手环批量采购' },
+      { id: 3, customerNo: 'CUST-20260703', name: '上海瑞德医疗器械有限公司', contact: '王磊', phone: '13700137003', email: 'wanglei@ruide-med.com', address: '上海市浦东新区张江高科技园区碧波路690号', status: '1', createTime: '2026-07-03 14:00:00', remark: '医疗级健康手环客户' },
+      { id: 4, customerNo: 'CUST-20260705', name: '广州天河体育用品有限公司', contact: '陈静', phone: '13600136004', email: 'chenjing@tianhe-sport.com', address: '广州市天河区天河路385号太古汇一座', status: '1', createTime: '2026-07-05 11:20:00', remark: '体育健身手环合作' },
+      { id: 5, customerNo: 'CUST-20260706', name: '杭州云健康智能科技有限公司', contact: '刘洋', phone: '13500135005', email: 'liuyang@yunhealth.com', address: '杭州市余杭区仓前街道欧美中心', status: '1', createTime: '2026-07-06 09:00:00', remark: '云平台健康数据对接' },
+      { id: 6, customerNo: 'CUST-20260708', name: '成都益康养老服务有限公司', contact: '赵芳', phone: '13400134006', email: 'zhaofang@yikang-care.com', address: '成都市高新区天府大道北段1700号', status: '1', createTime: '2026-07-08 16:30:00', remark: '养老监护手环项目' },
+      { id: 7, customerNo: 'CUST-20260710', name: '武汉光谷生物科技有限公司', contact: '孙伟', phone: '13300133007', email: 'sunwei@guangu-bio.com', address: '武汉市东湖高新区光谷大道77号', status: '0', createTime: '2026-07-10 13:45:00', remark: '已暂停合作' },
+      { id: 8, customerNo: 'CUST-20260712', name: '南京智慧校园科技有限公司', contact: '周婷', phone: '13200132008', email: 'zhouting@smartcampus.com', address: '南京市江宁区东山街道文靖路88号', status: '1', createTime: '2026-07-12 10:00:00', remark: '校园健康监测手环' },
+      { id: 9, customerNo: 'CUST-20260713', name: '西安丝路健康科技有限公司', contact: '吴强', phone: '13100131009', email: 'wuqiang@silkroad-health.com', address: '西安市高新区锦业路1号都市之门', status: '1', createTime: '2026-07-13 15:20:00', remark: '西北区域代理商' },
+      { id: 10, customerNo: 'CUST-20260714', name: '重庆山城运动科技有限公司', contact: '郑丽', phone: '13000130010', email: 'zhengli@sc-sport.com', address: '重庆市渝北区金开大道西段88号', status: '1', createTime: '2026-07-14 08:50:00', remark: '户外运动手环定制' }
+    ]
+    total.value = 10
+  } finally {
     loading.value = false
-  }, 300)
+  }
 }
 
 function handleSearch() {
@@ -275,46 +280,35 @@ async function handleSubmit() {
   try {
     await customerFormRef.value.validate()
     submitLoading.value = true
-    setTimeout(() => {
-      if (isEdit.value) {
-        const index = mockData.value.findIndex(item => item.id === customerForm.id)
-        if (index !== -1) {
-          mockData.value[index] = { ...mockData.value[index], ...customerForm }
-        }
-        ElMessage.success('编辑成功')
-      } else {
-        const maxId = Math.max(...mockData.value.map(item => item.id), 0)
-        const newCustomer = {
-          ...customerForm,
-          id: maxId + 1,
-          customerNo: 'C' + String(maxId + 1).padStart(3, '0'),
-          createTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-')
-        }
-        mockData.value.unshift(newCustomer)
-        ElMessage.success('新增成功')
-      }
-      dialogVisible.value = false
-      submitLoading.value = false
-      fetchData()
-    }, 300)
+    if (isEdit.value) {
+      await updateCustomer(customerForm)
+      ElMessage.success('编辑成功')
+    } else {
+      await createCustomer(customerForm)
+      ElMessage.success('新增成功')
+    }
+    dialogVisible.value = false
+    fetchData()
   } catch (error) {
+    // request interceptor handles error message
+  } finally {
     submitLoading.value = false
   }
 }
 
-function handleDelete(row) {
-  ElMessageBox.confirm('确定要删除该客户吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    const index = mockData.value.findIndex(item => item.id === row.id)
-    if (index !== -1) {
-      mockData.value.splice(index, 1)
-    }
+async function handleDelete(row) {
+  try {
+    await ElMessageBox.confirm('确定要删除该客户吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    await deleteCustomer(row.id)
     ElMessage.success('删除成功')
     fetchData()
-  }).catch(() => {})
+  } catch (error) {
+    // catch cancel or request error
+  }
 }
 </script>
 

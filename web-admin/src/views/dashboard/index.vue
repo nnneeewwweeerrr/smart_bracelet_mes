@@ -360,6 +360,27 @@ async function fetchQualityStats() {
   }
 }
 
+const statusData = ref([0, 0, 0, 0])
+
+async function fetchStatusCount() {
+  try {
+    const res = await request.get('/dashboard/status-count')
+    if (res.data) {
+      const data = res.data
+      const map = { 0: 0, 1: 0, 2: 0, 3: 0 }
+      data.forEach(item => {
+        if (map.hasOwnProperty(item.status)) {
+          map[item.status] = item.count
+        }
+      })
+      statusData.value = [map[4] || 0, map[2] || 0, map[1] || 0, map[0] || 0]
+      updateStatusChart()
+    }
+  } catch (error) {
+    console.error('Fetch status count failed:', error)
+  }
+}
+
 function initProductionChart() {
   if (!productionChartRef.value) return
   productionChart = echarts.init(productionChartRef.value)
@@ -555,6 +576,11 @@ function updatePieChart() {
 function initStatusChart() {
   if (!statusChartRef.value) return
   statusChart = echarts.init(statusChartRef.value)
+  updateStatusChart()
+}
+
+function updateStatusChart() {
+  if (!statusChart) return
   const option = {
     tooltip: {
       trigger: 'axis',
@@ -599,7 +625,7 @@ function initStatusChart() {
     },
     yAxis: {
       type: 'category',
-      data: ['已取消', '已完成', '生产中', '待生产'],
+      data: ['已取消', '已完成', '生产中', '待派发'],
       axisLine: {
         show: false
       },
@@ -617,7 +643,7 @@ function initStatusChart() {
         type: 'bar',
         data: [
           {
-            value: 2,
+            value: statusData.value[0],
             itemStyle: {
               borderRadius: [0, 6, 6, 0],
               color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
@@ -627,7 +653,7 @@ function initStatusChart() {
             }
           },
           {
-            value: 8,
+            value: statusData.value[1],
             itemStyle: {
               borderRadius: [0, 6, 6, 0],
               color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
@@ -637,7 +663,7 @@ function initStatusChart() {
             }
           },
           {
-            value: 5,
+            value: statusData.value[2],
             itemStyle: {
               borderRadius: [0, 6, 6, 0],
               color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
@@ -647,7 +673,7 @@ function initStatusChart() {
             }
           },
           {
-            value: 3,
+            value: statusData.value[3],
             itemStyle: {
               borderRadius: [0, 6, 6, 0],
               color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
@@ -764,7 +790,8 @@ onMounted(() => {
     await fetchTrendData()
     await fetchPieData()
     await fetchQualityStats()
-    
+    await fetchStatusCount()
+
     initProductionChart()
     initPieChart()
     initStatusChart()

@@ -1,6 +1,7 @@
 package com.mes.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -29,4 +30,10 @@ public class CustomerInfo {
     private Integer status;
 
     private LocalDateTime createTime;
+
+    @TableField(exist = false)
+    private String customerNo;
+
+    @TableField(exist = false)
+    private String contact;
 }

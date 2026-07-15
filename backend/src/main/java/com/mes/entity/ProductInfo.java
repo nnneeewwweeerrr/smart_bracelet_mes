@@ -1,6 +1,7 @@
 package com.mes.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -28,4 +29,28 @@ public class ProductInfo {
     private Integer status;
 
     private LocalDateTime createTime;
+
+    @TableField(exist = false)
+    private String productNo;
+
+    @TableField(exist = false)
+    private String model;
+
+    @TableField(exist = false)
+    private String category;
+
+    @TableField(exist = false)
+    private BigDecimal price;
+
+    @TableField(exist = false)
+    private BigDecimal cost;
+
+    @TableField(exist = false)
+    private String unit;
+
+    @TableField(exist = false)
+    private String description;
+
+    @TableField(exist = false)
+    private String remark;
 }

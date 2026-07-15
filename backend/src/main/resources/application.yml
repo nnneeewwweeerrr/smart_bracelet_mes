@@ -10,6 +10,12 @@ spring:
     username: root
     password: ABC123
     driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:init_data.sql
+      continue-on-error: true
 
 mybatis-plus:
   configuration:

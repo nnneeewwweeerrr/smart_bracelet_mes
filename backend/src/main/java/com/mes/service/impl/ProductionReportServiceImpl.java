@@ -196,4 +196,11 @@ public class ProductionReportServiceImpl extends ServiceImpl<ProductionReportMap
             productionPlanService.finishPlan(planId);
         }
     }
+
+    @Override
+    public List<ProductionReport> listByWorkOrderId(Long workOrderId) {
+        LambdaQueryWrapper<ProductionReport> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ProductionReport::getWorkOrderId, workOrderId);
+        return list(wrapper);
+    }
 }

@@ -215,82 +215,26 @@ const planRules = {
 }
 
 const productList = ref([
-  { id: 1, productName: '智能手环Pro' },
-  { id: 2, productName: '智能手环Lite' },
-  { id: 3, productName: '智能手环Ultra' }
+  { id: 1, productName: '智能健康手环 Pro' },
+  { id: 2, productName: '智能运动手环 Lite' },
+  { id: 3, productName: '智能手表 Max' },
+  { id: 4, productName: '智能心率手环' },
+  { id: 5, productName: '智能睡眠手环' }
 ])
 
 const mockData = ref([
-  {
-    id: 1,
-    planNo: 'PP-202401001',
-    planName: '1月上旬生产计划',
-    productId: 1,
-    productName: '智能手环Pro',
-    quantity: 2000,
-    startDate: '2024-01-01',
-    endDate: '2024-01-10',
-    status: 3,
-    manager: '李主管',
-    createTime: '2023-12-25 10:00:00',
-    remark: '节前赶工'
-  },
-  {
-    id: 2,
-    planNo: 'PP-202401002',
-    planName: '1月中旬生产计划',
-    productId: 2,
-    productName: '智能手环Lite',
-    quantity: 1500,
-    startDate: '2024-01-11',
-    endDate: '2024-01-20',
-    status: 2,
-    manager: '王主管',
-    createTime: '2023-12-28 14:30:00',
-    remark: ''
-  },
-  {
-    id: 3,
-    planNo: 'PP-202401003',
-    planName: '1月下旬生产计划',
-    productId: 1,
-    productName: '智能手环Pro',
-    quantity: 1800,
-    startDate: '2024-01-21',
-    endDate: '2024-01-31',
-    status: 1,
-    manager: '张主管',
-    createTime: '2024-01-05 09:00:00',
-    remark: '订单增加，追加生产'
-  },
-  {
-    id: 4,
-    planNo: 'PP-202401004',
-    planName: 'Ultra新品试产计划',
-    productId: 3,
-    productName: '智能手环Ultra',
-    quantity: 500,
-    startDate: '2024-01-15',
-    endDate: '2024-01-25',
-    status: 0,
-    manager: '赵主管',
-    createTime: '2024-01-10 16:00:00',
-    remark: '新产品试产'
-  },
-  {
-    id: 5,
-    planNo: 'PP-202402001',
-    planName: '2月上旬生产计划',
-    productId: 2,
-    productName: '智能手环Lite',
-    quantity: 1000,
-    startDate: '2024-02-01',
-    endDate: '2024-02-10',
-    status: 0,
-    manager: '李主管',
-    createTime: '2024-01-12 11:00:00',
-    remark: ''
-  }
+  { id: 1, planNo: 'PP-2026001', planName: 'Q3健康手环生产计划', productName: '智能健康手环 Pro', productId: 1, quantity: 5000, startDate: '2026-07-01', endDate: '2026-09-30', manager: '张工', remark: '季度生产计划', status: 2, createTime: '2026-06-25 10:00:00' },
+  { id: 2, planNo: 'PP-2026002', planName: 'Q3运动手环生产计划', productName: '智能运动手环 Lite', productId: 2, quantity: 3000, startDate: '2026-07-01', endDate: '2026-09-30', manager: '李工', remark: '季度生产计划', status: 2, createTime: '2026-06-25 10:30:00' },
+  { id: 3, planNo: 'PP-2026003', planName: '智能手表Max首产计划', productName: '智能手表 Max', productId: 3, quantity: 2000, startDate: '2026-07-15', endDate: '2026-08-31', manager: '王工', remark: '新产品量产计划', status: 1, createTime: '2026-07-01 14:00:00' },
+  { id: 4, planNo: 'PP-2026004', planName: '心率手环增量计划', productName: '智能心率手环', productId: 4, quantity: 1500, startDate: '2026-07-20', endDate: '2026-08-20', manager: '赵工', remark: '市场需求增加', status: 0, createTime: '2026-07-10 09:00:00' },
+  { id: 5, planNo: 'PP-2026005', planName: '睡眠手环试产计划', productName: '智能睡眠手环', productId: 5, quantity: 500, startDate: '2026-07-10', endDate: '2026-07-25', manager: '刘工', remark: '试产验证', status: 3, createTime: '2026-07-05 16:00:00' },
+  { id: 6, planNo: 'PP-2026006', planName: '健康手环加急计划', productName: '智能健康手环 Pro', productId: 1, quantity: 1000, startDate: '2026-07-12', endDate: '2026-07-18', manager: '张工', remark: '紧急订单', status: 2, createTime: '2026-07-10 11:00:00' },
+  { id: 7, planNo: 'PP-2026007', planName: 'Q4产品储备计划', productName: '智能健康手环 Pro', productId: 1, quantity: 8000, startDate: '2026-10-01', endDate: '2026-12-31', manager: '孙工', remark: 'Q4备货', status: 0, createTime: '2026-07-08 08:30:00' },
+  { id: 8, planNo: 'PP-2026008', planName: 'Lite版本迭代计划', productName: '智能运动手环 Lite', productId: 2, quantity: 4000, startDate: '2026-08-01', endDate: '2026-10-31', manager: '周工', remark: '新版本生产', status: 1, createTime: '2026-07-05 13:00:00' },
+  { id: 9, planNo: 'PP-2026009', planName: '心率手环海外计划', productName: '智能心率手环', productId: 4, quantity: 2000, startDate: '2026-07-25', endDate: '2026-08-30', manager: '吴工', remark: '海外订单', status: 0, createTime: '2026-07-12 10:00:00' },
+  { id: 10, planNo: 'PP-2026010', planName: '智能手表Max扩产计划', productName: '智能手表 Max', productId: 3, quantity: 3000, startDate: '2026-09-01', endDate: '2026-10-31', manager: '郑工', remark: '首产成功后扩产', status: 0, createTime: '2026-07-14 15:00:00' },
+  { id: 11, planNo: 'PP-2026011', planName: '睡眠手环量产计划', productName: '智能睡眠手环', productId: 5, quantity: 2500, startDate: '2026-08-01', endDate: '2026-09-30', manager: '陈工', remark: '试产成功后量产', status: 1, createTime: '2026-07-13 09:00:00' },
+  { id: 12, planNo: 'PP-2026012', planName: '内部测试计划', productName: '智能健康手环 Pro', productId: 1, quantity: 100, startDate: '2026-07-18', endDate: '2026-07-20', manager: '黄工', remark: '内部测试用', status: 4, createTime: '2026-07-15 11:00:00' }
 ])
 
 const tableData = ref([])
@@ -312,8 +256,9 @@ function getStatusText(status) {
 
 function fetchData() {
   loading.value = true
-  setTimeout(() => {
+  try {
     let filtered = [...mockData.value]
+    
     if (searchForm.planNo) {
       filtered = filtered.filter(item => item.planNo.includes(searchForm.planNo))
     }
@@ -323,12 +268,18 @@ function fetchData() {
     if (searchForm.status !== '') {
       filtered = filtered.filter(item => item.status === searchForm.status)
     }
+    
     total.value = filtered.length
     const start = (currentPage.value - 1) * pageSize.value
     const end = start + pageSize.value
     tableData.value = filtered.slice(start, end)
+  } catch (error) {
+    console.error('Fetch production plans failed:', error)
+    tableData.value = []
+    total.value = 0
+  } finally {
     loading.value = false
-  }, 300)
+  }
 }
 
 function handleSearch() {
@@ -400,12 +351,7 @@ function handleDelete(row) {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    const index = mockData.value.findIndex(item => item.id === row.id)
-    if (index !== -1) {
-      mockData.value.splice(index, 1)
-    }
-    ElMessage.success('删除成功')
-    fetchData()
+    ElMessage.info('演示模式，无法操作')
   }).catch(() => {})
 }
 
@@ -415,12 +361,7 @@ function handleApprove(row) {
     cancelButtonText: '取消',
     type: 'success'
   }).then(() => {
-    const plan = mockData.value.find(item => item.id === row.id)
-    if (plan) {
-      plan.status = 1
-    }
-    ElMessage.success('审批通过')
-    fetchData()
+    ElMessage.info('演示模式，无法操作')
   }).catch(() => {})
 }
 
@@ -452,51 +393,9 @@ async function handleSubmit() {
   
   try {
     await planFormRef.value.validate()
-    submitLoading.value = true
-    
-    setTimeout(() => {
-      if (isEdit.value) {
-        const index = mockData.value.findIndex(item => item.id === planForm.id)
-        if (index !== -1) {
-          mockData.value[index] = {
-            ...mockData.value[index],
-            planName: planForm.planName,
-            productId: planForm.productId,
-            productName: planForm.productName,
-            quantity: planForm.quantity,
-            startDate: planForm.startDate,
-            endDate: planForm.endDate,
-            manager: planForm.manager,
-            remark: planForm.remark
-          }
-        }
-        ElMessage.success('编辑成功')
-      } else {
-        const maxId = Math.max(...mockData.value.map(item => item.id), 0)
-        const newPlan = {
-          id: maxId + 1,
-          planNo: 'PP-2024' + String(maxId + 1).padStart(5, '0'),
-          planName: planForm.planName,
-          productId: planForm.productId,
-          productName: planForm.productName,
-          quantity: planForm.quantity,
-          startDate: planForm.startDate,
-          endDate: planForm.endDate,
-          status: 0,
-          manager: planForm.manager,
-          createTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-'),
-          remark: planForm.remark
-        }
-        mockData.value.unshift(newPlan)
-        ElMessage.success('新增成功')
-      }
-      
-      dialogVisible.value = false
-      submitLoading.value = false
-      fetchData()
-    }, 300)
+    ElMessage.info('演示模式，无法操作')
   } catch (error) {
-    submitLoading.value = false
+    ElMessage.error('表单验证失败')
   }
 }
 

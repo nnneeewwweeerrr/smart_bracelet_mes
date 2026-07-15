@@ -1,6 +1,8 @@
 package com.mes.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mes.annotation.OperationLog;
 import com.mes.common.Result;
 import com.mes.entity.EquipmentInfo;
@@ -21,15 +23,40 @@ public class EquipmentController {
     private EquipmentInfoService equipmentInfoService;
 
     @GetMapping("/list")
-    public Result<List<EquipmentInfo>> list() {
+    public Result<IPage<EquipmentInfo>> list(@RequestParam(defaultValue = "1") Integer pageNum,
+                                              @RequestParam(defaultValue = "10") Integer pageSize,
+                                              @RequestParam(required = false) String equipmentCode,
+                                              @RequestParam(required = false) String equipmentName,
+                                              @RequestParam(required = false) String equipmentType,
+                                              @RequestParam(required = false) Integer status) {
+        Page<EquipmentInfo> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<EquipmentInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByDesc(EquipmentInfo::getCreateTime);
-        return Result.success(equipmentInfoService.list(wrapper));
+        wrapper.like(equipmentCode != null && !equipmentCode.isEmpty(), EquipmentInfo::getEquipmentCode, equipmentCode)
+                .like(equipmentName != null && !equipmentName.isEmpty(), EquipmentInfo::getEquipmentName, equipmentName)
+                .eq(equipmentType != null && !equipmentType.isEmpty(), EquipmentInfo::getEquipmentType, equipmentType)
+                .eq(status != null, EquipmentInfo::getStatus, status)
+                .orderByDesc(EquipmentInfo::getCreateTime);
+        IPage<EquipmentInfo> result = equipmentInfoService.page(page, wrapper);
+        result.getRecords().forEach(this::mapFields);
+        return Result.success(result);
     }
 
     @GetMapping("/{id}")
     public Result<EquipmentInfo> detail(@PathVariable Long id) {
-        return Result.success(equipmentInfoService.getById(id));
+        EquipmentInfo info = equipmentInfoService.getById(id);
+        if (info != null) {
+            mapFields(info);
+        }
+        return Result.success(info);
+    }
+
+    private void mapFields(EquipmentInfo info) {
+        info.setEquipmentNo(info.getEquipmentCode());
+        info.setName(info.getEquipmentName());
+        info.setType(info.getEquipmentType());
+        info.setWorkshop(info.getLocation());
+        info.setManager("管理员");
+        info.setPhone("13800000000");
     }
 
     @GetMapping("/statistics")

@@ -68,9 +68,12 @@ public class MiniAppController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public Result<Map<String, Object>> login(@RequestBody LoginDTO loginDTO) {
-        String userName = loginDTO.getUserName();
-        String password = loginDTO.getPassword();
+    public Result<Map<String, Object>> login(@RequestBody Map<String, String> params) {
+        String userName = params.get("userName");
+        String password = params.get("password");
+        if (userName == null || userName.isEmpty()) {
+            userName = params.get("username");
+        }
         
         if ("admin".equals(userName) && "123456".equals(password)) {
             Map<String, Object> result = new HashMap<>();

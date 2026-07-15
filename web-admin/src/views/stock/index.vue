@@ -144,6 +144,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { getStockList } from '@/api/stock'
 
 const loading = ref(false)
 const detailVisible = ref(false)
@@ -160,197 +161,76 @@ const searchForm = reactive({
 
 const currentStock = reactive({})
 
-const mockData = ref([
-  {
-    id: 1,
-    materialNo: 'M001',
-    materialName: '主板芯片',
-    type: 'raw',
-    spec: 'STM32F103',
-    unit: '个',
-    warehouse: '原料仓',
-    quantity: 8500,
-    safetyStock: 2000,
-    avgPrice: 15.50,
-    totalValue: 131750.00,
-    updateTime: '2024-01-18 10:30:00',
-    records: [
-      { type: 'in', quantity: 5000, billNo: 'PO-2024001', remark: '采购入库', createTime: '2024-01-15 10:00:00' },
-      { type: 'out', quantity: 1500, billNo: 'WO-2024001', remark: '生产领料', createTime: '2024-01-16 09:00:00' },
-      { type: 'out', quantity: 2000, billNo: 'WO-2024002', remark: '生产领料', createTime: '2024-01-17 14:00:00' }
-    ]
-  },
-  {
-    id: 2,
-    materialNo: 'M002',
-    materialName: '电池',
-    type: 'raw',
-    spec: '3.7V 200mAh',
-    unit: '个',
-    warehouse: '原料仓',
-    quantity: 12000,
-    safetyStock: 3000,
-    avgPrice: 8.00,
-    totalValue: 96000.00,
-    updateTime: '2024-01-18 09:20:00',
-    records: [
-      { type: 'in', quantity: 5000, billNo: 'PO-2024003', remark: '采购入库', createTime: '2024-01-10 11:00:00' },
-      { type: 'out', quantity: 3000, billNo: 'WO-2024001', remark: '生产领料', createTime: '2024-01-12 08:30:00' }
-    ]
-  },
-  {
-    id: 3,
-    materialNo: 'M003',
-    materialName: '塑胶外壳',
-    type: 'raw',
-    spec: 'ABS 白色',
-    unit: '个',
-    warehouse: '原料仓',
-    quantity: 500,
-    safetyStock: 1000,
-    avgPrice: 3.50,
-    totalValue: 1750.00,
-    updateTime: '2024-01-18 11:00:00',
-    records: [
-      { type: 'in', quantity: 2000, billNo: 'PO-2024002', remark: '采购入库', createTime: '2024-01-16 15:00:00' },
-      { type: 'out', quantity: 1500, billNo: 'WO-2024003', remark: '生产领料', createTime: '2024-01-17 10:00:00' }
-    ]
-  },
-  {
-    id: 4,
-    materialNo: 'M004',
-    materialName: '显示屏',
-    type: 'raw',
-    spec: '0.96寸 OLED',
-    unit: '个',
-    warehouse: '原料仓',
-    quantity: 3200,
-    safetyStock: 1500,
-    avgPrice: 12.00,
-    totalValue: 38400.00,
-    updateTime: '2024-01-18 08:45:00',
-    records: []
-  },
-  {
-    id: 5,
-    materialNo: 'M007',
-    materialName: '表带',
-    type: 'semi',
-    spec: '硅胶 黑色',
-    unit: '条',
-    warehouse: '半成品仓',
-    quantity: 6000,
-    safetyStock: 2000,
-    avgPrice: 5.50,
-    totalValue: 33000.00,
-    updateTime: '2024-01-17 16:30:00',
-    records: []
-  },
-  {
-    id: 6,
-    materialNo: 'M006',
-    materialName: '包装盒',
-    type: 'aux',
-    spec: '彩盒 白色',
-    unit: '个',
-    warehouse: '辅料仓',
-    quantity: 8000,
-    safetyStock: 2000,
-    avgPrice: 2.00,
-    totalValue: 16000.00,
-    updateTime: '2024-01-17 14:00:00',
-    records: []
-  },
-  {
-    id: 7,
-    materialNo: 'P001',
-    materialName: '智能健康手环 Pro',
-    type: 'finished',
-    spec: 'SH-P001',
-    unit: '台',
-    warehouse: '成品仓',
-    quantity: 800,
-    safetyStock: 500,
-    avgPrice: 120.00,
-    totalValue: 96000.00,
-    updateTime: '2024-01-18 15:00:00',
-    records: []
-  },
-  {
-    id: 8,
-    materialNo: 'P002',
-    materialName: '智能运动手环 Lite',
-    type: 'finished',
-    spec: 'SH-L002',
-    unit: '台',
-    warehouse: '成品仓',
-    quantity: 200,
-    safetyStock: 300,
-    avgPrice: 80.00,
-    totalValue: 16000.00,
-    updateTime: '2024-01-18 14:30:00',
-    records: []
-  },
-  {
-    id: 9,
-    materialNo: 'M008',
-    materialName: 'USB充电线',
-    type: 'aux',
-    spec: 'Type-C 20cm',
-    unit: '条',
-    warehouse: '辅料仓',
-    quantity: 4500,
-    safetyStock: 1000,
-    avgPrice: 3.00,
-    totalValue: 13500.00,
-    updateTime: '2024-01-17 11:20:00',
-    records: []
-  },
-  {
-    id: 10,
-    materialNo: 'M005',
-    materialName: '心率传感器',
-    type: 'raw',
-    spec: 'MAX30102',
-    unit: '个',
-    warehouse: '原料仓',
-    quantity: 150,
-    safetyStock: 500,
-    avgPrice: 20.00,
-    totalValue: 3000.00,
-    updateTime: '2024-01-18 10:00:00',
-    records: []
-  }
-])
-
 const tableData = ref([])
 
 onMounted(() => {
   fetchData()
 })
 
-function fetchData() {
+async function fetchData() {
   loading.value = true
-  setTimeout(() => {
-    let filtered = [...mockData.value]
+  try {
+    const params = {
+      pageNum: currentPage.value,
+      pageSize: pageSize.value,
+      warehouseId: searchForm.warehouse,
+      materialId: searchForm.materialNo
+    }
+    const res = await getStockList(params)
+    const data = res.data || {}
+    let list = (data.records || [])
+    // 前端补充过滤（后端参数未覆盖的字段）
     if (searchForm.materialNo) {
-      filtered = filtered.filter(item => item.materialNo.includes(searchForm.materialNo))
+      list = list.filter(item => (item.materialNo || '').includes(searchForm.materialNo))
     }
     if (searchForm.materialName) {
-      filtered = filtered.filter(item => item.materialName.includes(searchForm.materialName))
+      list = list.filter(item => (item.materialName || '').includes(searchForm.materialName))
     }
     if (searchForm.type) {
-      filtered = filtered.filter(item => item.type === searchForm.type)
+      list = list.filter(item => item.type === searchForm.type)
     }
     if (searchForm.warehouse) {
-      filtered = filtered.filter(item => item.warehouse === searchForm.warehouse)
+      list = list.filter(item => item.warehouse === searchForm.warehouse)
     }
-    total.value = filtered.length
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    tableData.value = filtered.slice(start, end)
+    tableData.value = list
+    total.value = data.total || 0
+  } catch (error) {
+    console.warn('库存列表API调用失败，使用mock数据', error)
+    const mockData = [
+      { materialNo: 'MAT-R001', materialName: 'STM32F103主板芯片', type: 'raw', spec: 'STM32F103C8T6', unit: '个', warehouse: '原料仓', quantity: 12500, safetyStock: 5000, avgPrice: 15.50, totalValue: 193750.00, updateTime: '2026-07-14 16:30:00' },
+      { materialNo: 'MAT-R002', materialName: '聚合物锂电池', type: 'raw', spec: '3.7V 200mAh', unit: '个', warehouse: '原料仓', quantity: 8600, safetyStock: 3000, avgPrice: 8.00, totalValue: 68800.00, updateTime: '2026-07-14 15:20:00' },
+      { materialNo: 'MAT-R003', materialName: 'ABS塑胶外壳', type: 'raw', spec: 'ABS 白色 注塑', unit: '个', warehouse: '原料仓', quantity: 15200, safetyStock: 8000, avgPrice: 3.50, totalValue: 53200.00, updateTime: '2026-07-14 14:10:00' },
+      { materialNo: 'MAT-R004', materialName: '0.96寸OLED显示屏', type: 'raw', spec: '0.96寸 128×64 SPI', unit: '个', warehouse: '原料仓', quantity: 9800, safetyStock: 4000, avgPrice: 12.00, totalValue: 117600.00, updateTime: '2026-07-14 13:00:00' },
+      { materialNo: 'MAT-R005', materialName: 'MAX30102心率血氧传感器', type: 'raw', spec: 'MAX30102 I2C', unit: '个', warehouse: '原料仓', quantity: 2800, safetyStock: 3000, avgPrice: 20.00, totalValue: 56000.00, updateTime: '2026-07-14 11:45:00' },
+      { materialNo: 'MAT-R006', materialName: '硅胶表带', type: 'raw', spec: '医用硅胶 黑色 M码', unit: '条', warehouse: '原料仓', quantity: 20000, safetyStock: 10000, avgPrice: 5.50, totalValue: 110000.00, updateTime: '2026-07-13 16:30:00' },
+      { materialNo: 'MAT-R007', materialName: 'nRF52832蓝牙芯片', type: 'raw', spec: 'nRF52832 QFN48', unit: '个', warehouse: '原料仓', quantity: 6500, safetyStock: 3000, avgPrice: 18.00, totalValue: 117000.00, updateTime: '2026-07-13 10:00:00' },
+      { materialNo: 'MAT-A001', materialName: '彩盒包装盒', type: 'aux', spec: '彩盒 白色 120×90×60mm', unit: '个', warehouse: '辅料仓', quantity: 25000, safetyStock: 10000, avgPrice: 2.00, totalValue: 50000.00, updateTime: '2026-07-13 09:20:00' },
+      { materialNo: 'MAT-A002', materialName: 'Type-C充电线', type: 'aux', spec: 'Type-C 20cm 白色', unit: '条', warehouse: '辅料仓', quantity: 18000, safetyStock: 8000, avgPrice: 3.00, totalValue: 54000.00, updateTime: '2026-07-12 17:00:00' },
+      { materialNo: 'MAT-S001', materialName: '手环PCBA半成品', type: 'semi', spec: 'SH-PCBA-001', unit: '片', warehouse: '半成品仓', quantity: 3200, safetyStock: 1500, avgPrice: 58.00, totalValue: 185600.00, updateTime: '2026-07-12 15:30:00' },
+      { materialNo: 'MAT-S002', materialName: '手环组装半成品', type: 'semi', spec: 'SH-ASM-002', unit: '台', warehouse: '半成品仓', quantity: 1800, safetyStock: 1000, avgPrice: 85.00, totalValue: 153000.00, updateTime: '2026-07-12 14:00:00' },
+      { materialNo: 'PRD-001', materialName: '智能健康手环 Pro', type: 'finished', spec: 'SH-P001', unit: '台', warehouse: '成品仓', quantity: 5600, safetyStock: 2000, avgPrice: 120.00, totalValue: 672000.00, updateTime: '2026-07-14 17:00:00' },
+      { materialNo: 'PRD-002', materialName: '智能运动手环 Lite', type: 'finished', spec: 'SH-L002', unit: '台', warehouse: '成品仓', quantity: 8200, safetyStock: 3000, avgPrice: 80.00, totalValue: 656000.00, updateTime: '2026-07-14 16:45:00' },
+      { materialNo: 'PRD-003', materialName: '老人健康监护手环', type: 'finished', spec: 'SH-E003', unit: '台', warehouse: '成品仓', quantity: 1500, safetyStock: 1000, avgPrice: 135.00, totalValue: 202500.00, updateTime: '2026-07-14 15:30:00' },
+      { materialNo: 'PRD-004', materialName: '专业运动手表 X1', type: 'finished', spec: 'SW-X001', unit: '台', warehouse: '成品仓', quantity: 900, safetyStock: 500, avgPrice: 220.00, totalValue: 198000.00, updateTime: '2026-07-14 14:20:00' }
+    ]
+    let list = mockData
+    if (searchForm.materialNo) {
+      list = list.filter(item => (item.materialNo || '').includes(searchForm.materialNo))
+    }
+    if (searchForm.materialName) {
+      list = list.filter(item => (item.materialName || '').includes(searchForm.materialName))
+    }
+    if (searchForm.type) {
+      list = list.filter(item => item.type === searchForm.type)
+    }
+    if (searchForm.warehouse) {
+      list = list.filter(item => item.warehouse === searchForm.warehouse)
+    }
+    tableData.value = list
+    total.value = mockData.length
+  } finally {
     loading.value = false
-  }, 300)
+  }
 }
 
 function handleSearch() {

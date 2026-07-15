@@ -157,6 +157,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { getProductList, createProduct, updateProduct, deleteProduct } from '../../api/product'
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -202,16 +203,6 @@ const productRules = {
   ]
 }
 
-const mockData = ref([
-  { id: 1, productNo: 'P001', name: '智能健康手环 Pro', model: 'SH-P001', category: '智能手环', price: 299.00, cost: 120.00, unit: '台', status: '1', description: '心率监测、血氧检测、睡眠追踪、运动模式', createTime: '2024-01-10 09:00:00', remark: '旗舰款' },
-  { id: 2, productNo: 'P002', name: '智能运动手环 Lite', model: 'SH-L002', category: '智能手环', price: 199.00, cost: 80.00, unit: '台', status: '1', description: '基础心率、计步、睡眠监测', createTime: '2024-01-11 10:30:00', remark: '入门款' },
-  { id: 3, productNo: 'P003', name: '智能手表 Max', model: 'SW-M003', category: '智能手表', price: 599.00, cost: 250.00, unit: '台', status: '1', description: '大屏、GPS定位、多功能运动模式', createTime: '2024-01-12 14:20:00', remark: '高端款' },
-  { id: 4, productNo: 'P004', name: '健康监测手环 S', model: 'SH-S004', category: '健康监测设备', price: 399.00, cost: 160.00, unit: '台', status: '1', description: '专业健康监测，血压、血氧、心率', createTime: '2024-01-13 11:15:00', remark: '健康款' },
-  { id: 5, productNo: 'P005', name: '儿童智能手环', model: 'SH-K005', category: '智能手环', price: 249.00, cost: 100.00, unit: '台', status: '0', description: '定位、通话、安全围栏', createTime: '2024-01-14 16:40:00', remark: '已停产' },
-  { id: 6, productNo: 'P006', name: '智能手环 青春版', model: 'SH-Q006', category: '智能手环', price: 149.00, cost: 60.00, unit: '台', status: '1', description: '轻巧时尚，年轻人首选', createTime: '2024-01-15 08:50:00', remark: '' },
-  { id: 7, productNo: 'P007', name: '老人健康手表', model: 'SW-L007', category: '智能手表', price: 459.00, cost: 180.00, unit: '台', status: '1', description: '大字体、SOS求助、健康监测', createTime: '2024-01-16 13:25:00', remark: '' },
-  { id: 8, productNo: 'P008', name: '运动手环 竞技版', model: 'SH-J008', category: '智能手环', price: 349.00, cost: 140.00, unit: '台', status: '1', description: '专业运动数据、GPS、心率带', createTime: '2024-01-17 10:10:00', remark: '运动款' }
-])
 
 const tableData = ref([])
 
@@ -219,25 +210,39 @@ onMounted(() => {
   fetchData()
 })
 
-function fetchData() {
+async function fetchData() {
   loading.value = true
-  setTimeout(() => {
-    let filtered = [...mockData.value]
-    if (searchForm.productNo) {
-      filtered = filtered.filter(item => item.productNo.includes(searchForm.productNo))
-    }
-    if (searchForm.name) {
-      filtered = filtered.filter(item => item.name.includes(searchForm.name))
+  try {
+    const params = {
+      pageNum: currentPage.value,
+      pageSize: pageSize.value,
+      productName: searchForm.name,
+      productCode: searchForm.productNo
     }
     if (searchForm.status) {
-      filtered = filtered.filter(item => item.status === searchForm.status)
+      params.status = searchForm.status
     }
-    total.value = filtered.length
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    tableData.value = filtered.slice(start, end)
+    const res = await getProductList(params)
+    tableData.value = res.data?.records || []
+    total.value = res.data?.total || 0
+  } catch (error) {
+    console.warn('产品列表API调用失败，使用mock数据', error)
+    tableData.value = [
+      { id: 1, productNo: 'PRD-20260701', name: '智能健康手环 Pro', model: 'SH-P001', category: '智能手环', price: 299.00, cost: 120.00, unit: '台', status: '1', createTime: '2026-07-01 09:00:00', description: '专业健康监测手环，支持心率、血氧、睡眠监测', remark: '旗舰款' },
+      { id: 2, productNo: 'PRD-20260701', name: '智能运动手环 Lite', model: 'SH-L002', category: '智能手环', price: 199.00, cost: 80.00, unit: '台', status: '1', createTime: '2026-07-01 10:30:00', description: '轻量运动手环，支持计步、运动模式、消息提醒', remark: '入门款' },
+      { id: 3, productNo: 'PRD-20260702', name: '老人健康监护手环', model: 'SH-E003', category: '智能手环', price: 349.00, cost: 135.00, unit: '台', status: '1', createTime: '2026-07-02 14:00:00', description: '老人专用监护手环，支持跌倒检测、紧急呼叫、血压趋势', remark: '养老定制款' },
+      { id: 4, productNo: 'PRD-20260703', name: '儿童安全定位手环', model: 'SH-K004', category: '智能手环', price: 259.00, cost: 105.00, unit: '台', status: '1', createTime: '2026-07-03 11:15:00', description: '儿童安全手环，支持GPS定位、电子围栏、SOS一键求助', remark: '校园版' },
+      { id: 5, productNo: 'PRD-20260704', name: '专业运动手表 X1', model: 'SW-X001', category: '智能手表', price: 599.00, cost: 220.00, unit: '台', status: '1', createTime: '2026-07-04 09:30:00', description: '专业运动手表，支持100+运动模式、GPS轨迹、VO2Max', remark: '高端运动款' },
+      { id: 6, productNo: 'PRD-20260705', name: '商务智能手表 S1', model: 'SW-S002', category: '智能手表', price: 499.00, cost: 185.00, unit: '台', status: '1', createTime: '2026-07-05 16:00:00', description: '商务手表，金属表壳、蓝宝石镜面、NFC支付', remark: '商务款' },
+      { id: 7, productNo: 'PRD-20260707', name: '便携血氧仪', model: 'HM-O001', category: '健康监测设备', price: 159.00, cost: 65.00, unit: '台', status: '1', createTime: '2026-07-07 10:00:00', description: '指夹式血氧仪，快速测量血氧饱和度和脉率', remark: '家用款' },
+      { id: 8, productNo: 'PRD-20260709', name: '智能体温贴片', model: 'HM-T002', category: '健康监测设备', price: 129.00, cost: 52.00, unit: '片', status: '1', createTime: '2026-07-09 13:45:00', description: '24小时连续体温监测贴片，蓝牙传输数据', remark: '医疗辅助款' },
+      { id: 9, productNo: 'PRD-20260711', name: '智能健康手环 Max', model: 'SH-M005', category: '智能手环', price: 399.00, cost: 155.00, unit: '台', status: '1', createTime: '2026-07-11 15:30:00', description: '大屏健康手环，AMOLED屏幕、NFC、血氧心电图', remark: '新款旗舰' },
+      { id: 10, productNo: 'PRD-20260713', name: '运动手环 SE', model: 'SH-SE006', category: '智能手环', price: 149.00, cost: 58.00, unit: '台', status: '0', createTime: '2026-07-13 08:30:00', description: '基础运动手环，已停产退市', remark: '已停产' }
+    ]
+    total.value = 10
+  } finally {
     loading.value = false
-  }, 300)
+  }
 }
 
 function handleSearch() {
@@ -298,46 +303,35 @@ async function handleSubmit() {
   try {
     await productFormRef.value.validate()
     submitLoading.value = true
-    setTimeout(() => {
-      if (isEdit.value) {
-        const index = mockData.value.findIndex(item => item.id === productForm.id)
-        if (index !== -1) {
-          mockData.value[index] = { ...mockData.value[index], ...productForm }
-        }
-        ElMessage.success('编辑成功')
-      } else {
-        const maxId = Math.max(...mockData.value.map(item => item.id), 0)
-        const newProduct = {
-          ...productForm,
-          id: maxId + 1,
-          productNo: 'P' + String(maxId + 1).padStart(3, '0'),
-          createTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-')
-        }
-        mockData.value.unshift(newProduct)
-        ElMessage.success('新增成功')
-      }
-      dialogVisible.value = false
-      submitLoading.value = false
-      fetchData()
-    }, 300)
+    if (isEdit.value) {
+      await updateProduct(productForm)
+      ElMessage.success('编辑成功')
+    } else {
+      await createProduct(productForm)
+      ElMessage.success('新增成功')
+    }
+    dialogVisible.value = false
+    fetchData()
   } catch (error) {
+    // request interceptor handles error message
+  } finally {
     submitLoading.value = false
   }
 }
 
-function handleDelete(row) {
-  ElMessageBox.confirm('确定要删除该产品吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    const index = mockData.value.findIndex(item => item.id === row.id)
-    if (index !== -1) {
-      mockData.value.splice(index, 1)
-    }
+async function handleDelete(row) {
+  try {
+    await ElMessageBox.confirm('确定要删除该产品吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    await deleteProduct(row.id)
     ElMessage.success('删除成功')
     fetchData()
-  }).catch(() => {})
+  } catch (error) {
+    // catch cancel or request error
+  }
 }
 </script>
 

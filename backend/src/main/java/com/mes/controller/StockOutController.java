@@ -5,10 +5,16 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mes.annotation.OperationLog;
 import com.mes.common.Result;
+import com.mes.entity.MaterialInfo;
 import com.mes.entity.StockOut;
+import com.mes.entity.WarehouseInfo;
+import com.mes.service.MaterialInfoService;
 import com.mes.service.StockOutService;
+import com.mes.service.WarehouseInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/stock-out")
@@ -17,17 +23,45 @@ public class StockOutController {
     @Autowired
     private StockOutService stockOutService;
 
+    @Autowired
+    private MaterialInfoService materialInfoService;
+
+    @Autowired
+    private WarehouseInfoService warehouseInfoService;
+
     @GetMapping("/list")
     public Result<IPage<StockOut>> list(@RequestParam(defaultValue = "1") Integer pageNum,
                                         @RequestParam(defaultValue = "10") Integer pageSize,
-                                        @RequestParam(required = false) String keyword) {
+                                        @RequestParam(required = false) String outNo,
+                                        @RequestParam(required = false) Integer status,
+                                        @RequestParam(required = false) String targetType,
+                                        @RequestParam(required = false) String type) {
         Page<StockOut> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<StockOut> wrapper = new LambdaQueryWrapper<>();
-        if (keyword != null && !keyword.isEmpty()) {
-            wrapper.like(StockOut::getOutNo, keyword);
-        }
+        wrapper.like(outNo != null && !outNo.isEmpty(), StockOut::getOutNo, outNo)
+                .eq(status != null, StockOut::getStatus, status);
+        
+        String queryType = (type != null && !type.isEmpty()) ? type : targetType;
+        wrapper.eq(queryType != null && !queryType.isEmpty(), StockOut::getTargetType, queryType);
+        
         wrapper.orderByDesc(StockOut::getCreateTime);
-        return Result.success(stockOutService.page(page, wrapper));
+        IPage<StockOut> result = stockOutService.page(page, wrapper);
+        result.getRecords().forEach(this::mapFields);
+        return Result.success(result);
+    }
+
+    private void mapFields(StockOut info) {
+        MaterialInfo material = materialInfoService.getById(info.getMaterialId());
+        WarehouseInfo warehouse = warehouseInfoService.getById(info.getWarehouseId());
+        
+        info.setStockOutNo(info.getOutNo());
+        info.setWarehouse(warehouse != null ? warehouse.getWarehouseName() : "");
+        info.setRelatedNo(info.getTargetNo());
+        info.setType(info.getTargetType());
+        info.setItemCount(1);
+        info.setTotalQuantity(info.getQuantity() != null ? info.getQuantity() : BigDecimal.ZERO);
+        BigDecimal unitPrice = material != null && material.getUnitPrice() != null ? material.getUnitPrice() : BigDecimal.ZERO;
+        info.setTotalAmount(unitPrice.multiply(info.getQuantity() != null ? info.getQuantity() : BigDecimal.ZERO));
     }
 
     @GetMapping("/{id}")

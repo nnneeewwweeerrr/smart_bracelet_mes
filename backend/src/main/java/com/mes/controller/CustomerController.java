@@ -1,6 +1,8 @@
 package com.mes.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mes.annotation.OperationLog;
 import com.mes.common.Result;
 import com.mes.entity.CustomerInfo;
@@ -18,16 +20,34 @@ public class CustomerController {
     private CustomerInfoService customerInfoService;
 
     @GetMapping("/list")
-    public Result<List<CustomerInfo>> list(@RequestParam(required = false) String customerName) {
+    public Result<IPage<CustomerInfo>> list(@RequestParam(defaultValue = "1") Integer pageNum,
+                                             @RequestParam(defaultValue = "10") Integer pageSize,
+                                             @RequestParam(required = false) String customerName,
+                                             @RequestParam(required = false) String customerCode,
+                                             @RequestParam(required = false) Integer status) {
+        Page<CustomerInfo> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<CustomerInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(customerName != null && !customerName.isEmpty(), CustomerInfo::getCustomerName, customerName)
+                .like(customerCode != null && !customerCode.isEmpty(), CustomerInfo::getCustomerCode, customerCode)
+                .eq(status != null, CustomerInfo::getStatus, status)
                 .orderByDesc(CustomerInfo::getCreateTime);
-        return Result.success(customerInfoService.list(wrapper));
+        IPage<CustomerInfo> result = customerInfoService.page(page, wrapper);
+        result.getRecords().forEach(this::mapFields);
+        return Result.success(result);
     }
 
     @GetMapping("/{id}")
     public Result<CustomerInfo> detail(@PathVariable Long id) {
-        return Result.success(customerInfoService.getById(id));
+        CustomerInfo info = customerInfoService.getById(id);
+        if (info != null) {
+            mapFields(info);
+        }
+        return Result.success(info);
+    }
+
+    private void mapFields(CustomerInfo info) {
+        info.setCustomerNo(info.getCustomerCode());
+        info.setContact(info.getContactName());
     }
 
     @PostMapping("/save")

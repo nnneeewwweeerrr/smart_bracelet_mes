@@ -4,7 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mes.annotation.OperationLog;
 import com.mes.common.Result;
+import com.mes.entity.OrderCustomer;
+import com.mes.entity.ProductInfo;
 import com.mes.entity.ProductionPlan;
+import com.mes.service.OrderCustomerService;
+import com.mes.service.ProductInfoService;
 import com.mes.service.ProductionPlanService;
 import com.mes.utils.BarcodeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,12 @@ public class ProductionPlanController {
     @Autowired
     private ProductionPlanService productionPlanService;
 
+    @Autowired
+    private ProductInfoService productInfoService;
+
+    @Autowired
+    private OrderCustomerService orderCustomerService;
+
     @GetMapping("/list")
     public Result<IPage<ProductionPlan>> list(
             @RequestParam(defaultValue = "1") Integer current,
@@ -27,12 +37,18 @@ public class ProductionPlanController {
             @RequestParam(required = false) Integer status,
             @RequestParam(required = false) Long orderId) {
         Page<ProductionPlan> page = new Page<>(current, size);
-        return Result.success(productionPlanService.pageList(page, planNo, status, orderId));
+        IPage<ProductionPlan> result = productionPlanService.pageList(page, planNo, status, orderId);
+        result.getRecords().forEach(this::mapFields);
+        return Result.success(result);
     }
 
     @GetMapping("/{id}")
     public Result<ProductionPlan> detail(@PathVariable Long id) {
-        return Result.success(productionPlanService.getById(id));
+        ProductionPlan plan = productionPlanService.getById(id);
+        if (plan != null) {
+            mapFields(plan);
+        }
+        return Result.success(plan);
     }
 
     @PostMapping("/save")
@@ -79,5 +95,23 @@ public class ProductionPlanController {
             return Result.error("生产计划状态不允许完成");
         }
         return Result.success();
+    }
+
+    private void mapFields(ProductionPlan plan) {
+        // 映射quantity = plannedQuantity
+        plan.setQuantity(plan.getPlannedQuantity());
+
+        // 查询产品名称
+        if (plan.getProductId() != null) {
+            ProductInfo product = productInfoService.getById(plan.getProductId());
+            if (product != null) {
+                plan.setProductName(product.getProductName());
+            }
+        }
+
+        // 如果planName为空，自动生成
+        if (plan.getPlanName() == null || plan.getPlanName().isEmpty()) {
+            plan.setPlanName(plan.getPlanNo() + " 生产计划");
+        }
     }
 }

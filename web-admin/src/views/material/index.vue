@@ -162,6 +162,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { getMaterialList, createMaterial, updateMaterial, deleteMaterial } from '../../api/material'
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -207,16 +208,6 @@ const materialRules = {
   ]
 }
 
-const mockData = ref([
-  { id: 1, materialNo: 'M001', name: '主板芯片', type: 'raw', spec: 'STM32F103', unit: '个', price: 15.50, supplierId: 1, supplierName: '深圳市电子元件有限公司', status: '1', createTime: '2024-01-10 09:00:00', remark: '核心元器件' },
-  { id: 2, materialNo: 'M002', name: '电池', type: 'raw', spec: '3.7V 200mAh', unit: '个', price: 8.00, supplierId: 8, supplierName: '惠州市电池制造厂', status: '1', createTime: '2024-01-11 10:30:00', remark: '' },
-  { id: 3, materialNo: 'M003', name: '塑胶外壳', type: 'raw', spec: 'ABS 白色', unit: '个', price: 3.50, supplierId: 2, supplierName: '东莞市塑胶制品厂', status: '1', createTime: '2024-01-12 14:20:00', remark: '' },
-  { id: 4, materialNo: 'M004', name: '显示屏', type: 'raw', spec: '0.96寸 OLED', unit: '个', price: 12.00, supplierId: 1, supplierName: '深圳市电子元件有限公司', status: '1', createTime: '2024-01-13 11:15:00', remark: '' },
-  { id: 5, materialNo: 'M005', name: '心率传感器', type: 'raw', spec: 'MAX30102', unit: '个', price: 20.00, supplierId: 1, supplierName: '深圳市电子元件有限公司', status: '1', createTime: '2024-01-14 16:40:00', remark: '进口元器件' },
-  { id: 6, materialNo: 'M006', name: '包装盒', type: 'aux', spec: '彩盒 白色', unit: '个', price: 2.00, supplierId: 3, supplierName: '广州市包装材料公司', status: '0', createTime: '2024-01-15 08:50:00', remark: '暂停使用' },
-  { id: 7, materialNo: 'M007', name: '表带', type: 'semi', spec: '硅胶 黑色', unit: '条', price: 5.50, supplierId: 2, supplierName: '东莞市塑胶制品厂', status: '1', createTime: '2024-01-16 13:25:00', remark: '' },
-  { id: 8, materialNo: 'M008', name: 'USB充电线', type: 'aux', spec: 'Type-C 20cm', unit: '条', price: 3.00, supplierId: 7, supplierName: '中山市灯饰配件公司', status: '1', createTime: '2024-01-17 10:10:00', remark: '' }
-])
 
 const tableData = ref([])
 
@@ -224,25 +215,39 @@ onMounted(() => {
   fetchData()
 })
 
-function fetchData() {
+async function fetchData() {
   loading.value = true
-  setTimeout(() => {
-    let filtered = [...mockData.value]
-    if (searchForm.materialNo) {
-      filtered = filtered.filter(item => item.materialNo.includes(searchForm.materialNo))
-    }
-    if (searchForm.name) {
-      filtered = filtered.filter(item => item.name.includes(searchForm.name))
+  try {
+    const params = {
+      pageNum: currentPage.value,
+      pageSize: pageSize.value,
+      materialName: searchForm.name,
+      materialCode: searchForm.materialNo
     }
     if (searchForm.type) {
-      filtered = filtered.filter(item => item.type === searchForm.type)
+      params.type = searchForm.type
     }
-    total.value = filtered.length
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    tableData.value = filtered.slice(start, end)
+    const res = await getMaterialList(params)
+    tableData.value = res.data?.records || []
+    total.value = res.data?.total || 0
+  } catch (error) {
+    console.warn('物料列表API调用失败，使用mock数据', error)
+    tableData.value = [
+      { id: 1, materialNo: 'MAT-R001', name: 'STM32F103主板芯片', type: 'raw', spec: 'STM32F103C8T6', unit: '个', price: 15.50, supplierId: 1, supplierName: '深圳市芯创电子元件有限公司', status: '1', createTime: '2026-07-01 09:00:00', remark: '手环主控MCU' },
+      { id: 2, materialNo: 'MAT-R002', name: '聚合物锂电池', type: 'raw', spec: '3.7V 200mAh', unit: '个', price: 8.00, supplierId: 3, supplierName: '广州华信电池科技有限公司', status: '1', createTime: '2026-07-01 10:30:00', remark: '手环内置电池' },
+      { id: 3, materialNo: 'MAT-R003', name: 'ABS塑胶外壳', type: 'raw', spec: 'ABS 白色 注塑', unit: '个', price: 3.50, supplierId: 2, supplierName: '东莞市鑫达塑胶制品厂', status: '1', createTime: '2026-07-02 14:00:00', remark: '手环主体外壳' },
+      { id: 4, materialNo: 'MAT-R004', name: '0.96寸OLED显示屏', type: 'raw', spec: '0.96寸 128×64 SPI', unit: '个', price: 12.00, supplierId: 4, supplierName: '苏州视界光电科技有限公司', status: '1', createTime: '2026-07-03 11:15:00', remark: '手环显示模组' },
+      { id: 5, materialNo: 'MAT-R005', name: 'MAX30102心率血氧传感器', type: 'raw', spec: 'MAX30102 I2C', unit: '个', price: 20.00, supplierId: 5, supplierName: '上海博通传感器技术有限公司', status: '1', createTime: '2026-07-04 09:30:00', remark: '健康监测核心传感器' },
+      { id: 6, materialNo: 'MAT-A001', name: '彩盒包装盒', type: 'aux', spec: '彩盒 白色 120×90×60mm', unit: '个', price: 2.00, supplierId: 6, supplierName: '惠州永盛包装材料有限公司', status: '1', createTime: '2026-07-05 16:00:00', remark: '产品外包装' },
+      { id: 7, materialNo: 'MAT-R006', name: '硅胶表带', type: 'raw', spec: '医用硅胶 黑色 M码', unit: '条', price: 5.50, supplierId: 2, supplierName: '东莞市鑫达塑胶制品厂', status: '1', createTime: '2026-07-06 08:45:00', remark: '手环佩戴表带' },
+      { id: 8, materialNo: 'MAT-A002', name: 'Type-C充电线', type: 'aux', spec: 'Type-C 20cm 白色', unit: '条', price: 3.00, supplierId: 10, supplierName: '深圳联创电子有限公司', status: '1', createTime: '2026-07-07 10:00:00', remark: '手环充电配件' },
+      { id: 9, materialNo: 'MAT-R007', name: 'nRF52832蓝牙芯片', type: 'raw', spec: 'nRF52832 QFN48', unit: '个', price: 18.00, supplierId: 7, supplierName: '厦门科芯半导体有限公司', status: '1', createTime: '2026-07-08 13:20:00', remark: 'BLE5.0通信模块' },
+      { id: 10, materialNo: 'MAT-S001', name: '手环PCBA半成品', type: 'semi', spec: 'SH-PCBA-001', unit: '片', price: 58.00, supplierId: 1, supplierName: '深圳市芯创电子元件有限公司', status: '1', createTime: '2026-07-10 15:00:00', remark: 'SMT贴片完成半成品' }
+    ]
+    total.value = 10
+  } finally {
     loading.value = false
-  }, 300)
+  }
 }
 
 function handleSearch() {
@@ -298,62 +303,41 @@ function handleView(row) {
   detailVisible.value = true
 }
 
-const supplierMap = {
-  1: '深圳市电子元件有限公司',
-  2: '东莞市塑胶制品厂',
-  3: '广州市包装材料公司',
-  8: '惠州市电池制造厂',
-  7: '中山市灯饰配件公司'
-}
 
 async function handleSubmit() {
   if (!materialFormRef.value) return
   try {
     await materialFormRef.value.validate()
     submitLoading.value = true
-    setTimeout(() => {
-      if (isEdit.value) {
-        const index = mockData.value.findIndex(item => item.id === materialForm.id)
-        if (index !== -1) {
-          const supplierName = supplierMap[materialForm.supplierId] || ''
-          mockData.value[index] = { ...mockData.value[index], ...materialForm, supplierName }
-        }
-        ElMessage.success('编辑成功')
-      } else {
-        const maxId = Math.max(...mockData.value.map(item => item.id), 0)
-        const supplierName = supplierMap[materialForm.supplierId] || ''
-        const newMaterial = {
-          ...materialForm,
-          id: maxId + 1,
-          materialNo: 'M' + String(maxId + 1).padStart(3, '0'),
-          supplierName,
-          createTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-')
-        }
-        mockData.value.unshift(newMaterial)
-        ElMessage.success('新增成功')
-      }
-      dialogVisible.value = false
-      submitLoading.value = false
-      fetchData()
-    }, 300)
+    if (isEdit.value) {
+      await updateMaterial(materialForm)
+      ElMessage.success('编辑成功')
+    } else {
+      await createMaterial(materialForm)
+      ElMessage.success('新增成功')
+    }
+    dialogVisible.value = false
+    fetchData()
   } catch (error) {
+    // request interceptor handles error message
+  } finally {
     submitLoading.value = false
   }
 }
 
-function handleDelete(row) {
-  ElMessageBox.confirm('确定要删除该物料吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    const index = mockData.value.findIndex(item => item.id === row.id)
-    if (index !== -1) {
-      mockData.value.splice(index, 1)
-    }
+async function handleDelete(row) {
+  try {
+    await ElMessageBox.confirm('确定要删除该物料吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    await deleteMaterial(row.id)
     ElMessage.success('删除成功')
     fetchData()
-  }).catch(() => {})
+  } catch (error) {
+    // catch cancel or request error
+  }
 }
 </script>
 

@@ -249,6 +249,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { getStockInList, createStockIn, updateStockIn, deleteStockIn, approveStockIn } from '@/api/stockIn'
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -308,108 +309,6 @@ const materialList = ref([
   { id: 12, name: '智能运动手环 Lite', spec: 'SH-L002', price: 80.00 }
 ])
 
-const mockData = ref([
-  {
-    id: 1,
-    stockInNo: 'SI-2024001',
-    type: 'purchase',
-    relatedNo: 'PO-2024003',
-    warehouse: '原料仓',
-    itemCount: 1,
-    totalQuantity: 5000,
-    totalAmount: 40000.00,
-    status: 1,
-    createTime: '2024-01-10 11:00:00',
-    remark: '电池长期供货',
-    items: [
-      { materialId: 2, materialName: '电池', spec: '3.7V 200mAh', quantity: 5000, price: 8.00 }
-    ]
-  },
-  {
-    id: 2,
-    stockInNo: 'SI-2024002',
-    type: 'purchase',
-    relatedNo: 'PO-2024001',
-    warehouse: '原料仓',
-    itemCount: 3,
-    totalQuantity: 2500,
-    totalAmount: 57750.00,
-    status: 0,
-    createTime: '2024-01-15 10:30:00',
-    remark: '首批物料采购',
-    items: [
-      { materialId: 1, materialName: '主板芯片', spec: 'STM32F103', quantity: 1000, price: 15.50 },
-      { materialId: 4, materialName: '显示屏', spec: '0.96寸 OLED', quantity: 1000, price: 12.00 },
-      { materialId: 5, materialName: '心率传感器', spec: 'MAX30102', quantity: 500, price: 20.00 }
-    ]
-  },
-  {
-    id: 3,
-    stockInNo: 'SI-2024003',
-    type: 'purchase',
-    relatedNo: 'PO-2024002',
-    warehouse: '原料仓',
-    itemCount: 2,
-    totalQuantity: 3000,
-    totalAmount: 15000.00,
-    status: 1,
-    createTime: '2024-01-16 15:00:00',
-    remark: '',
-    items: [
-      { materialId: 3, materialName: '塑胶外壳', spec: 'ABS 白色', quantity: 2000, price: 3.50 },
-      { materialId: 7, materialName: '表带', spec: '硅胶 黑色', quantity: 1000, price: 5.50 }
-    ]
-  },
-  {
-    id: 4,
-    stockInNo: 'SI-2024004',
-    type: 'production',
-    relatedNo: 'WO-2024001',
-    warehouse: '成品仓',
-    itemCount: 1,
-    totalQuantity: 500,
-    totalAmount: 60000.00,
-    status: 1,
-    createTime: '2024-01-17 16:00:00',
-    remark: '生产完工入库',
-    items: [
-      { materialId: 11, materialName: '智能健康手环 Pro', spec: 'SH-P001', quantity: 500, price: 120.00 }
-    ]
-  },
-  {
-    id: 5,
-    stockInNo: 'SI-2024005',
-    type: 'purchase',
-    relatedNo: 'PO-2024006',
-    warehouse: '辅料仓',
-    itemCount: 1,
-    totalQuantity: 3000,
-    totalAmount: 9000.00,
-    status: 0,
-    createTime: '2024-01-18 09:00:00',
-    remark: '',
-    items: [
-      { materialId: 8, materialName: 'USB充电线', spec: 'Type-C 20cm', quantity: 3000, price: 3.00 }
-    ]
-  },
-  {
-    id: 6,
-    stockInNo: 'SI-2024006',
-    type: 'transfer',
-    relatedNo: 'TR-2024001',
-    warehouse: '半成品仓',
-    itemCount: 1,
-    totalQuantity: 1000,
-    totalAmount: 5500.00,
-    status: 1,
-    createTime: '2024-01-17 14:00:00',
-    remark: '车间调拨',
-    items: [
-      { materialId: 7, materialName: '表带', spec: '硅胶 黑色', quantity: 1000, price: 5.50 }
-    ]
-  }
-])
-
 const tableData = ref([])
 
 const dialogTotalAmount = computed(() => {
@@ -430,28 +329,63 @@ onMounted(() => {
   fetchData()
 })
 
-function fetchData() {
+async function fetchData() {
   loading.value = true
-  setTimeout(() => {
-    let filtered = [...mockData.value]
-    if (searchForm.stockInNo) {
-      filtered = filtered.filter(item => item.stockInNo.includes(searchForm.stockInNo))
+  try {
+    const params = {
+      pageNum: currentPage.value,
+      pageSize: pageSize.value,
+      inNo: searchForm.stockInNo,
+      status: searchForm.status
     }
-    if (searchForm.relatedNo) {
-      filtered = filtered.filter(item => item.relatedNo.includes(searchForm.relatedNo))
+    const res = await getStockInList(params)
+    const data = res.data || {}
+    let list = (data.records || [])
+    if (searchForm.stockInNo) {
+      list = list.filter(item => (item.stockInNo || '').includes(searchForm.stockInNo))
     }
     if (searchForm.type) {
-      filtered = filtered.filter(item => item.type === searchForm.type)
+      list = list.filter(item => item.type === searchForm.type)
     }
     if (searchForm.status !== '') {
-      filtered = filtered.filter(item => item.status === searchForm.status)
+      list = list.filter(item => item.status === searchForm.status)
     }
-    total.value = filtered.length
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    tableData.value = filtered.slice(start, end)
+    tableData.value = list
+    total.value = data.total || 0
+  } catch (error) {
+    console.warn('入库记录API调用失败，使用mock数据', error)
+    const mockData = [
+      { id: 1, stockInNo: 'RK-20260701-001', type: 'purchase', relatedNo: 'PO-20260701-001', warehouse: '原料仓', itemCount: 3, totalQuantity: 15000, totalAmount: 162500.00, status: 1, createTime: '2026-07-01 09:30:00', remark: '7月第一批芯片采购', items: [{ materialName: 'STM32F103主板芯片', spec: 'STM32F103C8T6', quantity: 5000, price: 15.50 }, { materialName: 'nRF52832蓝牙芯片', spec: 'nRF52832 QFN48', quantity: 5000, price: 18.00 }, { materialName: '0.96寸OLED显示屏', spec: '0.96寸 128×64', quantity: 5000, price: 12.00 }] },
+      { id: 2, stockInNo: 'RK-20260701-002', type: 'purchase', relatedNo: 'PO-20260701-002', warehouse: '原料仓', itemCount: 2, totalQuantity: 10000, totalAmount: 71000.00, status: 1, createTime: '2026-07-01 14:00:00', remark: '电池及外壳采购', items: [{ materialName: '聚合物锂电池', spec: '3.7V 200mAh', quantity: 5000, price: 8.00 }, { materialName: 'ABS塑胶外壳', spec: 'ABS 白色', quantity: 5000, price: 3.50 }] },
+      { id: 3, stockInNo: 'RK-20260702-001', type: 'production', relatedNo: 'WO-20260702-001', warehouse: '半成品仓', itemCount: 1, totalQuantity: 3000, totalAmount: 174000.00, status: 1, createTime: '2026-07-02 16:30:00', remark: 'PCBA贴片完成入库', items: [{ materialName: '手环PCBA半成品', spec: 'SH-PCBA-001', quantity: 3000, price: 58.00 }] },
+      { id: 4, stockInNo: 'RK-20260703-001', type: 'purchase', relatedNo: 'PO-20260703-001', warehouse: '原料仓', itemCount: 2, totalQuantity: 8000, totalAmount: 160000.00, status: 1, createTime: '2026-07-03 10:00:00', remark: '心率传感器采购', items: [{ materialName: 'MAX30102心率血氧传感器', spec: 'MAX30102 I2C', quantity: 3000, price: 20.00 }, { materialName: 'nRF52832蓝牙芯片', spec: 'nRF52832 QFN48', quantity: 5000, price: 18.00 }] },
+      { id: 5, stockInNo: 'RK-20260704-001', type: 'purchase', relatedNo: 'PO-20260704-001', warehouse: '辅料仓', itemCount: 2, totalQuantity: 15000, totalAmount: 67500.00, status: 1, createTime: '2026-07-04 11:15:00', remark: '包装及线材采购', items: [{ materialName: '彩盒包装盒', spec: '彩盒 白色', quantity: 10000, price: 2.00 }, { materialName: 'Type-C充电线', spec: 'Type-C 20cm', quantity: 5000, price: 3.00 }] },
+      { id: 6, stockInNo: 'RK-20260705-001', type: 'production', relatedNo: 'WO-20260705-001', warehouse: '半成品仓', itemCount: 1, totalQuantity: 2000, totalAmount: 170000.00, status: 1, createTime: '2026-07-05 15:00:00', remark: '组装半成品入库', items: [{ materialName: '手环组装半成品', spec: 'SH-ASM-002', quantity: 2000, price: 85.00 }] },
+      { id: 7, stockInNo: 'RK-20260707-001', type: 'production', relatedNo: 'WO-20260707-001', warehouse: '成品仓', itemCount: 2, totalQuantity: 5000, totalAmount: 520000.00, status: 1, createTime: '2026-07-07 09:30:00', remark: '手环成品入库', items: [{ materialName: '智能健康手环 Pro', spec: 'SH-P001', quantity: 3000, price: 120.00 }, { materialName: '智能运动手环 Lite', spec: 'SH-L002', quantity: 2000, price: 80.00 }] },
+      { id: 8, stockInNo: 'RK-20260708-001', type: 'purchase', relatedNo: 'PO-20260708-001', warehouse: '原料仓', itemCount: 1, totalQuantity: 10000, totalAmount: 55000.00, status: 1, createTime: '2026-07-08 14:00:00', remark: '硅胶表带采购', items: [{ materialName: '硅胶表带', spec: '医用硅胶 黑色 M码', quantity: 10000, price: 5.50 }] },
+      { id: 9, stockInNo: 'RK-20260710-001', type: 'transfer', relatedNo: 'TR-20260710-001', warehouse: '原料仓', itemCount: 1, totalQuantity: 1000, totalAmount: 15500.00, status: 0, createTime: '2026-07-10 10:00:00', remark: '从备用仓调拨芯片', items: [{ materialName: 'STM32F103主板芯片', spec: 'STM32F103C8T6', quantity: 1000, price: 15.50 }] },
+      { id: 10, stockInNo: 'RK-20260711-001', type: 'production', relatedNo: 'WO-20260711-001', warehouse: '成品仓', itemCount: 1, totalQuantity: 1500, totalAmount: 202500.00, status: 1, createTime: '2026-07-11 16:00:00', remark: '老人手环成品入库', items: [{ materialName: '老人健康监护手环', spec: 'SH-E003', quantity: 1500, price: 135.00 }] },
+      { id: 11, stockInNo: 'RK-20260712-001', type: 'purchase', relatedNo: 'PO-20260712-001', warehouse: '辅料仓', itemCount: 2, totalQuantity: 12000, totalAmount: 30000.00, status: 0, createTime: '2026-07-12 09:30:00', remark: '包装辅料补充采购', items: [{ materialName: '彩盒包装盒', spec: '彩盒 白色', quantity: 8000, price: 2.00 }, { materialName: 'Type-C充电线', spec: 'Type-C 20cm', quantity: 4000, price: 3.00 }] },
+      { id: 12, stockInNo: 'RK-20260713-001', type: 'other', relatedNo: '', warehouse: '成品仓', itemCount: 1, totalQuantity: 200, totalAmount: 24000.00, status: 0, createTime: '2026-07-13 11:00:00', remark: '客户退换货入库', items: [{ materialName: '智能健康手环 Pro', spec: 'SH-P001', quantity: 200, price: 120.00 }] },
+      { id: 13, stockInNo: 'RK-20260714-001', type: 'purchase', relatedNo: 'PO-20260714-001', warehouse: '原料仓', itemCount: 2, totalQuantity: 6000, totalAmount: 93000.00, status: 1, createTime: '2026-07-14 08:30:00', remark: '显示屏及传感器补货', items: [{ materialName: '0.96寸OLED显示屏', spec: '0.96寸 128×64', quantity: 3000, price: 12.00 }, { materialName: 'MAX30102心率血氧传感器', spec: 'MAX30102 I2C', quantity: 3000, price: 20.00 }] },
+      { id: 14, stockInNo: 'RK-20260714-002', type: 'production', relatedNo: 'WO-20260714-001', warehouse: '成品仓', itemCount: 1, totalQuantity: 3000, totalAmount: 240000.00, status: 0, createTime: '2026-07-14 17:00:00', remark: '运动手环成品入库待审', items: [{ materialName: '智能运动手环 Lite', spec: 'SH-L002', quantity: 3000, price: 80.00 }] },
+      { id: 15, stockInNo: 'RK-20260714-003', type: 'production', relatedNo: 'WO-20260714-002', warehouse: '成品仓', itemCount: 1, totalQuantity: 900, totalAmount: 198000.00, status: 0, createTime: '2026-07-14 17:30:00', remark: '运动手表成品入库', items: [{ materialName: '专业运动手表 X1', spec: 'SW-X001', quantity: 900, price: 220.00 }] }
+    ]
+    let list = mockData
+    if (searchForm.stockInNo) {
+      list = list.filter(item => (item.stockInNo || '').includes(searchForm.stockInNo))
+    }
+    if (searchForm.type) {
+      list = list.filter(item => item.type === searchForm.type)
+    }
+    if (searchForm.status !== '') {
+      list = list.filter(item => item.status === searchForm.status)
+    }
+    tableData.value = list
+    total.value = mockData.length
+  } finally {
     loading.value = false
-  }, 300)
+  }
 }
 
 function handleSearch() {
@@ -506,11 +440,8 @@ function handleDelete(row) {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
-  }).then(() => {
-    const index = mockData.value.findIndex(item => item.id === row.id)
-    if (index !== -1) {
-      mockData.value.splice(index, 1)
-    }
+  }).then(async () => {
+    await deleteStockIn(row.id)
     ElMessage.success('删除成功')
     fetchData()
   }).catch(() => {})
@@ -521,11 +452,8 @@ function handleApprove(row) {
     confirmButtonText: '通过',
     cancelButtonText: '取消',
     type: 'success'
-  }).then(() => {
-    const order = mockData.value.find(item => item.id === row.id)
-    if (order) {
-      order.status = 1
-    }
+  }).then(async () => {
+    await approveStockIn(row.id)
     ElMessage.success('审核通过，已入库')
     fetchData()
   }).catch(() => {})
@@ -595,52 +523,32 @@ async function handleSubmit() {
     await stockInFormRef.value.validate()
     submitLoading.value = true
     
-    setTimeout(() => {
-      const itemCount = stockInForm.items.length
-      const totalQuantity = stockInForm.items.reduce((sum, item) => sum + item.quantity, 0)
-      const totalAmount = stockInForm.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
-      
-      if (isEdit.value) {
-        const index = mockData.value.findIndex(item => item.id === stockInForm.id)
-        if (index !== -1) {
-          mockData.value[index] = {
-            ...mockData.value[index],
-            type: stockInForm.type,
-            warehouse: stockInForm.warehouse,
-            relatedNo: stockInForm.relatedNo,
-            items: stockInForm.items.map(item => ({ ...item })),
-            itemCount,
-            totalQuantity,
-            totalAmount,
-            remark: stockInForm.remark
-          }
-        }
-        ElMessage.success('编辑成功')
-      } else {
-        const maxId = Math.max(...mockData.value.map(item => item.id), 0)
-        const newStockIn = {
-          id: maxId + 1,
-          stockInNo: 'SI-2024' + String(maxId + 1).padStart(3, '0'),
-          type: stockInForm.type,
-          warehouse: stockInForm.warehouse,
-          relatedNo: stockInForm.relatedNo,
-          items: stockInForm.items.map(item => ({ ...item })),
-          itemCount,
-          totalQuantity,
-          totalAmount,
-          status: 0,
-          createTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-'),
-          remark: stockInForm.remark
-        }
-        mockData.value.unshift(newStockIn)
-        ElMessage.success('新增成功')
-      }
-      
-      dialogVisible.value = false
-      submitLoading.value = false
-      fetchData()
-    }, 300)
+    const submitData = {
+      id: stockInForm.id,
+      type: stockInForm.type,
+      warehouse: stockInForm.warehouse,
+      relatedNo: stockInForm.relatedNo,
+      items: stockInForm.items.map(item => ({
+        materialId: item.materialId,
+        quantity: item.quantity,
+        price: item.price
+      })),
+      remark: stockInForm.remark
+    }
+    
+    if (isEdit.value) {
+      await updateStockIn(submitData)
+      ElMessage.success('编辑成功')
+    } else {
+      await createStockIn(submitData)
+      ElMessage.success('新增成功')
+    }
+    
+    dialogVisible.value = false
+    fetchData()
   } catch (error) {
+    // request拦截器已处理错误提示
+  } finally {
     submitLoading.value = false
   }
 }

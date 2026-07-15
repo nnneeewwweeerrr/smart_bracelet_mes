@@ -35,7 +35,22 @@ public class MaterialInfo {
     private Integer status;
 
     @TableField(exist = false)
+    private String materialNo;
+
+    @TableField(exist = false)
+    private String name;
+
+    @TableField(exist = false)
+    private String type;
+
+    @TableField(exist = false)
+    private java.math.BigDecimal price;
+
+    @TableField(exist = false)
     private String spec;
+
+    @TableField(exist = false)
+    private String supplierName;
 
     @TableField(exist = false)
     private String supplier;
@@ -45,4 +60,10 @@ public class MaterialInfo {
 
     @TableField(exist = false)
     private java.time.LocalDateTime updateTime;
+
+    @TableField(exist = false)
+    private Long supplierId;
+
+    @TableField(exist = false)
+    private String remark;
 }

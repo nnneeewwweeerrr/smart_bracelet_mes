@@ -184,7 +184,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -234,16 +234,28 @@ const equipmentRules = {
   ]
 }
 
-const mockData = ref([
-  { id: 1, equipmentNo: 'EQ001', name: 'SMT贴片机', type: 'production', model: 'JUKI-2070', workshop: '贴片车间', manager: '张工', phone: '13800138001', purchaseDate: '2023-06-15', status: 'running', createTime: '2024-01-10 09:00:00', remark: '高速贴片机，产能12000点/小时' },
-  { id: 2, equipmentNo: 'EQ002', name: '回流焊机', type: 'production', model: 'ETC-N40', workshop: '贴片车间', manager: '李工', phone: '13800138002', purchaseDate: '2023-07-20', status: 'running', createTime: '2024-01-11 10:30:00', remark: '八温区回流焊' },
-  { id: 3, equipmentNo: 'EQ003', name: '自动组装线', type: 'production', model: 'ASM-L01', workshop: '组装车间', manager: '王工', phone: '13800138003', purchaseDate: '2023-08-10', status: 'running', createTime: '2024-01-12 14:20:00', remark: '手环自动组装生产线' },
-  { id: 4, equipmentNo: 'EQ004', name: 'AOI检测仪', type: 'inspection', model: 'SAKI-BF', workshop: '质检车间', manager: '赵工', phone: '13800138004', purchaseDate: '2023-09-05', status: 'running', createTime: '2024-01-13 11:15:00', remark: '自动光学检测设备' },
-  { id: 5, equipmentNo: 'EQ005', name: '老化测试柜', type: 'inspection', model: 'TLC-100', workshop: '质检车间', manager: '钱工', phone: '13800138005', purchaseDate: '2023-10-12', status: 'idle', createTime: '2024-01-14 16:40:00', remark: '可同时测试100台设备' },
-  { id: 6, equipmentNo: 'EQ006', name: '激光打标机', type: 'auxiliary', model: 'LP-20W', workshop: '包装车间', manager: '孙工', phone: '13800138006', purchaseDate: '2023-11-08', status: 'maintenance', createTime: '2024-01-15 08:50:00', remark: '设备维护中，预计3天后恢复' },
-  { id: 7, equipmentNo: 'EQ007', name: '自动包装机', type: 'auxiliary', model: 'PK-500', workshop: '包装车间', manager: '周工', phone: '13800138007', purchaseDate: '2023-12-01', status: 'running', createTime: '2024-01-16 13:25:00', remark: '' },
-  { id: 8, equipmentNo: 'EQ008', name: '波峰焊机', type: 'production', model: 'WS-350', workshop: '贴片车间', manager: '吴工', phone: '13800138008', purchaseDate: '2023-05-20', status: 'disabled', createTime: '2024-01-17 10:10:00', remark: '设备老旧，已停用' }
-])
+const mockData = [
+  { id: 1, equipmentNo: 'PRD-001', name: '全自动焊接机', type: 'production', model: 'WD-2000', workshop: '贴片车间', status: 'running', manager: '张工', phone: '13800138001', purchaseDate: '2024-01-15', remark: '用于主板焊接', createTime: '2024-01-15 10:30:00' },
+  { id: 2, equipmentNo: 'PRD-002', name: '高速贴片机', type: 'production', model: 'TP-5000', workshop: '贴片车间', status: 'running', manager: '李工', phone: '13800138002', purchaseDate: '2024-02-20', remark: 'SMT贴片作业', createTime: '2024-02-20 09:15:00' },
+  { id: 3, equipmentNo: 'PRD-003', name: '注塑成型机', type: 'production', model: 'ZS-3000', workshop: '组装车间', status: 'idle', manager: '王工', phone: '13800138003', purchaseDate: '2024-03-10', remark: '外壳注塑', createTime: '2024-03-10 14:20:00' },
+  { id: 4, equipmentNo: 'PRD-004', name: '智能组装线', type: 'production', model: 'ZL-1000', workshop: '组装车间', status: 'running', manager: '赵工', phone: '13800138004', purchaseDate: '2024-01-05', remark: '手环整机组装', createTime: '2024-01-05 08:00:00' },
+  { id: 5, equipmentNo: 'PRD-005', name: '激光焊接机', type: 'production', model: 'JG-1500', workshop: '组装车间', status: 'maintenance', manager: '孙工', phone: '13800138005', purchaseDate: '2023-12-20', remark: '电池焊接', createTime: '2023-12-20 11:45:00' },
+  { id: 6, equipmentNo: 'PRD-006', name: 'AOI检测仪', type: 'production', model: 'AOI-800', workshop: '贴片车间', status: 'running', manager: '周工', phone: '13800138006', purchaseDate: '2024-04-18', remark: '贴片质量检测', createTime: '2024-04-18 13:30:00' },
+  { id: 7, equipmentNo: 'INS-001', name: '老化测试仪', type: 'inspection', model: 'LH-200', workshop: '质检车间', status: 'running', manager: '吴工', phone: '13800138007', purchaseDate: '2024-05-05', remark: '72小时老化测试', createTime: '2024-05-05 10:00:00' },
+  { id: 8, equipmentNo: 'INS-002', name: '性能测试仪', type: 'inspection', model: 'XN-300', workshop: '质检车间', status: 'idle', manager: '郑工', phone: '13800138008', purchaseDate: '2024-05-20', remark: '心率、血氧检测', createTime: '2024-05-20 09:30:00' },
+  { id: 9, equipmentNo: 'INS-003', name: '防水测试仪', type: 'inspection', model: 'FS-150', workshop: '质检车间', status: 'running', manager: '黄工', phone: '13800138009', purchaseDate: '2024-06-01', remark: 'IP68防水测试', createTime: '2024-06-01 14:00:00' },
+  { id: 10, equipmentNo: 'INS-004', name: '包装检测仪', type: 'inspection', model: 'BZ-100', workshop: '包装车间', status: 'idle', manager: '杨工', phone: '13800138010', purchaseDate: '2024-06-15', remark: '包装完整性检测', createTime: '2024-06-15 11:20:00' },
+  { id: 11, equipmentNo: 'AUX-001', name: '螺杆空压机', type: 'auxiliary', model: 'KY-50', workshop: '贴片车间', status: 'running', manager: '陈工', phone: '13800138011', purchaseDate: '2023-11-10', remark: '提供压缩空气', createTime: '2023-11-10 08:30:00' },
+  { id: 12, equipmentNo: 'AUX-002', name: '电动叉车', type: 'auxiliary', model: 'CC-3T', workshop: '仓库', status: 'idle', manager: '许工', phone: '13800138012', purchaseDate: '2024-02-28', remark: '货物搬运', createTime: '2024-02-28 15:00:00' },
+  { id: 13, equipmentNo: 'AUX-003', name: 'AGV搬运车', type: 'auxiliary', model: 'AGV-200', workshop: '组装车间', status: 'running', manager: '何工', phone: '13800138013', purchaseDate: '2024-04-01', remark: '自动物料配送', createTime: '2024-04-01 10:15:00' },
+  { id: 14, equipmentNo: 'AUX-004', name: '无尘净化系统', type: 'auxiliary', model: 'JH-1000', workshop: '贴片车间', status: 'running', manager: '胡工', phone: '13800138014', purchaseDate: '2023-10-01', remark: '车间空气净化', createTime: '2023-10-01 09:00:00' },
+  { id: 15, equipmentNo: 'AUX-005', name: 'UPS电源', type: 'auxiliary', model: 'UPS-80K', workshop: '质检车间', status: 'idle', manager: '郭工', phone: '13800138015', purchaseDate: '2024-03-20', remark: '备用电源', createTime: '2024-03-20 16:45:00' },
+  { id: 16, equipmentNo: 'PRD-007', name: '丝印机', type: 'production', model: 'SY-600', workshop: '组装车间', status: 'disabled', manager: '林工', phone: '13800138016', purchaseDate: '2023-08-15', remark: '屏幕丝印', createTime: '2023-08-15 12:30:00' },
+  { id: 17, equipmentNo: 'INS-005', name: '跌落测试仪', type: 'inspection', model: 'DL-200', workshop: '质检车间', status: 'maintenance', manager: '罗工', phone: '13800138017', purchaseDate: '2024-01-25', remark: '产品跌落测试', createTime: '2024-01-25 14:10:00' },
+  { id: 18, equipmentNo: 'PRD-008', name: '热压贴合机', type: 'production', model: 'RY-800', workshop: '组装车间', status: 'running', manager: '梁工', phone: '13800138018', purchaseDate: '2024-05-10', remark: '屏幕贴合', createTime: '2024-05-10 11:00:00' },
+  { id: 19, equipmentNo: 'AUX-006', name: '除湿机', type: 'auxiliary', model: 'CS-30', workshop: '仓库', status: 'running', manager: '宋工', phone: '13800138019', purchaseDate: '2024-04-12', remark: '仓库防潮', createTime: '2024-04-12 10:20:00' },
+  { id: 20, equipmentNo: 'PRD-009', name: '点胶机', type: 'production', model: 'DJ-400', workshop: '组装车间', status: 'idle', manager: '唐工', phone: '13800138020', purchaseDate: '2024-06-20', remark: '精密点胶', createTime: '2024-06-20 09:45:00' }
+]
 
 const tableData = ref([])
 
@@ -253,26 +265,24 @@ onMounted(() => {
 
 function fetchData() {
   loading.value = true
-  setTimeout(() => {
-    let filtered = [...mockData.value]
-    if (searchForm.equipmentNo) {
-      filtered = filtered.filter(item => item.equipmentNo.includes(searchForm.equipmentNo))
-    }
-    if (searchForm.name) {
-      filtered = filtered.filter(item => item.name.includes(searchForm.name))
-    }
-    if (searchForm.type) {
-      filtered = filtered.filter(item => item.type === searchForm.type)
-    }
-    if (searchForm.status) {
-      filtered = filtered.filter(item => item.status === searchForm.status)
-    }
-    total.value = filtered.length
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    tableData.value = filtered.slice(start, end)
-    loading.value = false
-  }, 300)
+  let filteredData = [...mockData]
+  if (searchForm.equipmentNo) {
+    filteredData = filteredData.filter(item => item.equipmentNo.toLowerCase().includes(searchForm.equipmentNo.toLowerCase()))
+  }
+  if (searchForm.name) {
+    filteredData = filteredData.filter(item => item.name.toLowerCase().includes(searchForm.name.toLowerCase()))
+  }
+  if (searchForm.type) {
+    filteredData = filteredData.filter(item => item.type === searchForm.type)
+  }
+  if (searchForm.status) {
+    filteredData = filteredData.filter(item => item.status === searchForm.status)
+  }
+  total.value = filteredData.length
+  const startIndex = (currentPage.value - 1) * pageSize.value
+  const endIndex = startIndex + pageSize.value
+  tableData.value = filteredData.slice(startIndex, endIndex)
+  loading.value = false
 }
 
 function handleSearch() {
@@ -301,27 +311,11 @@ function handleCurrentChange(page) {
 }
 
 function handleAdd() {
-  isEdit.value = false
-  Object.assign(equipmentForm, {
-    id: null,
-    equipmentNo: '',
-    name: '',
-    type: 'production',
-    model: '',
-    workshop: '',
-    manager: '',
-    phone: '',
-    purchaseDate: '',
-    status: 'idle',
-    remark: ''
-  })
-  dialogVisible.value = true
+  ElMessage.info('演示模式，无法编辑')
 }
 
 function handleEdit(row) {
-  isEdit.value = true
-  Object.assign(equipmentForm, row)
-  dialogVisible.value = true
+  ElMessage.info('演示模式，无法编辑')
 }
 
 function handleView(row) {
@@ -329,51 +323,12 @@ function handleView(row) {
   detailVisible.value = true
 }
 
-async function handleSubmit() {
-  if (!equipmentFormRef.value) return
-  try {
-    await equipmentFormRef.value.validate()
-    submitLoading.value = true
-    setTimeout(() => {
-      if (isEdit.value) {
-        const index = mockData.value.findIndex(item => item.id === equipmentForm.id)
-        if (index !== -1) {
-          mockData.value[index] = { ...mockData.value[index], ...equipmentForm }
-        }
-        ElMessage.success('编辑成功')
-      } else {
-        const maxId = Math.max(...mockData.value.map(item => item.id), 0)
-        const newEquipment = {
-          ...equipmentForm,
-          id: maxId + 1,
-          equipmentNo: 'EQ' + String(maxId + 1).padStart(3, '0'),
-          createTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-')
-        }
-        mockData.value.unshift(newEquipment)
-        ElMessage.success('新增成功')
-      }
-      dialogVisible.value = false
-      submitLoading.value = false
-      fetchData()
-    }, 300)
-  } catch (error) {
-    submitLoading.value = false
-  }
+function handleSubmit() {
+  ElMessage.info('演示模式，无法编辑')
 }
 
 function handleDelete(row) {
-  ElMessageBox.confirm('确定要删除该设备吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    const index = mockData.value.findIndex(item => item.id === row.id)
-    if (index !== -1) {
-      mockData.value.splice(index, 1)
-    }
-    ElMessage.success('删除成功')
-    fetchData()
-  }).catch(() => {})
+  ElMessage.info('演示模式，无法删除')
 }
 </script>
 

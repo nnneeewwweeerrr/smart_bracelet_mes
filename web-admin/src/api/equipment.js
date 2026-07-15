@@ -1,7 +1,7 @@
 import request from './request'
 
-export const getList = () => {
-  return request.get('/equipment/list')
+export const getList = (params) => {
+  return request.get('/equipment/list', { params })
 }
 
 export const getById = (id) => {

@@ -37,12 +37,27 @@ public class MaterialController {
                     .like(materialCode != null && !materialCode.isEmpty(), MaterialInfo::getMaterialCode, materialCode);
         }
         wrapper.eq(materialType != null && !materialType.isEmpty(), MaterialInfo::getMaterialType, materialType);
-        return Result.success(materialInfoService.page(page, wrapper));
+        IPage<MaterialInfo> result = materialInfoService.page(page, wrapper);
+        result.getRecords().forEach(this::mapFields);
+        return Result.success(result);
     }
 
     @GetMapping("/{id}")
     public Result<MaterialInfo> detail(@PathVariable Long id) {
-        return Result.success(materialInfoService.getById(id));
+        MaterialInfo info = materialInfoService.getById(id);
+        if (info != null) {
+            mapFields(info);
+        }
+        return Result.success(info);
+    }
+
+    private void mapFields(MaterialInfo info) {
+        info.setMaterialNo(info.getMaterialCode());
+        info.setName(info.getMaterialName());
+        info.setType(info.getMaterialType());
+        info.setPrice(info.getUnitPrice());
+        info.setSpec(info.getMaterialCode());
+        info.setSupplierName("默认供应商");
     }
 
     @GetMapping("/code/{code}")

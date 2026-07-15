@@ -29,3 +29,26 @@ export function stockTakeStock(data) {
     data
   })
 }
+
+export function saveStock(data) {
+  return request({
+    url: '/stock/save',
+    method: 'post',
+    data
+  })
+}
+
+export function updateStock(data) {
+  return request({
+    url: '/stock/update',
+    method: 'put',
+    data
+  })
+}
+
+export function deleteStock(id) {
+  return request({
+    url: '/stock/delete/' + id,
+    method: 'delete'
+  })
+}

@@ -1,10 +1,11 @@
-﻿export const roleMenus = {
+export const roleMenus = {
   admin: [
     { path: 'dashboard', title: '首页看板', icon: 'Odometer' },
     {
       title: '订单采购',
       icon: 'ShoppingCart',
       children: [
+        { path: 'order-flow', title: '订单采购流程', icon: 'Connection' },
         { path: 'order', title: '订单管理', icon: 'Document' },
         { path: 'purchase', title: '采购管理', icon: 'ShoppingBag' },
         { path: 'order-statistics', title: '订单统计', icon: 'DataLine' },
@@ -15,6 +16,7 @@
       title: '基础档案',
       icon: 'Folder',
       children: [
+        { path: 'archive-overview', title: '客户供应商图谱', icon: 'Share' },
         { path: 'customer', title: '客户档案', icon: 'User' },
         { path: 'supplier', title: '供应商管理', icon: 'OfficeBuilding' },
         { path: 'material', title: '物料档案', icon: 'Box' },
@@ -22,18 +24,21 @@
       ]
     },
     {
-      title: '设备管理',
-      icon: 'Cpu',
-      children: [
-        { path: 'equipment', title: '设备档案', icon: 'Cpu' },
-        { path: 'equipment-fault', title: '设备故障管理', icon: 'Warning' },
-        { path: 'equipment-maintain', title: '设备维保记录', icon: 'Tools' }
-      ]
-    },
+        title: '设备管理',
+        icon: 'Cpu',
+        children: [
+          { path: 'quality-repair-flow', title: '质检维修流程', icon: 'CircleCheck' },
+          { path: 'equipment', title: '设备档案', icon: 'Cpu' },
+          { path: 'equipment-fault', title: '设备故障管理', icon: 'Warning' },
+          { path: 'equipment-maintain', title: '设备维保记录', icon: 'Tools' },
+          { path: 'repair-task', title: '维修任务', icon: 'FirstAidKit' }
+        ]
+      },
     {
       title: '仓储管理',
       icon: 'GoodsFilled',
       children: [
+        { path: 'warehouse-3d', title: 'VR仓储3D', icon: 'View' },
         { path: 'stock', title: '库存查询', icon: 'DataAnalysis' },
         { path: 'stock-in', title: '入库记录', icon: 'Bottom' },
         { path: 'stock-out', title: '出库记录', icon: 'Top' },
@@ -46,13 +51,13 @@
       title: '生产管理',
       icon: 'SetUp',
       children: [
+        { path: 'bracelet-3d', title: '3D零件展示', icon: 'Box' },
         { path: 'work-order', title: '生产工单', icon: 'Tickets' },
         { path: 'production-plan', title: '生产计划', icon: 'Calendar' },
         { path: 'production-progress', title: '生产进度', icon: 'TrendCharts' },
         { path: 'process-flow', title: '生产全流程联动', icon: 'Link' },
         { path: 'process-config', title: '工艺配置', icon: 'Setting' },
         { path: 'sn-trace', title: 'SN全生命周期追溯', icon: 'Key' },
-        { path: 'sop-board', title: 'SOP电子看板', icon: 'Monitor' },
         { path: 'production-statistics', title: '生产统计', icon: 'DataLine' }
       ]
     },
@@ -151,12 +156,12 @@
       title: '生产管理',
       icon: 'SetUp',
       children: [
+        { path: 'bracelet-3d', title: '3D零件展示', icon: 'Box' },
         { path: 'work-order', title: '生产工单', icon: 'Tickets' },
         { path: 'production-progress', title: '生产进度', icon: 'TrendCharts' },
         { path: 'process-flow', title: '生产全流程联动', icon: 'Link' },
         { path: 'process-config', title: '工艺配置', icon: 'Setting' },
         { path: 'sn-trace', title: 'SN全生命周期追溯', icon: 'Key' },
-        { path: 'sop-board', title: 'SOP电子看板', icon: 'Monitor' },
         { path: 'equipment', title: '设备档案', icon: 'Cpu' }
       ]
     },

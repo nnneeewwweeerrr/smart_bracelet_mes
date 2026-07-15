@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mes.annotation.OperationLog;
 import com.mes.common.Result;
-import com.mes.entity.WorkOrder;
-import com.mes.service.WorkOrderService;
+import com.mes.entity.*;
+import com.mes.service.*;
 import com.mes.utils.BarcodeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +20,15 @@ public class WorkOrderController {
     @Autowired
     private WorkOrderService workOrderService;
 
+    @Autowired
+    private ProductInfoService productInfoService;
+
+    @Autowired
+    private ProductionPlanService productionPlanService;
+
+    @Autowired
+    private ProductionReportService productionReportService;
+
     @GetMapping("/list")
     public Result<IPage<WorkOrder>> list(
             @RequestParam(defaultValue = "1") Integer current,
@@ -29,12 +38,18 @@ public class WorkOrderController {
             @RequestParam(required = false) Long productId,
             @RequestParam(required = false) Long planId) {
         Page<WorkOrder> page = new Page<>(current, size);
-        return Result.success(workOrderService.pageList(page, workNo, status, productId, planId));
+        IPage<WorkOrder> result = workOrderService.pageList(page, workNo, status, productId, planId);
+        result.getRecords().forEach(this::mapFields);
+        return Result.success(result);
     }
 
     @GetMapping("/{id}")
     public Result<WorkOrder> detail(@PathVariable Long id) {
-        return Result.success(workOrderService.getById(id));
+        WorkOrder workOrder = workOrderService.getById(id);
+        if (workOrder != null) {
+            mapFields(workOrder);
+        }
+        return Result.success(workOrder);
     }
 
     @PostMapping("/save")
@@ -91,5 +106,38 @@ public class WorkOrderController {
             return Result.error("生成工单失败，请检查生产计划和工艺路线");
         }
         return Result.success(workOrders);
+    }
+
+    private void mapFields(WorkOrder wo) {
+        // 映射工单号
+        wo.setWorkOrderNo(wo.getWorkNo());
+
+        // 查询产品信息
+        if (wo.getProductId() != null) {
+            ProductInfo product = productInfoService.getById(wo.getProductId());
+            if (product != null) {
+                wo.setProductName(product.getProductName());
+                wo.setSpec(product.getSpecification());
+            }
+        }
+
+        // 查询计划信息获取订单号和日期
+        if (wo.getPlanId() != null) {
+            ProductionPlan plan = productionPlanService.getById(wo.getPlanId());
+            if (plan != null) {
+                wo.setPlanStartDate(plan.getStartDate());
+                wo.setPlanEndDate(plan.getEndDate());
+            }
+        }
+
+        // 计算已完成数量
+        if (wo.getId() != null) {
+            List<ProductionReport> reports = productionReportService.listByWorkOrderId(wo.getId());
+            int finished = reports.stream().mapToInt(ProductionReport::getGoodQuantity).sum();
+            wo.setFinishedQuantity(finished);
+        }
+        if (wo.getFinishedQuantity() == null) {
+            wo.setFinishedQuantity(0);
+        }
     }
 }

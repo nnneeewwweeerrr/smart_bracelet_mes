@@ -27,12 +27,7 @@ const routes = [
     component: () => import('../views/trace-screen/index.vue'),
     meta: { title: '订单全链路追溯', requiresAuth: false }
   },
-  {
-    path: '/sop-board',
-    name: 'SopBoard',
-    component: () => import('../views/sop-board/index.vue'),
-    meta: { title: 'SOP电子看板', requiresAuth: false }
-  },
+
   {
     path: '/sn-trace',
     name: 'SnTrace',
@@ -70,6 +65,12 @@ const routes = [
         meta: { title: '供应商管理', icon: 'OfficeBuilding' }
       },
       {
+        path: 'archive-overview',
+        name: 'ArchiveOverview',
+        component: () => import('../views/archive-overview/index.vue'),
+        meta: { title: '客户供应商图谱', icon: 'Share' }
+      },
+      {
         path: 'customer',
         name: 'Customer',
         component: () => import('../views/customer/index.vue'),
@@ -86,6 +87,18 @@ const routes = [
         name: 'Product',
         component: () => import('../views/product/index.vue'),
         meta: { title: '产品档案', icon: 'Present' }
+      },
+      {
+        path: 'quality-repair-flow',
+        name: 'QualityRepairFlow',
+        component: () => import('../views/quality-repair-flow/index.vue'),
+        meta: { title: '质检维修流程', icon: 'CircleCheck' }
+      },
+      {
+        path: 'order-flow',
+        name: 'OrderFlow',
+        component: () => import('../views/order-flow/index.vue'),
+        meta: { title: '订单采购流程', icon: 'Connection' }
       },
       {
         path: 'equipment',
@@ -110,6 +123,18 @@ const routes = [
         name: 'EquipmentMaintain',
         component: () => import('../views/equipment-maintain/index.vue'),
         meta: { title: '设备维保记录', icon: 'Tools' }
+      },
+      {
+        path: 'repair-task',
+        name: 'RepairTask',
+        component: () => import('../views/repair-task/index.vue'),
+        meta: { title: '维修任务', icon: 'FirstAidKit' }
+      },
+      {
+        path: 'warehouse-3d',
+        name: 'Warehouse3D',
+        component: () => import('../views/warehouse-3d/index.vue'),
+        meta: { title: 'VR仓储3D', icon: 'View' }
       },
       {
         path: 'stock',
@@ -140,6 +165,12 @@ const routes = [
         name: 'StockWarning',
         component: () => import('../views/stock-warning/index.vue'),
         meta: { title: '库存预警', icon: 'Bell' }
+      },
+      {
+        path: 'bracelet-3d',
+        name: 'Bracelet3D',
+        component: () => import('../views/bracelet-3d/index.vue'),
+        meta: { title: '3D零件展示', icon: 'Box' }
       },
       {
         path: 'work-order',

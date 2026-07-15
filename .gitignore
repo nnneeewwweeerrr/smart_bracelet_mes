@@ -29,6 +29,7 @@ mvnw.cmd
 *.swp
 *.swo
 *~
+.trae/
 
 # OS
 .DS_Store
