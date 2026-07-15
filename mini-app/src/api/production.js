@@ -45,11 +45,11 @@ export function scanSop(code) {
 }
 
 export function getReverseTrace(snCode) {
-  return get('/production/trace/reverse', { snCode })
+  return get('/sn-trace/reverse/' + snCode)
 }
 
 export function getForwardTrace(batchNo) {
-  return get('/exception/batch-trace/' + batchNo)
+  return get('/sn-trace/forward/' + batchNo)
 }
 
 export function verifyMaterial(data) {

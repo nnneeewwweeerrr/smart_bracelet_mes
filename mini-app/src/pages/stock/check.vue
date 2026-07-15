@@ -1,7 +1,5 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
   <view class="check-page">
-    <DynamicBackground theme="theme-primary"></DynamicBackground>
-    <view class="page-content">
     <view class="scan-area" @click="handleScan">
       <text class="scan-icon-text">扫</text>
       <text class="scan-text">点击扫描物料条码盘点</text>
@@ -55,7 +53,6 @@
         </view>
         <text class="check-time">{{ item.checkTime }}</text>
       </view>
-    </view>
     </view>
   </view>
 </template>
@@ -152,13 +149,7 @@ export default {
 <style lang="scss" scoped>
 .check-page {
   min-height: 100vh;
-  background: #F5F7FA;
-  position: relative;
-}
-
-.page-content {
-  position: relative;
-  z-index: 1;
+  background: transparent;
   padding: 24rpx;
 }
 

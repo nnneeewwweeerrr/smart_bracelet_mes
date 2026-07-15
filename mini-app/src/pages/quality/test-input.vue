@@ -374,7 +374,7 @@ export default {
 <style lang="scss" scoped>
 .test-input-page {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: transparent;
   padding-bottom: 180rpx;
   position: relative;
 }
@@ -416,8 +416,6 @@ export default {
   gap: 16rpx;
   padding: 24rpx;
   margin-top: -20rpx;
-  position: relative;
-  z-index: 10;
 }
 
 .search-bar {

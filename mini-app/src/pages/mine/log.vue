@@ -1,7 +1,5 @@
-<template>
+﻿<template>
   <view class="log-page">
-    <DynamicBackground theme="theme-primary" />
-    <view class="page-content">
     <view class="filter-bar">
       <u-tabs :list="moduleList" :current="currentModule" @click="onModuleChange" :activeStyle="{ color: '#3B7CFF', fontWeight: 'bold' }" :inactiveStyle="{ color: '#8C8C8C' }" lineColor="#3B7CFF" :lineWidth="30"></u-tabs>
     </view>
@@ -23,16 +21,13 @@
         </view>
       </view>
     </view>
-    </view>
   </view>
 </template>
 
 <script>
 import { getOperationLogList } from '@/api/user'
-import DynamicBackground from '@/components/DynamicBackground'
 
 export default {
-  components: { DynamicBackground },
   data() {
     return {
       currentModule: 0,
@@ -118,13 +113,7 @@ export default {
 <style lang="scss" scoped>
 .log-page {
   min-height: 100vh;
-  background: #F5F7FA;
-  position: relative;
-}
-
-.page-content {
-  position: relative;
-  z-index: 1;
+  background: transparent;
 }
 
 .filter-bar {

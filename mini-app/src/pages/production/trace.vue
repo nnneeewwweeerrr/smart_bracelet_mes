@@ -1,4 +1,4 @@
-﻿﻿﻿<template>
+<template>
   <view class="trace-page">
     <DynamicBackground theme="theme-primary" />
     <view class="page-content">
@@ -264,7 +264,7 @@
 </template>
 
 <script>
-import { getSnReverseTrace, getSnForwardTrace } from '@/api/production'
+import { getReverseTrace, getForwardTrace } from '@/api/production'
 import { scanCode } from '@/utils/scan'
 import DynamicBackground from '@/components/DynamicBackground'
 
@@ -342,88 +342,19 @@ export default {
 
       try {
         if (this.mode === 'reverse') {
-          const res = await getSnReverseTrace(this.searchKey.trim())
+          const res = await getReverseTrace(this.searchKey.trim())
           if (res) {
-            const snInfo = res.snInfo || {}
             this.snData = {
-              snCode: snInfo.snCode || '',
-              status: snInfo.status || 0,
-              statusClass: this.getStatusClass(snInfo.status),
-              statusText: this.getStatusText(snInfo.status),
-              productModel: snInfo.productName || '',
-              workOrderNo: snInfo.workOrderNo || '',
-              batchNo: '',
-              productionDate: snInfo.productionDate || '',
-              materialList: (res.materialList || []).map(item => ({
-                id: item.id || item.snId,
-                name: item.materialName || item.name || '',
-                code: item.materialCode || item.code || '',
-                batch: item.batchNo || item.batch || '',
-                supplier: item.supplierName || item.supplier || '',
-                color: '#3B7CFF'
-              })),
-              productionHistory: (res.processList || []).map(item => ({
-                processName: item.processName || '',
-                status: item.status === 1 ? 'pass' : (item.status === 0 ? 'pending' : 'running'),
-                statusText: item.status === 1 ? '完成' : (item.status === 0 ? '待执行' : '进行中'),
-                statusTag: item.status === 1 ? 'success' : (item.status === 0 ? 'warning' : 'primary'),
-                lineName: item.equipmentName || '',
-                workerName: item.workerName || '',
-                executeTime: item.endTime || item.startTime || ''
-              })),
-              qualityRecords: (res.qualityList || []).map(item => ({
-                id: item.id || '',
-                inspectionType: item.taskType || item.checkItem || '',
-                result: item.result === 1 ? 'pass' : 'fail',
-                resultText: item.result === 1 ? '合格' : '不合格',
-                resultTag: item.result === 1 ? 'success' : 'error',
-                detail: item.defectDesc || item.checkItem || '',
-                inspector: item.inspectorName || '',
-                inspectionTime: item.checkTime || ''
-              }))
+              ...res,
+              statusClass: `status-${res.status}`
             }
           }
         } else {
-          const res = await getSnForwardTrace(this.searchKey.trim())
-          if (res && res.exists) {
-            const snList = res.snList || []
-            const firstSn = snList.length > 0 ? snList[0] : {}
+          const res = await getForwardTrace(this.searchKey.trim())
+          if (res) {
             this.snData = {
-              snCode: this.searchKey.trim(),
               batchNo: this.searchKey.trim(),
-              status: firstSn.status || 1,
-              statusClass: this.getStatusClass(firstSn.status),
-              statusText: this.getStatusText(firstSn.status),
-              productModel: firstSn.productName || '智能运动手环',
-              workOrderNo: firstSn.workOrderNo || '-',
-              productionDate: firstSn.productionDate || '',
-              materialList: (res.materialList || []).map(item => ({
-                id: item.id || item.snId,
-                name: item.materialName || item.name || '',
-                code: item.materialCode || item.code || '',
-                batch: item.batchNo || item.batch || '',
-                supplier: item.supplierName || item.supplier || '',
-                color: '#3B7CFF'
-              })),
-              productionHistory: (res.processList || []).map(item => ({
-                processName: item.processName || '',
-                status: item.status === 1 ? 'pass' : (item.status === 0 ? 'pending' : 'running'),
-                statusText: item.status === 1 ? '完成' : (item.status === 0 ? '待执行' : '进行中'),
-                statusTag: item.status === 1 ? 'success' : (item.status === 0 ? 'warning' : 'primary'),
-                lineName: item.equipmentName || '',
-                workerName: item.workerName || '',
-                executeTime: item.endTime || item.startTime || ''
-              })),
-              qualityRecords: (res.qualityList || []).map(item => ({
-                id: item.id || '',
-                inspectionType: item.taskType || item.checkItem || '',
-                result: item.result === 1 ? 'pass' : 'fail',
-                resultText: item.result === 1 ? '合格' : '不合格',
-                resultTag: item.result === 1 ? 'success' : 'error',
-                detail: item.defectDesc || item.checkItem || '',
-                inspector: item.inspectorName || '',
-                inspectionTime: item.checkTime || ''
-              }))
+              productionHistory: res
             }
           }
         }
@@ -453,18 +384,10 @@ export default {
       }
     },
     getStatusText(status) {
-      if (typeof status === 'number') {
-        const m = { 0: '在产', 1: '成品', 2: '已出库', 3: '已售后' }
-        return m[status] || '未知'
-      }
       const m = { produced: '已生产', tested: '已测试', delivered: '已交付', returned: '已退货' }
       return m[status] || status || '未知'
     },
     getStatusClass(status) {
-      if (typeof status === 'number') {
-        const m = { 0: 'status-default', 1: 'status-produced', 2: 'status-tested', 3: 'status-delivered' }
-        return m[status] || 'status-default'
-      }
       const m = { produced: 'status-produced', tested: 'status-tested', delivered: 'status-delivered', returned: 'status-returned' }
       return m[status] || 'status-default'
     },
@@ -527,7 +450,7 @@ export default {
 
 .trace-page {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: transparent;
   padding-bottom: $tabbar-height;
   position: relative;
 }
@@ -539,8 +462,6 @@ export default {
 
 .search-section {
   padding: 24rpx;
-  position: relative;
-  z-index: 10;
 }
 
 .search-bar {

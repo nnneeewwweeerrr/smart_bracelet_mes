@@ -363,6 +363,29 @@ public class MiniAppController {
     }
 
     /**
+     * 扫码查询工位SOP（扫工位码/工序码自动匹配SOP）
+     */
+    @GetMapping("/production/sop/scan")
+    public Result<Map<String, Object>> scanSop(@RequestParam String code) {
+        // 按工序编码或工位码匹配工序
+        LambdaQueryWrapper<ProcessInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ProcessInfo::getProcessCode, code)
+                .or().like(ProcessInfo::getProcessName, code)
+                .last("LIMIT 1");
+        ProcessInfo process = processInfoService.getOne(wrapper);
+        if (process == null) {
+            return Result.error("未找到对应工位：" + code);
+        }
+        Map<String, Object> station = new HashMap<>();
+        station.put("id", process.getId());
+        station.put("name", process.getProcessName());
+        station.put("code", process.getProcessCode());
+        station.put("process", process.getProcessName());
+        station.put("processId", process.getId());
+        return Result.success(station);
+    }
+
+    /**
      * 物料防错校验（小程序扫码后调用）
      */
     @PostMapping("/production/verify/material")

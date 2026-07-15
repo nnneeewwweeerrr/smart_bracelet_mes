@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <view class="production-page">
     <DynamicBackground theme="theme-warm" />
     <view class="page-content">
@@ -125,7 +125,7 @@ export default {
 <style lang="scss" scoped>
 .production-page {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: transparent;
   padding: 0;
   padding-bottom: $tabbar-height;
   position: relative;

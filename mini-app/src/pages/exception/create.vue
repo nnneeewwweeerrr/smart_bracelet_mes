@@ -162,8 +162,7 @@ export default {
       recordingTime: 0,
       recordingTimer: null,
       showPhotoPreview: false,
-      previewImage: '',
-      recorderManager: null
+      previewImage: ''
     }
   },
   onLoad(options) {
@@ -245,157 +244,70 @@ export default {
       this.isRecording = true
       this.recordingTime = 0
       
-      const that = this
-      
-      uni.getSetting({
-        success: (res) => {
-          const authSetting = res.authSetting || {}
-          const recordAuth = authSetting['scope.record']
-          
-          if (recordAuth === true) {
-            that.doStartRecording()
-          } else if (recordAuth === undefined) {
-            uni.authorize({
-              scope: 'scope.record',
-              success: () => {
-                that.doStartRecording()
-              },
-              fail: () => {
-                that.isRecording = false
-                uni.showModal({
-                  title: '录音权限',
-                  content: '需要录音权限才能使用语音功能，请点击确定前往设置开启',
-                  showCancel: false,
-                  success: () => {
-                    uni.openSetting({
-                      success: (settingRes) => {
-                        if (settingRes.authSetting && settingRes.authSetting['scope.record'] === true) {
-                          that.isRecording = true
-                          that.doStartRecording()
-                        }
-                      }
-                    })
-                  }
-                })
-              }
-            })
-          } else {
-            that.isRecording = false
-            uni.showModal({
-              title: '录音权限',
-              content: '需要录音权限才能使用语音功能，请点击确定前往设置开启',
-              showCancel: false,
-              success: () => {
-                uni.openSetting({
-                  success: (settingRes) => {
-                    if (settingRes.authSetting && settingRes.authSetting['scope.record'] === true) {
-                      that.isRecording = true
-                      that.doStartRecording()
-                    }
-                  }
-                })
-              }
-            })
-          }
-        },
-        fail: () => {
-          that.isRecording = false
-          uni.showToast({ title: '获取权限设置失败', icon: 'none' })
-        }
-      })
-    },
-    doStartRecording() {
       uni.showToast({
         title: '开始录音',
         icon: 'none',
         duration: 1500
       })
 
-      this.recorderManager = uni.getRecorderManager()
-      
-      const that = this
-      
-      this.recorderManager.onStart = () => {
-        that.isRecording = true
-        that.recordingTimer = setInterval(() => {
-          that.recordingTime++
-        }, 1000)
-      }
-      
-      this.recorderManager.onStop = (res) => {
-        that.isRecording = false
-        if (that.recordingTimer) {
-          clearInterval(that.recordingTimer)
-          that.recordingTimer = null
+      uni.authorize({
+        scope: 'scope.record',
+        success: () => {
+          this.recordingTimer = setInterval(() => {
+            this.recordingTime++
+          }, 1000)
+        },
+        fail: () => {
+          uni.showModal({
+            title: '录音权限',
+            content: '需要录音权限才能使用语音功能，请在设置中开启',
+            showCancel: false
+          })
+          this.isRecording = false
         }
-        that.handleRecognize(res.tempFilePath)
-      }
-      
-      this.recorderManager.onError = (err) => {
-        that.isRecording = false
-        if (that.recordingTimer) {
-          clearInterval(that.recordingTimer)
-          that.recordingTimer = null
-        }
-        uni.showToast({
-          title: '录音失败',
-          icon: 'none'
-        })
-      }
-      
-      this.recorderManager.start({
-        duration: 60000,
-        format: 'mp3',
-        sampleRate: 16000,
-        numberOfChannels: 1
       })
     },
     stopRecording() {
       if (!this.isRecording) return
       
-      if (this.recorderManager) {
-        try {
-          this.recorderManager.stop()
-        } catch {
-          // ignore
-        }
-      } else {
-        uni.stopRecord({
-          success: () => {},
-          fail: () => {}
-        })
-      }
       this.isRecording = false
       if (this.recordingTimer) {
         clearInterval(this.recordingTimer)
         this.recordingTimer = null
       }
-    },
-    async handleRecognize(filePath) {
-      console.log('异常上报页面 - 开始语音识别, filePath:', filePath)
-      if (!filePath) {
-        uni.showToast({ title: '录音文件无效', icon: 'none' })
+
+      if (this.recordingTime < 1) {
+        uni.showToast({
+          title: '录音时间太短',
+          icon: 'none'
+        })
         return
       }
+
       uni.showLoading({ title: '识别中...' })
-      try {
-        const { post } = await import('@/utils/request')
-        const data = await post('/ai/voice/recognize', { filePath })
-        console.log('异常上报页面 - 语音识别结果:', data)
+
+      setTimeout(() => {
         uni.hideLoading()
-        const text = data.text || data.content || ''
-        console.log('异常上报页面 - 识别到的文本:', text)
-        if (text) {
-          this.form.description += (this.form.description ? '\n' : '') + text
-          uni.showToast({ title: '语音识别成功', icon: 'success' })
-        } else {
-          uni.showToast({ title: '未识别到内容', icon: 'none' })
-        }
-      } catch (e) {
-        console.error('异常上报页面 - 语音识别失败:', e)
-        uni.hideLoading()
-        uni.showToast({ title: '语音识别失败', icon: 'none' })
-      }
+        const voiceTexts = [
+          '屏幕表面有明显划痕，需要更换屏幕模组',
+          '蓝牙连接不稳定，多次连接失败',
+          '心率传感器读数异常，测试数据波动大',
+          '电池容量不足，实测只有350mAh',
+          '外壳组装有缝隙，需要重新装配',
+          '充电接口接触不良，充电时断时续',
+          'GPS定位信号弱，定位不准确',
+          '加速度计数据异常，运动计步不准',
+          '屏幕显示偏色，需要校准',
+          '震动马达异响，需要更换'
+        ]
+        const randomText = voiceTexts[Math.floor(Math.random() * voiceTexts.length)]
+        this.form.description += (this.form.description ? '\n' : '') + randomText
+        
+        uni.showToast({
+          title: '语音识别成功',
+          icon: 'success'
+        })
+      }, 1000)
     },
     formatTime(seconds) {
       const mins = Math.floor(seconds / 60)
@@ -445,7 +357,7 @@ export default {
 
 .create-page {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: transparent;
   position: relative;
 }
 

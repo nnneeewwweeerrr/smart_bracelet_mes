@@ -1,7 +1,5 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
   <view class="scan-out-page">
-    <DynamicBackground theme="theme-primary"></DynamicBackground>
-    <view class="page-content">
     <view class="scan-area" @click="handleScan">
       <text class="scan-icon-text">扫</text>
       <text class="scan-text">点击扫描物料条码</text>
@@ -44,17 +42,14 @@
     </view>
 
     <u-picker :show="showWarehousePicker" :columns="warehouseColumns" keyName="warehouseName" @confirm="onWarehouseConfirm" @cancel="showWarehousePicker = false"></u-picker>
-    </view>
   </view>
 </template>
 
 <script>
-import DynamicBackground from '@/components/DynamicBackground'
 import { scanCode } from '@/utils/scan'
 import { scanStockOut, getWarehouseList } from '@/api/stock'
 
 export default {
-  components: { DynamicBackground },
   data() {
     return {
       form: {
@@ -150,13 +145,7 @@ export default {
 <style lang="scss" scoped>
 .scan-out-page {
   min-height: 100vh;
-  background: #F5F7FA;
-  position: relative;
-}
-
-.page-content {
-  position: relative;
-  z-index: 1;
+  background: transparent;
   padding: 24rpx;
 }
 

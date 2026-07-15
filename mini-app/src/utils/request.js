@@ -24,20 +24,13 @@ function request(options) {
       }
     }
 
-    const fullUrl = BASE_URL + options.url
-    console.log('请求地址:', fullUrl)
-    console.log('请求方法:', options.method || 'GET')
-    console.log('请求数据:', requestData)
-    console.log('请求头:', header)
-
     uni.request({
-      url: fullUrl,
+      url: BASE_URL + options.url,
       method: options.method || 'GET',
       data: requestData,
       header,
       timeout: 30000,
       success(res) {
-        console.log('请求成功:', res)
         const { statusCode, data } = res
         if (statusCode === 200) {
           if (data.code === 200) {
@@ -56,12 +49,8 @@ function request(options) {
         }
       },
       fail(err) {
-        console.error('请求失败:', err)
         uni.showToast({ title: '网络连接异常，请检查网络', icon: 'none' })
         reject(err)
-      },
-      complete(res) {
-        console.log('请求完成:', res)
       }
     })
   })

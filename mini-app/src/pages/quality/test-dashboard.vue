@@ -560,7 +560,7 @@ export default {
 <style lang="scss" scoped>
 .test-dashboard-page {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: transparent;
   padding-bottom: $tabbar-height;
   position: relative;
 }
@@ -612,8 +612,6 @@ export default {
 
 .search-section {
   padding: 24rpx;
-  position: relative;
-  z-index: 10;
 }
 
 .search-bar {

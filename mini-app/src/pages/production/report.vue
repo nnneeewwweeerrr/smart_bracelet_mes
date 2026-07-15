@@ -1,7 +1,5 @@
-﻿﻿﻿<template>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
   <view class="report-page">
-    <DynamicBackground theme="theme-warning" />
-    <view class="page-content">
     <view class="scan-area" @click="handleScan">
       <text class="scan-icon-text">扫</text>
       <text class="scan-text">点击扫描工单条码</text>
@@ -35,28 +33,9 @@
       </view>
     </view>
 
-    <!-- SOP展示面板（选择工序后自动加载） -->
-    <view class="sop-panel" v-if="sopData && sopData.sop">
-      <view class="sop-panel-header">
-        <text class="section-title">电子SOP指导</text>
-        <u-tag :text="sopData.sop.sopVersion || 'V1.0'" type="primary" size="mini"></u-tag>
-      </view>
-      <view class="sop-steps" v-if="sopSteps.length > 0">
-        <view class="sop-step" v-for="(step, idx) in sopSteps" :key="idx">
-          <view class="sop-step-no">{{ idx + 1 }}</view>
-          <text class="sop-step-text">{{ step }}</text>
-        </view>
-      </view>
-      <view class="sop-warn" v-if="sopData.sop.precautions">
-        <text class="sop-warn-label">注意事项</text>
-        <text class="sop-warn-text">{{ sopData.sop.precautions }}</text>
-      </view>
-    </view>
-
-    <!-- 物料校验区域 -->
     <view class="verify-section">
       <view class="verify-header">
-        <text class="section-title">物料防错校验</text>
+        <text class="section-title">物料校验</text>
         <u-tag v-if="verifyStatus === 'pass'" text="校验通过" type="success" size="mini"></u-tag>
         <u-tag v-else-if="verifyStatus === 'fail'" text="校验失败" type="error" size="mini"></u-tag>
       </view>
@@ -80,47 +59,25 @@
           <text :class="['verify-value', verifyStatus === 'pass' ? 'text-success' : 'text-error']">{{ verifyStatus === 'pass' ? '匹配' : '不匹配' }}</text>
         </view>
       </view>
-
-      <!-- BOM清单提示 -->
-      <view class="bom-tip" v-if="sopData && sopData.materialBom && sopData.materialBom.length > 0 && !verifiedMaterial">
-        <text class="bom-tip-title">本工序需要以下物料：</text>
-        <view class="bom-tip-item" v-for="bom in sopData.materialBom" :key="bom.materialId">
-          <text class="bom-tip-code">{{ bom.materialCode }}</text>
-          <text class="bom-tip-name">{{ bom.materialName }}</text>
-          <text class="bom-tip-qty">{{ bom.quantity }}{{ bom.unit }}</text>
-        </view>
-      </view>
     </view>
 
-    <!-- 工艺参数录入与校验 -->
     <view class="param-section">
-      <view class="param-header">
-        <text class="section-title">工艺参数录入</text>
-        <u-tag v-if="paramVerifyStatus === 'pass'" text="参数合格" type="success" size="mini"></u-tag>
-        <u-tag v-else-if="paramVerifyStatus === 'fail'" text="参数超差" type="error" size="mini"></u-tag>
-      </view>
+      <text class="section-title">实际工艺参数</text>
 
-      <u-form :model="paramForm" labelPosition="left" labelWidth="200rpx">
-        <u-form-item v-for="param in sopParamStandards" :key="param.id" :label="param.paramName + '(' + (param.unit || '') + ')'">
-          <u-input v-model="paramForm[param.paramCode]" type="digit" :placeholder="'标准' + param.minValue + '~' + param.maxValue">
-            <template #suffix>
-              <text v-if="param.isRequired === 1" class="required-mark">*</text>
-            </template>
-          </u-input>
+      <u-form :model="paramForm" labelPosition="left" labelWidth="180rpx">
+        <u-form-item label="温度(℃)">
+          <u-input v-model="paramForm.temperature" type="digit" placeholder="如 260"></u-input>
+        </u-form-item>
+        <u-form-item label="湿度(%RH)">
+          <u-input v-model="paramForm.humidity" type="digit" placeholder="如 45"></u-input>
+        </u-form-item>
+        <u-form-item label="压力(MPa)">
+          <u-input v-model="paramForm.pressure" type="digit" placeholder="如 0.5"></u-input>
+        </u-form-item>
+        <u-form-item label="速度(mm/s)">
+          <u-input v-model="paramForm.speed" type="digit" placeholder="如 120"></u-input>
         </u-form-item>
       </u-form>
-
-      <u-button v-if="sopParamStandards.length > 0" type="primary" plain size="small" @click="handleVerifyParams" customStyle="margin-top: 10rpx; border-radius: 40rpx;">
-        校验工艺参数
-      </u-button>
-
-      <view class="param-check-result" v-if="paramCheckDetails.length > 0">
-        <view class="param-check-item" v-for="check in paramCheckDetails" :key="check.paramCode">
-          <text :class="['param-check-status', check.pass ? 'pass' : 'fail']">{{ check.pass ? '✓' : '✗' }}</text>
-          <text class="param-check-name">{{ check.paramName }}</text>
-          <text class="param-check-reason">{{ check.reason }}</text>
-        </view>
-      </view>
     </view>
 
     <view class="network-status" :class="{ offline: !isOnline }">
@@ -158,7 +115,6 @@
         </view>
       </view>
     </view>
-    </view>
 
     <u-picker :show="showProcessPicker" :columns="processColumns" keyName="processName" @confirm="onProcessConfirm" @cancel="showProcessPicker = false"></u-picker>
   </view>
@@ -166,14 +122,10 @@
 
 <script>
 import { scanCode } from '@/utils/scan'
-import { scanProductionReport, productionReport, getProcessList, verifyMaterial, verifyParams, getSopDetail } from '@/api/production'
+import { scanProductionReport, productionReport, getProcessList, verifyMaterial } from '@/api/production'
 import { getUser } from '@/utils/auth'
-import DynamicBackground from '@/components/DynamicBackground'
 
 export default {
-  components: {
-    DynamicBackground
-  },
   data() {
     return {
       form: {
@@ -183,7 +135,12 @@ export default {
         goodQuantity: '',
         badQuantity: ''
       },
-      paramForm: {},
+      paramForm: {
+        temperature: '',
+        humidity: '',
+        pressure: '',
+        speed: ''
+      },
       processName: '',
       processList: [],
       processColumns: [],
@@ -191,10 +148,6 @@ export default {
       loading: false,
       verifyStatus: '',
       verifiedMaterial: null,
-      paramVerifyStatus: '',
-      paramCheckDetails: [],
-      sopData: null,
-      sopSteps: [],
       offlineRecords: [],
       isOnline: true
     }
@@ -206,19 +159,6 @@ export default {
       const total = good + bad
       if (total === 0) return '0.0'
       return ((good / total) * 100).toFixed(1)
-    },
-    sopParamStandards() {
-      return (this.sopData && this.sopData.paramStandards) || []
-    }
-  },
-  watch: {
-    'form.processId'(newVal) {
-      if (newVal) {
-        this.loadSop(newVal)
-      } else {
-        this.sopData = null
-        this.sopSteps = []
-      }
     }
   },
   onLoad(options) {
@@ -302,32 +242,6 @@ export default {
         this.processColumns = [[]]
       }
     },
-    async loadSop(processId) {
-      try {
-        const res = await getSopDetail(processId)
-        if (res) {
-          this.sopData = res
-          // 解析操作步骤
-          if (res.sop && res.sop.operationSteps) {
-            try {
-              this.sopSteps = JSON.parse(res.sop.operationSteps)
-            } catch {
-              this.sopSteps = []
-            }
-          }
-          // 初始化参数表单
-          if (res.paramStandards) {
-            this.paramForm = {}
-            res.paramStandards.forEach(p => {
-              this.paramForm[p.paramCode] = ''
-            })
-          }
-        }
-      } catch {
-        this.sopData = null
-        this.sopSteps = []
-      }
-    },
     async handleScan() {
       try {
         const code = await scanCode()
@@ -341,15 +255,12 @@ export default {
       }
     },
     async handleScanMaterial() {
-      if (!this.form.processId) {
-        uni.showToast({ title: '请先选择工序', icon: 'none' })
-        return
-      }
       try {
         const code = await scanCode()
         const res = await verifyMaterial({
           materialCode: code,
-          processId: this.form.processId
+          workOrderId: this.form.workOrderId || undefined,
+          processId: this.form.processId || undefined
         })
         this.verifiedMaterial = {
           materialCode: res.materialCode || code,
@@ -360,57 +271,14 @@ export default {
         if (!res.pass) {
           uni.showModal({
             title: '物料校验失败',
-            content: res.reason || '扫码物料与当前工序BOM不匹配，请确认物料是否正确',
+            content: res.reason || '扫码物料与当前工单/工序不匹配，请确认物料是否正确',
             showCancel: false,
             confirmColor: '#FF4D4F'
           })
-        } else {
-          uni.showToast({ title: '物料校验通过', icon: 'success' })
         }
       } catch {
         this.verifiedMaterial = null
         this.verifyStatus = ''
-      }
-    },
-    async handleVerifyParams() {
-      if (!this.form.processId) {
-        uni.showToast({ title: '请先选择工序', icon: 'none' })
-        return
-      }
-      // 构建参数对象，过滤空值转为数字
-      const params = {}
-      let hasAny = false
-      for (const key in this.paramForm) {
-        if (this.paramForm[key] !== '' && this.paramForm[key] != null) {
-          params[key] = Number(this.paramForm[key])
-          hasAny = true
-        }
-      }
-      if (!hasAny) {
-        uni.showToast({ title: '请至少填写一个参数', icon: 'none' })
-        return
-      }
-      try {
-        const res = await verifyParams({
-          processId: this.form.processId,
-          params
-        })
-        this.paramCheckDetails = res.details || []
-        this.paramVerifyStatus = res.pass ? 'pass' : 'fail'
-
-        if (!res.pass) {
-          uni.showModal({
-            title: '参数校验失败',
-            content: res.reason || '部分工艺参数超差，请检查后重新录入',
-            showCancel: false,
-            confirmColor: '#FF4D4F'
-          })
-        } else {
-          uni.showToast({ title: '参数校验通过', icon: 'success' })
-        }
-      } catch {
-        this.paramVerifyStatus = ''
-        this.paramCheckDetails = []
       }
     },
     onProcessConfirm({ value }) {
@@ -418,11 +286,6 @@ export default {
       if (item) {
         this.form.processId = item.id
         this.processName = item.processName
-        // 重置校验状态
-        this.verifyStatus = ''
-        this.verifiedMaterial = null
-        this.paramVerifyStatus = ''
-        this.paramCheckDetails = []
       }
       this.showProcessPicker = false
     },
@@ -442,7 +305,6 @@ export default {
         return
       }
 
-      // 物料校验拦截
       if (this.verifyStatus === 'fail') {
         uni.showModal({
           title: '物料校验未通过',
@@ -453,39 +315,9 @@ export default {
         return
       }
 
-      // 参数校验拦截
-      if (this.paramVerifyStatus === 'fail') {
-        uni.showModal({
-          title: '参数校验未通过',
-          content: '工艺参数超差，无法提交报工。请调整参数后重新校验。',
-          showCancel: false,
-          confirmColor: '#FF4D4F'
-        })
-        return
-      }
-
-      // 如果有参数标准但未校验，提示先校验
-      if (this.sopParamStandards.length > 0 && this.paramVerifyStatus !== 'pass') {
-        uni.showModal({
-          title: '请先校验工艺参数',
-          content: '当前工序有必检工艺参数，请填写并校验通过后再提交报工。',
-          showCancel: false,
-          confirmColor: '#FAAD14'
-        })
-        return
-      }
-
       const user = getUser() || {}
       this.loading = true
       try {
-        // 构建参数对象
-        const processParams = {}
-        for (const key in this.paramForm) {
-          if (this.paramForm[key] !== '' && this.paramForm[key] != null) {
-            processParams[key] = Number(this.paramForm[key])
-          }
-        }
-
         await productionReport({
           workOrderId: this.form.workOrderId || undefined,
           workerId: user.id,
@@ -493,12 +325,17 @@ export default {
           goodQuantity: good,
           badQuantity: bad,
           materialCode: this.verifiedMaterial ? this.verifiedMaterial.materialCode : undefined,
-          processParams
+          processParams: {
+            temperature: this.paramForm.temperature ? Number(this.paramForm.temperature) : undefined,
+            humidity: this.paramForm.humidity ? Number(this.paramForm.humidity) : undefined,
+            pressure: this.paramForm.pressure ? Number(this.paramForm.pressure) : undefined,
+            speed: this.paramForm.speed ? Number(this.paramForm.speed) : undefined
+          }
         })
         uni.showToast({ title: '报工成功', icon: 'success' })
         setTimeout(() => uni.navigateBack(), 1500)
       } catch {
-        // handled by request interceptor
+        // handled
       } finally {
         this.loading = false
       }
@@ -649,7 +486,7 @@ export default {
 <style lang="scss" scoped>
 .report-page {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: transparent;
   padding: 24rpx 24rpx 40rpx;
 }
 
@@ -685,8 +522,7 @@ export default {
 
 .form-section,
 .verify-section,
-.param-section,
-.sop-panel {
+.param-section {
   background: #ffffff;
   border-radius: 28rpx;
   padding: 34rpx;
@@ -702,79 +538,7 @@ export default {
   display: block;
 }
 
-/* SOP面板 */
-.sop-panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20rpx;
-
-  .section-title {
-    margin-bottom: 0;
-  }
-}
-
-.sop-steps {
-  background: #F0F7FF;
-  border-radius: 16rpx;
-  padding: 20rpx;
-  margin-bottom: 16rpx;
-}
-
-.sop-step {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 14rpx;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.sop-step-no {
-  width: 40rpx;
-  height: 40rpx;
-  border-radius: 50%;
-  background: #3B7CFF;
-  color: #fff;
-  font-size: 22rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 14rpx;
-  flex-shrink: 0;
-}
-
-.sop-step-text {
-  font-size: 26rpx;
-  color: #4A4A4A;
-  line-height: 40rpx;
-  flex: 1;
-}
-
-.sop-warn {
-  background: #FFF7E6;
-  border-radius: 12rpx;
-  padding: 16rpx;
-}
-
-.sop-warn-label {
-  font-size: 24rpx;
-  color: #FAAD14;
-  font-weight: 600;
-  display: block;
-  margin-bottom: 6rpx;
-}
-
-.sop-warn-text {
-  font-size: 24rpx;
-  color: #D48806;
-  line-height: 1.5;
-}
-
-/* 物料校验 */
-.verify-header,
-.param-header {
+.verify-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -815,90 +579,6 @@ export default {
 
   &.text-success { color: #52C41A; font-weight: 500; }
   &.text-error { color: #FF4D4F; font-weight: 500; }
-}
-
-.bom-tip {
-  background: #F0F7FF;
-  border-radius: 12rpx;
-  padding: 16rpx;
-  margin-top: 16rpx;
-}
-
-.bom-tip-title {
-  font-size: 24rpx;
-  color: #3B7CFF;
-  font-weight: 500;
-  display: block;
-  margin-bottom: 10rpx;
-}
-
-.bom-tip-item {
-  display: flex;
-  gap: 16rpx;
-  margin-bottom: 6rpx;
-}
-
-.bom-tip-code {
-  font-size: 22rpx;
-  color: #3B7CFF;
-  width: 160rpx;
-}
-
-.bom-tip-name {
-  font-size: 22rpx;
-  color: #4A4A4A;
-  flex: 1;
-}
-
-.bom-tip-qty {
-  font-size: 22rpx;
-  color: #8C8C8C;
-}
-
-/* 参数校验 */
-.required-mark {
-  color: #FF4D4F;
-  font-size: 28rpx;
-  font-weight: 600;
-}
-
-.param-check-result {
-  background: #F5F7FA;
-  border-radius: 12rpx;
-  padding: 16rpx;
-  margin-top: 16rpx;
-}
-
-.param-check-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8rpx;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.param-check-status {
-  width: 36rpx;
-  font-size: 28rpx;
-  font-weight: 600;
-
-  &.pass { color: #52C41A; }
-  &.fail { color: #FF4D4F; }
-}
-
-.param-check-name {
-  font-size: 24rpx;
-  color: #4A4A4A;
-  width: 120rpx;
-  flex-shrink: 0;
-}
-
-.param-check-reason {
-  font-size: 22rpx;
-  color: #8C8C8C;
-  flex: 1;
 }
 
 .summary {

@@ -1,5 +1,7 @@
 <template>
   <view class="scan-page">
+    <DynamicBackground theme="theme-primary" />
+    
     <view class="page-content">
       <view class="scan-header">
         <view class="scan-title-wrap">
@@ -129,9 +131,12 @@
 <script>
 import { scanCode, navigateByScanResult, parseScanResult, getCodeTypeName } from '@/utils/scan'
 import { isLoggedIn } from '@/utils/auth'
+import DynamicBackground from '@/components/DynamicBackground'
 
 export default {
-  components: {},
+  components: {
+    DynamicBackground
+  },
   data() {
     return {
       scanHistory: []
@@ -241,7 +246,7 @@ export default {
 
 .scan-page {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: transparent;
   padding: 20rpx 24rpx;
   padding-bottom: 180rpx;
   position: relative;

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <view class="apps-page">
     <view class="page-header">
       <view class="header-bg"></view>
@@ -58,7 +58,7 @@ export default {
 <style lang="scss" scoped>
 .apps-page {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: transparent;
   display: flex;
   flex-direction: column;
   position: relative;

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <view class="notifications-page">
     <DynamicBackground theme="theme-primary" />
     <view class="page-content">
@@ -71,8 +71,7 @@ export default {
         { name: '全部', value: 'all' },
         { name: '工单', value: 'workorder' },
         { name: '异常', value: 'exception' },
-        { name: '质量', value: 'quality' },
-        { name: '仓储', value: 'stock' }
+        { name: '质量', value: 'quality' }
       ],
       notifications: [
         {
@@ -229,7 +228,7 @@ export default {
 <style lang="scss" scoped>
 .notifications-page {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: transparent;
   padding-bottom: 120rpx;
   position: relative;
 }

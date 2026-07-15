@@ -4,6 +4,17 @@ import { isLoggedIn } from '@/utils/auth'
 export default {
   onLaunch() {
     console.log('App Launch')
+    uni.loadFontFace({
+      global: true,
+      family: 'uicon-iconfont',
+      source: 'url("/static/uview-iconfont.ttf")',
+      success() {
+        console.log('uView图标字体加载成功')
+      },
+      fail(err) {
+        console.error('uView图标字体加载失败', err)
+      }
+    })
   },
   onShow() {
     console.log('App Show')

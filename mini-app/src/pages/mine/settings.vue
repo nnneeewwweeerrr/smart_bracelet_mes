@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <view class="settings-page">
     <DynamicBackground theme="theme-primary" />
     <view class="page-content">
@@ -142,7 +142,7 @@ export default {
 <style lang="scss" scoped>
 .settings-page {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: transparent;
   padding-bottom: 120rpx;
   position: relative;
 }

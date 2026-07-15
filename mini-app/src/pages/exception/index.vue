@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <view class="exception-page">
     <DynamicBackground theme="theme-error" />
     <view class="page-content">
@@ -112,7 +112,7 @@ export default {
 <style lang="scss" scoped>
 .exception-page {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: transparent;
   padding: $spacing-lg;
   padding-bottom: $tabbar-height;
   position: relative;

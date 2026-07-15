@@ -1,7 +1,5 @@
-<template>
+﻿<template>
   <view class="pending-page">
-    <DynamicBackground theme="theme-error"></DynamicBackground>
-    <view class="page-content">
     <view class="filter-bar">
       <u-tabs :list="statusList" :current="currentStatus" @click="onStatusChange" :activeStyle="{ color: '#3B7CFF', fontWeight: 'bold' }" :inactiveStyle="{ color: '#8C8C8C' }" lineColor="#3B7CFF" :lineWidth="30"></u-tabs>
     </view>
@@ -36,7 +34,6 @@
           <u-button v-if="item.status === 1" type="success" size="mini" text="完成处理" @click.stop="handleFinish(item)"></u-button>
         </view>
       </view>
-    </view>
     </view>
 
     <u-popup :show="showHandlePopup" mode="bottom" round="24" @close="showHandlePopup = false" closeable>
@@ -162,13 +159,7 @@ export default {
 <style lang="scss" scoped>
 .pending-page {
   min-height: 100vh;
-  background: #F5F7FA;
-  position: relative;
-}
-
-.page-content {
-  position: relative;
-  z-index: 1;
+  background: transparent;
 }
 
 .filter-bar {

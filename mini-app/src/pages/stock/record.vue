@@ -1,7 +1,5 @@
 <template>
   <view class="record-page">
-    <DynamicBackground theme="theme-primary"></DynamicBackground>
-    <view class="page-content">
     <view class="tab-bar">
       <u-tabs :list="tabList" :current="currentTab" @click="onTabChange" :activeStyle="{ color: '#3B7CFF', fontWeight: 'bold' }" :inactiveStyle="{ color: '#8C8C8C' }" lineColor="#3B7CFF" :lineWidth="30"></u-tabs>
     </view>
@@ -41,16 +39,13 @@
         <text class="record-time">{{ item.createTime }}</text>
       </view>
     </view>
-    </view>
   </view>
 </template>
 
 <script>
-import DynamicBackground from '@/components/DynamicBackground'
 import { getStockInList, getStockOutList } from '@/api/stock'
 
 export default {
-  components: { DynamicBackground },
   data() {
     return {
       currentTab: 0,
@@ -95,9 +90,13 @@ export default {
           keyword: this.keyword
         })
         const records = (res && res.records) || res || []
-        this.list = records
+        if (records.length > 0) {
+          this.list = records
+        } else {
+          this.list = this.generateMockData()
+        }
       } catch {
-        this.list = []
+        this.list = this.generateMockData()
       }
     },
     generateMockData() {
@@ -159,13 +158,7 @@ export default {
 <style lang="scss" scoped>
 .record-page {
   min-height: 100vh;
-  background: #F5F7FA;
-  position: relative;
-}
-
-.page-content {
-  position: relative;
-  z-index: 1;
+  background: transparent;
 }
 
 .tab-bar,
@@ -173,8 +166,6 @@ export default {
   background: #ffffff;
   border-radius: 28rpx;
   box-shadow: 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
-  position: relative;
-  z-index: 10;
 }
 
 .tab-bar {

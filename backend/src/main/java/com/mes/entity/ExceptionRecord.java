@@ -44,7 +44,7 @@ public class ExceptionRecord {
     private LocalDateTime handleTime;
 
     @TableField("exception_status")
-    private Integer exceptionStatus;
+    private Integer status;
 
     @TableField("create_time")
     private LocalDateTime createTime;

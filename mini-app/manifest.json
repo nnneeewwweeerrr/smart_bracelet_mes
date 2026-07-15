@@ -16,23 +16,6 @@
     "setting": {
       "urlCheck": false
     },
-    "usingComponents": true,
-    "plugins": {
-      "WechatSI": {
-        "version": "0.3.5",
-        "provider": "wx069ba97219f66d99"
-      }
-    },
-    "permission": {
-      "scope.record": {
-        "desc": "用于异常上报时的语音录入功能"
-      },
-      "scope.camera": {
-        "desc": "用于扫码功能"
-      },
-      "scope.album": {
-        "desc": "用于上传异常照片"
-      }
-    }
+    "usingComponents": true
   }
 }

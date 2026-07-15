@@ -16,11 +16,6 @@
     "setting": {
       "urlCheck": false
     },
-    "usingComponents": true,
-    "permission": {
-      "scope.record": {
-        "desc": "您的麦克风权限用于AI助手语音输入"
-      }
-    }
+    "usingComponents": true
   }
 }

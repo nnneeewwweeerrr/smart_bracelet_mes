@@ -57,7 +57,7 @@ public class ExceptionHandleController {
             record.setHandleResult(body.get("handleResult").toString());
         }
         if (body.containsKey("exceptionLevel")) {
-            record.setExceptionLevel(body.get("exceptionLevel").toString());
+            record.setExceptionLevel(Integer.valueOf(body.get("exceptionLevel").toString()));
         }
         exceptionRecordService.updateById(record);
         return Result.success();

@@ -1,7 +1,5 @@
-﻿﻿﻿<template>
+﻿<template>
   <view class="iqc-page">
-    <DynamicBackground theme="theme-success"></DynamicBackground>
-    <view class="page-content">
     <view class="task-select">
       <text class="section-title">选择质检任务</text>
       <u-input v-model="taskNo" placeholder="请输入或扫码获取任务编号" @click="showTaskPicker = true" readonly>
@@ -45,17 +43,14 @@
     </view>
 
     <u-picker :show="showTaskPicker" :columns="taskColumns" keyName="taskNo" @confirm="onTaskConfirm" @cancel="showTaskPicker = false"></u-picker>
-    </view>
   </view>
 </template>
 
 <script>
-import DynamicBackground from '@/components/DynamicBackground'
 import { scanCode } from '@/utils/scan'
 import { getQualityTaskList, submitQualityResult } from '@/api/quality'
 
 export default {
-  components: { DynamicBackground },
   data() {
     return {
       taskNo: '',
@@ -149,13 +144,7 @@ export default {
 <style lang="scss" scoped>
 .iqc-page {
   min-height: 100vh;
-  background: #F5F7FA;
-  position: relative;
-}
-
-.page-content {
-  position: relative;
-  z-index: 1;
+  background: transparent;
   padding: 24rpx;
 }
 
