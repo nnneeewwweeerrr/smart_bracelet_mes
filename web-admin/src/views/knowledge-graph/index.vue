@@ -43,7 +43,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-icon cause-icon">
-          <el-icon><Opportunity /></el-icon>
+          <el-icon><TrendCharts /></el-icon>
         </div>
         <div class="stat-info">
           <div class="stat-value">{{ stats.causeCount }}</div>
@@ -170,7 +170,7 @@
 </template>
 
 <script setup>import { ref, onMounted, nextTick } from 'vue';
-import { Search, Refresh, SetUp, Warning, Opportunity, CircleCheck, Box, Cpu, Share } from '@element-plus/icons-vue';
+import { Search, Refresh, SetUp, Warning, TrendCharts, CircleCheck, Box, Cpu, Share } from '@element-plus/icons-vue';
 import * as echarts from 'echarts';
 import { getGraphData, searchGraphNodes, getGraphStats } from '../../api/knowledge';
 const searchKeyword = ref('');

@@ -40,8 +40,8 @@
           <div class="file-name-wrapper">
             <el-icon :size="18" class="file-icon">
               <Document v-if="row.fileType === 'markdown'" />
-              <Files v-else-if="row.fileType === 'text'" />
-              <Files v-else />
+              <Folder v-else-if="row.fileType === 'text'" />
+              <Folder v-else />
             </el-icon>
             <span>{{ row.fileName }}</span>
           </div>
@@ -124,7 +124,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Upload, Document, Files } from '@element-plus/icons-vue'
+import { Search, Refresh, Upload, Document, Folder } from '@element-plus/icons-vue'
 import { getDocumentList, uploadDocument, deleteDocumentById, syncKnowledgeBaseApi } from '../../api/knowledge'
 
 const documentList = ref([])

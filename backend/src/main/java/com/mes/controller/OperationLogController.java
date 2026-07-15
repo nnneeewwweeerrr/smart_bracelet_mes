@@ -67,4 +67,9 @@ public class OperationLogController {
     public Result<OperationLog> detail(@PathVariable Long id) {
         return Result.success(operationLogService.getById(id));
     }
+
+    @GetMapping("/count")
+    public Result<Long> count() {
+        return Result.success(operationLogService.count());
+    }
 }

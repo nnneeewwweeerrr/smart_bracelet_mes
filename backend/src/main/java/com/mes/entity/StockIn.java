@@ -32,5 +32,7 @@ public class StockIn {
 
     private Long operatorId;
 
+    private Integer status;
+
     private LocalDateTime createTime;
 }

@@ -57,6 +57,11 @@ public class AuthController {
         return Result.success(loginVO);
     }
 
+    @PostMapping("/logout")
+    public Result<Void> logout() {
+        return Result.success();
+    }
+
     @GetMapping("/info")
     public Result<SysUser> info() {
         org.springframework.security.core.context.SecurityContext ctx =

@@ -13,7 +13,7 @@ export function getUserInfo() {
 }
 
 export function updateUserInfo(data) {
-  return put('/system/user/' + data.id, data)
+  return put('/system/user/update', data)
 }
 
 export function changePassword(data) {

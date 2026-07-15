@@ -42,6 +42,18 @@ public class StockOutController {
         return Result.success();
     }
 
+    @PostMapping("/{id}/approve")
+    @OperationLog(module = "出库管理", type = "审批", description = "审批出库单")
+    public Result<Void> approve(@PathVariable Long id) {
+        StockOut stockOut = stockOutService.getById(id);
+        if (stockOut == null) {
+            return Result.error("出库单不存在");
+        }
+        stockOut.setStatus(1);
+        stockOutService.updateById(stockOut);
+        return Result.success();
+    }
+
     @DeleteMapping("/delete/{id}")
     @OperationLog(module = "出库管理", type = "删除", description = "删除出库记录")
     public Result<Void> delete(@PathVariable Long id) {

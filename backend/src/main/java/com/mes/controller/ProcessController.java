@@ -27,7 +27,7 @@ public class ProcessController {
             wrapper.and(w -> w.like(ProcessInfo::getProcessName, keyword)
                     .or().like(ProcessInfo::getProcessCode, keyword));
         }
-        wrapper.orderByAsc(ProcessInfo::getSort);
+        wrapper.orderByAsc(ProcessInfo::getSortOrder);
         return Result.success(processInfoService.list(wrapper));
     }
 

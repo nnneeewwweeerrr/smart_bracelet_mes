@@ -149,6 +149,7 @@ CREATE TABLE IF NOT EXISTS `stock_in` (
     `source_type` VARCHAR(20) COMMENT '来源类型',
     `source_no` VARCHAR(50) COMMENT '来源单号',
     `operator_id` BIGINT COMMENT '操作人ID',
+    `status` INT DEFAULT 0 COMMENT '状态：0-待审批，1-已审批',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     INDEX `idx_in_no` (`in_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='入库单表';
@@ -162,6 +163,7 @@ CREATE TABLE IF NOT EXISTS `stock_out` (
     `target_type` VARCHAR(20) COMMENT '出库类型',
     `target_no` VARCHAR(50) COMMENT '目标单号',
     `operator_id` BIGINT COMMENT '操作人ID',
+    `status` INT DEFAULT 0 COMMENT '状态：0-待审批，1-已审批',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     INDEX `idx_out_no` (`out_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='出库单表';

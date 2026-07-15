@@ -69,4 +69,31 @@ public class StockFlowController {
         page.setRecords(pageRecords);
         return Result.success(page);
     }
+
+    @GetMapping("/{id}")
+    public Result<StockFlowVO> detail(@PathVariable Long id) {
+        StockIn stockIn = stockInService.getById(id);
+        if (stockIn != null) {
+            StockFlowVO vo = new StockFlowVO();
+            vo.setFlowNo(stockIn.getInNo());
+            vo.setFlowType("入库");
+            vo.setMaterialId(stockIn.getMaterialId());
+            vo.setWarehouseId(stockIn.getWarehouseId());
+            vo.setQuantity(stockIn.getQuantity());
+            vo.setCreateTime(stockIn.getCreateTime());
+            return Result.success(vo);
+        }
+        StockOut stockOut = stockOutService.getById(id);
+        if (stockOut != null) {
+            StockFlowVO vo = new StockFlowVO();
+            vo.setFlowNo(stockOut.getOutNo());
+            vo.setFlowType("出库");
+            vo.setMaterialId(stockOut.getMaterialId());
+            vo.setWarehouseId(stockOut.getWarehouseId());
+            vo.setQuantity(stockOut.getQuantity());
+            vo.setCreateTime(stockOut.getCreateTime());
+            return Result.success(vo);
+        }
+        return Result.success(null);
+    }
 }

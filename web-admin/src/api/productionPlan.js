@@ -33,7 +33,7 @@ export function updateProductionPlan(data) {
 
 export function deleteProductionPlan(id) {
   return request({
-    url: '/production-plan/' + id,
+    url: '/production-plan/delete/' + id,
     method: 'delete'
   })
 }

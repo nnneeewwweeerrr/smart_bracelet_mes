@@ -42,6 +42,18 @@ public class StockInController {
         return Result.success();
     }
 
+    @PostMapping("/{id}/approve")
+    @OperationLog(module = "入库管理", type = "审批", description = "审批入库单")
+    public Result<Void> approve(@PathVariable Long id) {
+        StockIn stockIn = stockInService.getById(id);
+        if (stockIn == null) {
+            return Result.error("入库单不存在");
+        }
+        stockIn.setStatus(1);
+        stockInService.updateById(stockIn);
+        return Result.success();
+    }
+
     @DeleteMapping("/delete/{id}")
     @OperationLog(module = "入库管理", type = "删除", description = "删除入库记录")
     public Result<Void> delete(@PathVariable Long id) {

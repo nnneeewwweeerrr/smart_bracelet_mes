@@ -534,7 +534,7 @@ async function playMiniProgramVoice(msg) {
     console.log('语音合成结果:', data)
     
     if (data && data.audioUrl) {
-      const baseUrl = 'http://192.168.110.90:8080'
+      const baseUrl = 'http://localhost:8080'
       const fullUrl = data.audioUrl.startsWith('http') ? data.audioUrl : baseUrl + data.audioUrl
       
       console.log('音频URL:', fullUrl)

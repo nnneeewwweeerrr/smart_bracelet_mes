@@ -8,9 +8,11 @@ import com.mes.service.SysPermissionService;
 import com.mes.service.SysRoleService;
 import com.mes.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/system")
@@ -24,6 +26,9 @@ public class SystemController {
 
     @Autowired
     private SysPermissionService sysPermissionService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/user/list")
     public Result<List<SysUser>> listUsers() {
@@ -43,6 +48,24 @@ public class SystemController {
 
     @PutMapping("/user/update")
     public Result<Void> updateUser(@RequestBody SysUser user) {
+        sysUserService.updateById(user);
+        return Result.success();
+    }
+
+    @PutMapping("/user/password")
+    public Result<Void> updatePassword(@RequestBody Map<String, Object> body) {
+        Long userId = Long.valueOf(body.get("userId").toString());
+        String oldPassword = body.get("oldPassword").toString();
+        String newPassword = body.get("newPassword").toString();
+
+        SysUser user = sysUserService.getById(userId);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            return Result.error("旧密码不正确");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
         sysUserService.updateById(user);
         return Result.success();
     }

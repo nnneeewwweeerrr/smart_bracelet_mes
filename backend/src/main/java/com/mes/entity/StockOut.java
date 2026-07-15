@@ -29,5 +29,7 @@ public class StockOut {
 
     private Long operatorId;
 
+    private Integer status;
+
     private LocalDateTime createTime;
 }

@@ -22,6 +22,11 @@ public class WarehouseController {
         return Result.success(warehouseInfoService.list());
     }
 
+    @GetMapping("/{id}")
+    public Result<WarehouseInfo> detail(@PathVariable Long id) {
+        return Result.success(warehouseInfoService.getById(id));
+    }
+
     @PostMapping("/save")
     @OperationLog(module = "仓库管理", type = "新增", description = "新增仓库")
     public Result<Void> save(@RequestBody WarehouseInfo warehouseInfo) {
