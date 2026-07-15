@@ -1,5 +1,6 @@
-<template>
+﻿﻿<template>
   <view class="sop-page">
+    <view class="page-content">
     <view class="search-bar">
       <u-search v-model="keyword" placeholder="搜索工序名称" @search="doSearch" @custom="doSearch" @clear="doSearch"></u-search>
     </view>
@@ -27,7 +28,6 @@
       </view>
     </view>
 
-    <!-- SOP详情弹窗 -->
     <u-popup :show="showDetail" mode="bottom" round="16" @close="showDetail = false" closeable>
       <view class="sop-detail" v-if="currentSop.process">
         <text class="detail-title">{{ currentSop.process.processName }}</text>
@@ -36,7 +36,6 @@
           <text class="detail-value">{{ currentSop.process.processCode }}</text>
         </view>
 
-        <!-- SOP基本信息 -->
         <view v-if="currentSop.sop" class="detail-section">
           <text class="detail-label">SOP版本</text>
           <text class="detail-value">{{ currentSop.sop.sopVersion }}</text>
@@ -47,7 +46,6 @@
           <text class="detail-value">{{ currentSop.sop.equipmentRequirement }}</text>
         </view>
 
-        <!-- 操作步骤 -->
         <view class="detail-section" style="margin-top: 24rpx;">
           <text class="detail-label">作业步骤</text>
         </view>
@@ -59,13 +57,11 @@
           <view v-if="currentSop.steps.length === 0" class="empty-tip">暂无操作步骤</view>
         </view>
 
-        <!-- 注意事项 -->
         <view v-if="currentSop.sop && currentSop.sop.precautions" class="detail-section" style="margin-top: 24rpx;">
           <text class="detail-label">注意事项</text>
           <text class="detail-value warn">{{ currentSop.sop.precautions }}</text>
         </view>
 
-        <!-- 工艺参数标准 -->
         <view v-if="currentSop.paramStandards && currentSop.paramStandards.length > 0" class="detail-section" style="margin-top: 24rpx;">
           <text class="detail-label">工艺参数标准</text>
           <view class="param-table">
@@ -86,7 +82,6 @@
           </view>
         </view>
 
-        <!-- 物料BOM -->
         <view v-if="currentSop.materialBom && currentSop.materialBom.length > 0" class="detail-section" style="margin-top: 24rpx;">
           <text class="detail-label">物料BOM</text>
           <view class="bom-table">
@@ -104,13 +99,15 @@
         </view>
       </view>
     </u-popup>
+    </view>
   </view>
 </template>
 
 <script>
-import { getProcessList, getSopDetail } from '@/api/production'
+import { getSopList, getSopDetail } from '@/api/production'
 
 export default {
+  components: {},
   data() {
     return {
       keyword: '',
@@ -133,8 +130,15 @@ export default {
     async doSearch() {
       this.loading = true
       try {
-        const res = await getProcessList({ keyword: this.keyword })
-        this.list = (res && res.records) || res || []
+        const res = await getSopList()
+        if (res && res.length > 0) {
+          this.list = res.filter(item => {
+            if (!this.keyword) return true
+            return item.processName && item.processName.includes(this.keyword)
+          })
+        } else {
+          this.list = []
+        }
       } catch {
         this.list = []
       } finally {
@@ -159,7 +163,6 @@ export default {
           this.currentSop.paramStandards = res.paramStandards || []
           this.currentSop.materialBom = res.materialBom || []
 
-          // 解析操作步骤（JSON数组字符串）
           if (res.sop && res.sop.operationSteps) {
             try {
               this.currentSop.steps = JSON.parse(res.sop.operationSteps)
@@ -169,7 +172,6 @@ export default {
           }
         }
       } catch {
-        // 接口异常时使用模拟数据
         this.currentSop.steps = [
           '检查物料是否齐全，确认物料编码与工单一致',
           '按照工艺要求进行操作，注意操作规范',
@@ -188,8 +190,13 @@ export default {
 <style lang="scss" scoped>
 .sop-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   position: relative;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
 }
 
 .search-bar,
@@ -200,7 +207,14 @@ export default {
   background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
 }
 
-.search-bar,
+.search-bar {
+  border-radius: 28rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06), 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  position: relative;
+  z-index: 10;
+}
+
 .sop-card,
 .sop-detail,
 .detail-section {
@@ -364,7 +378,6 @@ export default {
   padding: 20rpx;
 }
 
-/* 参数标准表格 */
 .param-table {
   background: #F5F7FA;
   border-radius: 12rpx;
@@ -401,7 +414,6 @@ export default {
 .req-yes { color: #FF4D4F; font-weight: 500; }
 .req-no { color: #8C8C8C; }
 
-/* 物料BOM表格 */
 .bom-table {
   background: #F5F7FA;
   border-radius: 12rpx;

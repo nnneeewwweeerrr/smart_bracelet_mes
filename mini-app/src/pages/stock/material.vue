@@ -1,5 +1,7 @@
 <template>
   <view class="material-page">
+    <DynamicBackground theme="theme-primary"></DynamicBackground>
+    <view class="page-content">
     <view class="search-bar">
       <u-search v-model="keyword" placeholder="搜索物料编码/名称" @search="doSearch" @custom="doSearch" @clear="doSearch"></u-search>
     </view>
@@ -25,13 +27,16 @@
         </view>
       </view>
     </view>
+    </view>
   </view>
 </template>
 
 <script>
+import DynamicBackground from '@/components/DynamicBackground'
 import { getMaterialList } from '@/api/stock'
 
 export default {
+  components: { DynamicBackground },
   data() {
     return {
       keyword: '',
@@ -75,16 +80,12 @@ export default {
           materialType: typeVal || undefined
         })
         const records = (res && res.records) || res || []
-        if (records.length > 0) {
-          this.list = records.map(item => ({
-            ...item,
-            materialTypeName: this.getTypeName(item.materialType)
-          }))
-        } else {
-          this.list = this.generateMockData(typeVal)
-        }
+        this.list = records.map(item => ({
+          ...item,
+          materialTypeName: this.getTypeName(item.materialType)
+        }))
       } catch {
-        this.list = this.generateMockData(typeVal)
+        this.list = []
       }
     },
     generateMockData(type) {
@@ -162,7 +163,13 @@ export default {
 <style lang="scss" scoped>
 .material-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
+  position: relative;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
 }
 
 .search-bar,
@@ -171,6 +178,8 @@ export default {
   background: #ffffff;
   border-radius: 28rpx;
   box-shadow: 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  position: relative;
+  z-index: 10;
 }
 
 .filter-bar {

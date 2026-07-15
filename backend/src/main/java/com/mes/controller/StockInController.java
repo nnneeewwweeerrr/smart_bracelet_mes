@@ -19,9 +19,13 @@ public class StockInController {
 
     @GetMapping("/list")
     public Result<IPage<StockIn>> list(@RequestParam(defaultValue = "1") Integer pageNum,
-                                       @RequestParam(defaultValue = "10") Integer pageSize) {
+                                       @RequestParam(defaultValue = "10") Integer pageSize,
+                                       @RequestParam(required = false) String keyword) {
         Page<StockIn> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<StockIn> wrapper = new LambdaQueryWrapper<>();
+        if (keyword != null && !keyword.isEmpty()) {
+            wrapper.like(StockIn::getInNo, keyword);
+        }
         wrapper.orderByDesc(StockIn::getCreateTime);
         return Result.success(stockInService.page(page, wrapper));
     }

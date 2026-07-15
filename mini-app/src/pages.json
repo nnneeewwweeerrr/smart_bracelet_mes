@@ -245,5 +245,18 @@
     "custom": {
       "^u-(.*)": "uview-plus/components/u-$1/u-$1.vue"
     }
-  }
+  },
+  "permission": {
+    "scope.record": {
+      "desc": "您的麦克风权限用于异常上报和AI助手语音输入"
+    },
+    "scope.camera": {
+      "desc": "您的相机权限用于扫码功能"
+    },
+    "scope.album": {
+      "desc": "您的相册权限用于上传异常照片"
+    }
+  },
+  
+  
 }

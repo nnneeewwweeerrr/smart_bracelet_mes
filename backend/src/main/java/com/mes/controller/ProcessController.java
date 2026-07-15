@@ -18,10 +18,16 @@ public class ProcessController {
     private ProcessInfoService processInfoService;
 
     @GetMapping("/list")
-    public Result<List<ProcessInfo>> list(@RequestParam(required = false) Long productId) {
+    public Result<List<ProcessInfo>> list(
+            @RequestParam(required = false) Long productId,
+            @RequestParam(required = false) String keyword) {
         LambdaQueryWrapper<ProcessInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(productId != null, ProcessInfo::getProductId, productId)
-                .orderByAsc(ProcessInfo::getSortOrder);
+        wrapper.eq(productId != null, ProcessInfo::getProductId, productId);
+        if (keyword != null && !keyword.isEmpty()) {
+            wrapper.and(w -> w.like(ProcessInfo::getProcessName, keyword)
+                    .or().like(ProcessInfo::getProcessCode, keyword));
+        }
+        wrapper.orderByAsc(ProcessInfo::getSort);
         return Result.success(processInfoService.list(wrapper));
     }
 

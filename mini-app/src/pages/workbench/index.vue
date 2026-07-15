@@ -267,7 +267,7 @@ export default {
 <style lang="scss" scoped>
 .workbench-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   position: relative;
 }
 

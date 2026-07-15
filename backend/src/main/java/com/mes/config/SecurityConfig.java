@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/auth/login", "/api/auth/register", "/api/auth/init-password", "/api/user/register", "/api/mini/**", "/api/big-screen/**", "/api/trace/**", "/api/sop/**", "/api/sn-trace/**", "/api/ai/**", "/api/document/**", "/api/kg/**", "/api/exception-handle/**", "/api/dashboard/**").permitAll()
+                .antMatchers("/api/auth/login", "/api/auth/register", "/api/user/register", "/api/auth/init-password", "/api/mini/**", "/api/big-screen/**", "/api/trace/**", "/api/sop/**", "/api/sn-trace/**", "/api/ai/**", "/api/document/**", "/api/kg/**", "/api/qrcode/**", "/api/exception-handle/**", "/api/dashboard/**").permitAll()
                 .antMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .antMatchers("/ws/**").permitAll()
                 .anyRequest().authenticated();

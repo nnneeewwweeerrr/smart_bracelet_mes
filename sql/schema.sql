@@ -22,6 +22,14 @@ CREATE TABLE IF NOT EXISTS `sys_role` (
     INDEX `idx_role_code` (`role_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表';
 
+CREATE TABLE IF NOT EXISTS `sys_user_role` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT COMMENT '用户ID',
+    `role_id` BIGINT COMMENT '角色ID',
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_role_id` (`role_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关联表';
+
 CREATE TABLE IF NOT EXISTS `sys_permission` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '权限ID',
     `permission_name` VARCHAR(100) NOT NULL COMMENT '权限名称',

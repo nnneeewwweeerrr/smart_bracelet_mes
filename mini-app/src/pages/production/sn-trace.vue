@@ -1,5 +1,7 @@
-<template>
+﻿﻿﻿<template>
   <view class="sn-trace-page">
+    <DynamicBackground theme="theme-primary" fixed></DynamicBackground>
+    <view class="page-content">
     <!-- 顶部查询 -->
     <view class="search-section">
       <view class="search-card">
@@ -288,13 +290,16 @@
     </view>
 
     <view class="bottom-space"></view>
+    </view>
   </view>
 </template>
 
 <script>
+import DynamicBackground from '@/components/DynamicBackground'
 import { getSnReverseTrace, getSnForwardTrace } from '../../api/production'
 
 export default {
+  components: { DynamicBackground },
   data() {
     return {
       traceMode: 'reverse',
@@ -351,10 +356,10 @@ export default {
       try {
         if (this.traceMode === 'reverse') {
           const res = await getSnReverseTrace(this.searchCode.trim())
-          this.reverseData = res.data || {}
+          this.reverseData = res || {}
         } else {
           const res = await getSnForwardTrace(this.searchCode.trim())
-          this.forwardData = res.data || {}
+          this.forwardData = res || {}
         }
       } catch (e) {
         uni.showToast({ title: '查询失败', icon: 'none' })
@@ -384,8 +389,14 @@ export default {
 <style lang="scss" scoped>
 .sn-trace-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #0f2942 0%, #050d1a 40%, #02050a 100%);
+  background: #F5F7FA;
   padding-bottom: 40rpx;
+  position: relative;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
 }
 
 .search-section {
@@ -393,10 +404,11 @@ export default {
 }
 
 .search-card {
-  background: linear-gradient(135deg, rgba(0, 60, 120, 0.4), rgba(0, 30, 60, 0.6));
-  border: 1px solid rgba(0, 170, 255, 0.3);
-  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1rpx solid rgba(59, 124, 255, 0.2);
+  border-radius: 28rpx;
   padding: 30rpx;
+  box-shadow: 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
 }
 
 .search-title {
@@ -408,13 +420,13 @@ export default {
 .title-text {
   font-size: 32rpx;
   font-weight: bold;
-  color: #00d4ff;
+  color: #3B7CFF;
 }
 
 .mode-tabs {
   display: flex;
-  background: rgba(0, 20, 40, 0.6);
-  border-radius: 10rpx;
+  background: #f5f7fa;
+  border-radius: 12rpx;
   padding: 6rpx;
   margin-bottom: 24rpx;
 }
@@ -423,12 +435,12 @@ export default {
   text-align: center;
   padding: 14rpx 0;
   font-size: 24rpx;
-  color: #88aacc;
-  border-radius: 8rpx;
+  color: #8C8C8C;
+  border-radius: 10rpx;
   transition: all 0.2s;
 }
 .mode-tab.active {
-  background: linear-gradient(90deg, #0088cc, #00aaff);
+  background: linear-gradient(90deg, #3B7CFF, #6BA1FF);
   color: #fff;
   font-weight: bold;
 }
@@ -442,19 +454,19 @@ export default {
 .search-input {
   flex: 1;
   height: 80rpx;
-  background: rgba(0, 30, 60, 0.8);
-  border: 1px solid rgba(0, 170, 255, 0.3);
-  border-radius: 10rpx;
+  background: #f5f7fa;
+  border: 1rpx solid rgba(59, 124, 255, 0.2);
+  border-radius: 12rpx;
   padding: 0 20rpx;
   font-size: 28rpx;
-  color: #e6f4ff;
+  color: #4A4A4A;
 }
 .scan-btn {
   width: 80rpx;
   height: 80rpx;
-  background: rgba(0, 170, 255, 0.2);
-  border: 1px solid rgba(0, 170, 255, 0.4);
-  border-radius: 10rpx;
+  background: rgba(59, 124, 255, 0.1);
+  border: 1rpx solid rgba(59, 124, 255, 0.3);
+  border-radius: 12rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -469,14 +481,14 @@ export default {
 }
 .quick-label {
   font-size: 24rpx;
-  color: #6688aa;
+  color: #8C8C8C;
   margin-right: 12rpx;
 }
 .quick-item {
   font-size: 22rpx;
-  color: #88ccff;
-  background: rgba(0, 170, 255, 0.1);
-  border: 1px solid rgba(0, 170, 255, 0.2);
+  color: #3B7CFF;
+  background: rgba(59, 124, 255, 0.08);
+  border: 1rpx solid rgba(59, 124, 255, 0.2);
   padding: 6rpx 16rpx;
   border-radius: 20rpx;
   margin-right: 12rpx;
@@ -485,14 +497,15 @@ export default {
 
 .search-btn {
   height: 80rpx;
-  background: linear-gradient(90deg, #0088cc, #00aaff);
-  border-radius: 10rpx;
+  background: linear-gradient(90deg, #3B7CFF, #6BA1FF);
+  border-radius: 40rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 30rpx;
   color: #fff;
   font-weight: bold;
+  box-shadow: 0 8rpx 20rpx rgba(59, 124, 255, 0.3);
 }
 
 .empty-section {
@@ -500,45 +513,47 @@ export default {
   padding: 120rpx 40rpx;
 }
 .empty-icon { font-size: 120rpx; opacity: 0.5; }
-.empty-text { font-size: 28rpx; color: #6688aa; margin-top: 24rpx; }
-.empty-sub { font-size: 24rpx; color: #446688; margin-top: 12rpx; }
+.empty-text { font-size: 28rpx; color: #8C8C8C; margin-top: 24rpx; }
+.empty-sub { font-size: 24rpx; color: #BFBFBF; margin-top: 12rpx; }
 
 .not-found-card {
   margin: 40rpx 30rpx;
-  background: rgba(255, 60, 60, 0.08);
-  border: 1px solid rgba(255, 100, 100, 0.3);
-  border-radius: 12rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1rpx solid rgba(245, 108, 108, 0.3);
+  border-radius: 28rpx;
   padding: 60rpx 30rpx;
   text-align: center;
+  box-shadow: 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
 }
 .nf-icon { font-size: 80rpx; }
-.nf-title { font-size: 30rpx; color: #ff7777; margin-top: 16rpx; }
-.nf-desc { font-size: 24rpx; color: #999; margin-top: 8rpx; }
+.nf-title { font-size: 30rpx; color: #FF4D4F; margin-top: 16rpx; }
+.nf-desc { font-size: 24rpx; color: #8C8C8C; margin-top: 8rpx; }
 
 .result-section {
   padding: 0 30rpx;
 }
 
 .info-card {
-  background: linear-gradient(135deg, rgba(0, 60, 120, 0.3), rgba(0, 30, 60, 0.5));
-  border: 1px solid rgba(0, 170, 255, 0.25);
-  border-radius: 12rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1rpx solid rgba(59, 124, 255, 0.15);
+  border-radius: 28rpx;
   margin-bottom: 24rpx;
   overflow: hidden;
+  box-shadow: 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
 }
 
 .card-header {
   display: flex;
   align-items: center;
   padding: 20rpx 24rpx;
-  background: linear-gradient(90deg, rgba(0, 170, 255, 0.15), transparent);
-  border-bottom: 1px solid rgba(0, 170, 255, 0.15);
+  background: linear-gradient(90deg, rgba(59, 124, 255, 0.08), transparent);
+  border-bottom: 1rpx solid rgba(59, 124, 255, 0.1);
 }
 .card-icon { font-size: 28rpx; margin-right: 10rpx; }
 .card-title {
   font-size: 28rpx;
   font-weight: bold;
-  color: #00d4ff;
+  color: #3B7CFF;
 }
 .status-badge {
   margin-left: auto;
@@ -558,7 +573,7 @@ export default {
   font-size: 36rpx;
   font-weight: bold;
   font-family: monospace;
-  background: linear-gradient(90deg, #00ffcc, #00aaff);
+  background: linear-gradient(90deg, #3B7CFF, #6BA1FF);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: 2rpx;
@@ -566,7 +581,7 @@ export default {
 .sn-name {
   display: block;
   font-size: 24rpx;
-  color: #88ccff;
+  color: #8C8C8C;
   margin-top: 8rpx;
 }
 
@@ -577,14 +592,14 @@ export default {
   padding: 16rpx 24rpx 24rpx;
 }
 .info-item {
-  background: rgba(0, 30, 60, 0.6);
+  background: #f5f7fa;
   padding: 14rpx 16rpx;
-  border-radius: 8rpx;
-  border-left: 4rpx solid #00aaff;
+  border-radius: 10rpx;
+  border-left: 4rpx solid #3B7CFF;
 }
-.info-label { display: block; font-size: 22rpx; color: #6688aa; margin-bottom: 4rpx; }
-.info-value { font-size: 24rpx; color: #cce0f5; }
-.info-value.highlight { color: #ffcc66; font-weight: bold; }
+.info-label { display: block; font-size: 22rpx; color: #8C8C8C; margin-bottom: 4rpx; }
+.info-value { font-size: 24rpx; color: #4A4A4A; }
+.info-value.highlight { color: #FF8C00; font-weight: bold; }
 
 .stats-row {
   display: grid;
@@ -593,24 +608,25 @@ export default {
   margin-bottom: 24rpx;
 }
 .stat-item {
-  background: linear-gradient(135deg, rgba(0, 100, 200, 0.25), rgba(0, 50, 100, 0.4));
-  border: 1px solid rgba(0, 170, 255, 0.25);
-  border-radius: 10rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1rpx solid rgba(59, 124, 255, 0.2);
+  border-radius: 20rpx;
   padding: 18rpx 10rpx;
   text-align: center;
+  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.06);
 }
 .stat-num {
   display: block;
   font-size: 32rpx;
   font-weight: bold;
-  color: #00d4ff;
+  color: #3B7CFF;
 }
-.stat-num.success { color: #00ffaa; }
-.stat-num.danger { color: #ff7777; }
+.stat-num.success { color: #52C41A; }
+.stat-num.danger { color: #FF4D4F; }
 .stat-label {
   display: block;
   font-size: 20rpx;
-  color: #88aacc;
+  color: #8C8C8C;
   margin-top: 4rpx;
 }
 
@@ -621,32 +637,32 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 16rpx 0;
-  border-bottom: 1px solid rgba(0, 170, 255, 0.08);
+  border-bottom: 1rpx solid #f0f0f0;
 }
 .mat-item:last-child { border-bottom: none; }
 .mat-name {
   display: block;
   font-size: 26rpx;
-  color: #cce0f5;
+  color: #4A4A4A;
   margin-bottom: 4rpx;
 }
 .mat-code {
   font-size: 22rpx;
-  color: #6688aa;
+  color: #8C8C8C;
   font-family: monospace;
 }
 .mat-right { text-align: right; }
 .batch-tag {
   display: inline-block;
   font-size: 22rpx;
-  color: #ffcc66;
-  background: rgba(255, 180, 50, 0.1);
-  border: 1px solid rgba(255, 180, 50, 0.3);
+  color: #FF8C00;
+  background: rgba(255, 140, 0, 0.08);
+  border: 1rpx solid rgba(255, 140, 0, 0.2);
   padding: 4rpx 12rpx;
   border-radius: 20rpx;
   margin-bottom: 6rpx;
 }
-.mat-op { display: block; font-size: 20rpx; color: #6688aa; }
+.mat-op { display: block; font-size: 20rpx; color: #BFBFBF; }
 
 /* 生产过程时间轴 */
 .process-timeline {
@@ -657,7 +673,7 @@ export default {
   position: relative;
   padding-left: 28rpx;
   padding-bottom: 20rpx;
-  border-left: 2rpx solid rgba(0, 170, 255, 0.3);
+  border-left: 2rpx solid rgba(59, 124, 255, 0.3);
 }
 .proc-item:last-child { border-left-color: transparent; padding-bottom: 0; }
 .proc-dot {
@@ -667,23 +683,23 @@ export default {
   width: 26rpx;
   height: 26rpx;
   border-radius: 50%;
-  background: #0a1a2a;
-  border: 3rpx solid #00aaff;
+  background: #fff;
+  border: 3rpx solid #3B7CFF;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18rpx;
-  color: #00d4ff;
+  color: #3B7CFF;
   font-weight: bold;
 }
 .proc-item.is-exception .proc-dot {
-  border-color: #ff5555;
-  color: #ff5555;
+  border-color: #FF4D4F;
+  color: #FF4D4F;
 }
 .proc-content {
-  background: rgba(0, 30, 60, 0.4);
-  border: 1px solid rgba(0, 170, 255, 0.15);
-  border-radius: 8rpx;
+  background: #fafafa;
+  border: 1rpx solid rgba(59, 124, 255, 0.1);
+  border-radius: 12rpx;
   padding: 14rpx 16rpx;
 }
 .proc-top {
@@ -691,37 +707,37 @@ export default {
   align-items: center;
   margin-bottom: 6rpx;
 }
-.proc-name { font-size: 26rpx; color: #cce0f5; font-weight: bold; margin-right: 12rpx; }
+.proc-name { font-size: 26rpx; color: #4A4A4A; font-weight: bold; margin-right: 12rpx; }
 .proc-status { font-size: 20rpx; padding: 2rpx 10rpx; border-radius: 16rpx; }
-.proc-status.status-success { background: rgba(0, 255, 150, 0.1); color: #00ffaa; }
-.proc-status.status-danger { background: rgba(255, 80, 80, 0.1); color: #ff7777; }
-.proc-status.status-info { background: rgba(0, 170, 255, 0.1); color: #00d4ff; }
+.proc-status.status-success { background: rgba(82, 196, 26, 0.08); color: #52C41A; }
+.proc-status.status-danger { background: rgba(245, 108, 108, 0.08); color: #FF4D4F; }
+.proc-status.status-info { background: rgba(59, 124, 255, 0.08); color: #3B7CFF; }
 .proc-info {
   display: block;
   font-size: 22rpx;
-  color: #6688aa;
+  color: #8C8C8C;
   line-height: 1.6;
 }
 .proc-remark {
   display: block;
   font-size: 22rpx;
-  color: #ffcc66;
+  color: #FF8C00;
   margin-top: 6rpx;
 }
 
 /* 质检列表 */
 .qc-list { padding: 12rpx 24rpx 20rpx; }
 .qc-item {
-  background: rgba(0, 30, 60, 0.4);
-  border: 1px solid rgba(0, 170, 255, 0.15);
-  border-radius: 8rpx;
+  background: #fafafa;
+  border: 1rpx solid rgba(59, 124, 255, 0.1);
+  border-radius: 12rpx;
   padding: 14rpx 16rpx;
   margin-bottom: 12rpx;
 }
 .qc-item:last-child { margin-bottom: 0; }
 .qc-item.qc-fail {
-  background: rgba(255, 60, 60, 0.08);
-  border-color: rgba(255, 100, 100, 0.3);
+  background: rgba(245, 108, 108, 0.05);
+  border-color: rgba(245, 108, 108, 0.2);
 }
 .qc-top {
   display: flex;
@@ -734,25 +750,25 @@ export default {
   border-radius: 16rpx;
   margin-right: 12rpx;
 }
-.qc-type-IQC { background: rgba(0, 170, 255, 0.1); color: #00d4ff; }
-.qc-type-PQC { background: rgba(255, 180, 50, 0.1); color: #ffcc66; }
-.qc-type-OQC { background: rgba(0, 255, 150, 0.1); color: #00ffaa; }
-.qc-item-name { flex: 1; font-size: 26rpx; color: #cce0f5; }
+.qc-type-IQC { background: rgba(59, 124, 255, 0.08); color: #3B7CFF; }
+.qc-type-PQC { background: rgba(255, 140, 0, 0.08); color: #FF8C00; }
+.qc-type-OQC { background: rgba(82, 196, 26, 0.08); color: #52C41A; }
+.qc-item-name { flex: 1; font-size: 26rpx; color: #4A4A4A; }
 .qc-result { font-size: 22rpx; font-weight: bold; }
-.qc-result.pass { color: #00ffaa; }
-.qc-result.fail { color: #ff7777; }
+.qc-result.pass { color: #52C41A; }
+.qc-result.fail { color: #FF4D4F; }
 .qc-detail {
   display: flex;
   justify-content: space-between;
   font-size: 22rpx;
-  color: #88aacc;
+  color: #8C8C8C;
   margin-bottom: 6rpx;
 }
 .qc-footer {
   display: flex;
   justify-content: space-between;
   font-size: 20rpx;
-  color: #557799;
+  color: #BFBFBF;
 }
 
 /* 归属 */
@@ -762,16 +778,16 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 14rpx 0;
-  border-bottom: 1px solid rgba(0, 170, 255, 0.08);
+  border-bottom: 1rpx solid #f0f0f0;
 }
 .owner-item:last-child { border-bottom: none; }
-.owner-label { font-size: 24rpx; color: #6688aa; }
-.owner-value { font-size: 26rpx; color: #aaddff; }
+.owner-label { font-size: 24rpx; color: #8C8C8C; }
+.owner-value { font-size: 26rpx; color: #4A4A4A; }
 
 .group-sub {
   padding: 0 24rpx;
   font-size: 22rpx;
-  color: #88aacc;
+  color: #8C8C8C;
   margin-bottom: 12rpx;
 }
 
@@ -783,11 +799,11 @@ export default {
 }
 .sn-tag {
   font-size: 22rpx;
-  color: #88ccff;
-  background: rgba(0, 170, 255, 0.1);
-  border: 1px solid rgba(0, 170, 255, 0.3);
+  color: #3B7CFF;
+  background: rgba(59, 124, 255, 0.08);
+  border: 1rpx solid rgba(59, 124, 255, 0.2);
   padding: 8rpx 16rpx;
-  border-radius: 6rpx;
+  border-radius: 8rpx;
   font-family: monospace;
 }
 

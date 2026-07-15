@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="notifications-page">
     <DynamicBackground theme="theme-primary" />
     <view class="page-content">
@@ -229,7 +229,7 @@ export default {
 <style lang="scss" scoped>
 .notifications-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding-bottom: 120rpx;
   position: relative;
 }

@@ -1,0 +1,80 @@
+CREATE TABLE IF NOT EXISTS `product_sn` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `sn_code` VARCHAR(100) NOT NULL UNIQUE,
+    `product_id` BIGINT,
+    `product_code` VARCHAR(50),
+    `product_name` VARCHAR(100),
+    `work_order_id` BIGINT,
+    `work_order_no` VARCHAR(50),
+    `order_id` BIGINT,
+    `order_no` VARCHAR(50),
+    `customer_id` BIGINT,
+    `customer_name` VARCHAR(100),
+    `status` INT DEFAULT 0,
+    `production_date` DATETIME,
+    `warehouse_id` BIGINT,
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `update_time` DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_sn_code` (`sn_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='产品SN码表';
+
+CREATE TABLE IF NOT EXISTS `sn_material_trace` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `sn_id` BIGINT,
+    `sn_code` VARCHAR(100),
+    `material_id` BIGINT,
+    `material_code` VARCHAR(50),
+    `material_name` VARCHAR(100),
+    `batch_no` VARCHAR(50),
+    `supplier_id` BIGINT,
+    `quantity` DECIMAL(10,2),
+    `process_id` BIGINT,
+    `operator_id` BIGINT,
+    `operator_name` VARCHAR(50),
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_sn_code` (`sn_code`),
+    INDEX `idx_batch_no` (`batch_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='SN物料追溯表';
+
+CREATE TABLE IF NOT EXISTS `sn_process_trace` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `sn_id` BIGINT,
+    `sn_code` VARCHAR(100),
+    `process_id` BIGINT,
+    `process_name` VARCHAR(100),
+    `process_code` VARCHAR(50),
+    `sort_order` INT DEFAULT 0,
+    `worker_id` BIGINT,
+    `worker_name` VARCHAR(50),
+    `equipment_id` BIGINT,
+    `equipment_name` VARCHAR(100),
+    `start_time` DATETIME,
+    `end_time` DATETIME,
+    `status` INT DEFAULT 0,
+    `process_params` TEXT,
+    `remark` TEXT,
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_sn_code` (`sn_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='SN生产过程追溯表';
+
+CREATE TABLE IF NOT EXISTS `sn_quality_trace` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `sn_id` BIGINT,
+    `sn_code` VARCHAR(100),
+    `task_id` BIGINT,
+    `task_no` VARCHAR(50),
+    `task_type` VARCHAR(20),
+    `process_id` BIGINT,
+    `process_name` VARCHAR(100),
+    `check_item` VARCHAR(200),
+    `standard_value` VARCHAR(200),
+    `actual_value` VARCHAR(200),
+    `result` INT,
+    `inspector_id` BIGINT,
+    `inspector_name` VARCHAR(50),
+    `defect_type` VARCHAR(50),
+    `defect_desc` TEXT,
+    `check_time` DATETIME,
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_sn_code` (`sn_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='SN质检追溯表';

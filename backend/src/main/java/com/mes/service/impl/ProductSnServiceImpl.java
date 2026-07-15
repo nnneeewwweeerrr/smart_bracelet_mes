@@ -89,49 +89,78 @@ public class ProductSnServiceImpl extends ServiceImpl<ProductSnMapper, ProductSn
     }
 
     /**
-     * 正向追溯：输入物料批次号，返回所有使用该批次物料的成品SN列表与对应工单
+     * 正向追溯：支持按物料批次号或工单号查询，返回所有相关的成品SN列表与对应工单
      */
     @Override
-    public Map<String, Object> getForwardTrace(String batchNo) {
+    public Map<String, Object> getForwardTrace(String key) {
         Map<String, Object> result = new HashMap<>();
+        List<ProductSn> snList = new ArrayList<>();
+        Set<String> snCodes = new HashSet<>();
 
-        // 1. 查询使用该批次的物料追溯记录
-        LambdaQueryWrapper<SnMaterialTrace> matWrapper = new LambdaQueryWrapper<>();
-        matWrapper.eq(SnMaterialTrace::getBatchNo, batchNo)
-                .orderByDesc(SnMaterialTrace::getCreateTime);
-        List<SnMaterialTrace> materialList = snMaterialTraceService.list(matWrapper);
+        // 1. 优先按工单号查询
+        LambdaQueryWrapper<ProductSn> woWrapper = new LambdaQueryWrapper<>();
+        woWrapper.eq(ProductSn::getWorkOrderNo, key)
+                .orderByDesc(ProductSn::getProductionDate);
+        snList = list(woWrapper);
 
-        if (materialList == null || materialList.isEmpty()) {
+        // 2. 如果工单号查询为空，再按物料批次号查询
+        if (snList == null || snList.isEmpty()) {
+            LambdaQueryWrapper<SnMaterialTrace> matWrapper = new LambdaQueryWrapper<>();
+            matWrapper.eq(SnMaterialTrace::getBatchNo, key)
+                    .orderByDesc(SnMaterialTrace::getCreateTime);
+            List<SnMaterialTrace> materialList = snMaterialTraceService.list(matWrapper);
+
+            if (materialList == null || materialList.isEmpty()) {
+                result.put("exists", false);
+                result.put("message", "未找到使用该批次或工单的产品：" + key);
+                return result;
+            }
+
+            snCodes = materialList.stream()
+                    .map(SnMaterialTrace::getSnCode)
+                    .collect(Collectors.toSet());
+
+            LambdaQueryWrapper<ProductSn> snWrapper = new LambdaQueryWrapper<>();
+            snWrapper.in(ProductSn::getSnCode, snCodes)
+                    .orderByDesc(ProductSn::getProductionDate);
+            snList = list(snWrapper);
+        } else {
+            snCodes = snList.stream()
+                    .map(ProductSn::getSnCode)
+                    .collect(Collectors.toSet());
+        }
+
+        if (snList == null || snList.isEmpty()) {
             result.put("exists", false);
-            result.put("message", "未找到使用该批次的产品：" + batchNo);
+            result.put("message", "未找到使用该批次或工单的产品：" + key);
             return result;
         }
 
         result.put("exists", true);
-
-        // 提取SN编码列表
-        Set<String> snCodes = materialList.stream()
-                .map(SnMaterialTrace::getSnCode)
-                .collect(Collectors.toSet());
-
-        // 2. 查询对应的SN主信息
-        LambdaQueryWrapper<ProductSn> snWrapper = new LambdaQueryWrapper<>();
-        snWrapper.in(ProductSn::getSnCode, snCodes)
-                .orderByDesc(ProductSn::getProductionDate);
-        List<ProductSn> snList = list(snWrapper);
         result.put("snList", snList);
 
-        // 3. 物料批次基本信息（取第一条）
-        SnMaterialTrace firstMat = materialList.get(0);
-        Map<String, Object> batchInfo = new HashMap<>();
-        batchInfo.put("batchNo", batchNo);
-        batchInfo.put("materialId", firstMat.getMaterialId());
-        batchInfo.put("materialCode", firstMat.getMaterialCode());
-        batchInfo.put("materialName", firstMat.getMaterialName());
-        batchInfo.put("totalSnCount", snCodes.size());
-        result.put("batchInfo", batchInfo);
+        // 3. 查询物料追溯信息
+        LambdaQueryWrapper<SnMaterialTrace> matWrapper = new LambdaQueryWrapper<>();
+        matWrapper.in(SnMaterialTrace::getSnCode, snCodes)
+                .orderByAsc(SnMaterialTrace::getProcessId);
+        List<SnMaterialTrace> materialList = snMaterialTraceService.list(matWrapper);
+        result.put("materialList", materialList);
 
-        // 4. 按工单分组统计
+        // 4. 查询生产过程追溯信息
+        LambdaQueryWrapper<SnProcessTrace> procWrapper = new LambdaQueryWrapper<>();
+        procWrapper.in(SnProcessTrace::getSnCode, snCodes)
+                .orderByAsc(SnProcessTrace::getSortOrder, SnProcessTrace::getStartTime);
+        List<SnProcessTrace> processList = snProcessTraceService.list(procWrapper);
+        result.put("processList", processList);
+
+        // 5. 查询质检追溯信息
+        LambdaQueryWrapper<SnQualityTrace> qualWrapper = new LambdaQueryWrapper<>();
+        qualWrapper.in(SnQualityTrace::getSnCode, snCodes)
+                .orderByAsc(SnQualityTrace::getCheckTime);
+        List<SnQualityTrace> qualityList = snQualityTraceService.list(qualWrapper);
+        result.put("qualityList", qualityList);
+
+        // 6. 按工单分组统计
         Map<Long, List<ProductSn>> groupByOrder = snList.stream()
                 .collect(Collectors.groupingBy(sn -> sn.getWorkOrderId() != null ? sn.getWorkOrderId() : 0L));
 

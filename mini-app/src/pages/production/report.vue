@@ -1,5 +1,7 @@
-﻿<template>
+﻿﻿﻿<template>
   <view class="report-page">
+    <DynamicBackground theme="theme-warning" />
+    <view class="page-content">
     <view class="scan-area" @click="handleScan">
       <text class="scan-icon-text">扫</text>
       <text class="scan-text">点击扫描工单条码</text>
@@ -156,6 +158,7 @@
         </view>
       </view>
     </view>
+    </view>
 
     <u-picker :show="showProcessPicker" :columns="processColumns" keyName="processName" @confirm="onProcessConfirm" @cancel="showProcessPicker = false"></u-picker>
   </view>
@@ -165,8 +168,12 @@
 import { scanCode } from '@/utils/scan'
 import { scanProductionReport, productionReport, getProcessList, verifyMaterial, verifyParams, getSopDetail } from '@/api/production'
 import { getUser } from '@/utils/auth'
+import DynamicBackground from '@/components/DynamicBackground'
 
 export default {
+  components: {
+    DynamicBackground
+  },
   data() {
     return {
       form: {
@@ -642,7 +649,7 @@ export default {
 <style lang="scss" scoped>
 .report-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding: 24rpx 24rpx 40rpx;
 }
 

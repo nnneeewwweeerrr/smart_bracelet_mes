@@ -674,7 +674,7 @@ export default {
 <style lang="scss" scoped>
 .repair-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding-bottom: 160rpx;
   position: relative;
 }
@@ -716,6 +716,8 @@ export default {
   gap: 16rpx;
   padding: 24rpx;
   margin-top: -20rpx;
+  position: relative;
+  z-index: 10;
 }
 
 .search-bar {

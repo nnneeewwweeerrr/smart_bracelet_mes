@@ -346,19 +346,25 @@ function buildQuestionFromCode(code) {
   return '请查询"' + code + '"的相关信息'
 }
 
-// 语音输入
-function ensureRecorder() {
+function initRecorder() {
   if (recorderManager) return recorderManager
   try {
     recorderManager = uni.getRecorderManager()
+    recorderManager.onStart(() => {
+      console.log('录音开始')
+    })
     recorderManager.onStop((res) => {
+      console.log('录音停止, tempFilePath:', res.tempFilePath)
+      recording.value = false
       handleRecognize(res.tempFilePath)
     })
-    recorderManager.onError(() => {
+    recorderManager.onError((err) => {
+      console.error('录音错误:', err)
       recording.value = false
       uni.showToast({ title: '录音失败', icon: 'none' })
     })
-  } catch {
+  } catch (e) {
+    console.error('初始化录音管理器失败:', e)
     recorderManager = null
   }
   return recorderManager
@@ -366,7 +372,62 @@ function ensureRecorder() {
 
 function startVoice() {
   if (loading.value) return
-  const rm = ensureRecorder()
+  
+  uni.getSetting({
+    success: (res) => {
+      const authSetting = res.authSetting || {}
+      const recordAuth = authSetting['scope.record']
+      
+      if (recordAuth === true) {
+        doStartRecording()
+      } else if (recordAuth === undefined) {
+        uni.authorize({
+          scope: 'scope.record',
+          success: () => {
+            doStartRecording()
+          },
+          fail: () => {
+            uni.showModal({
+              title: '录音权限',
+              content: '需要录音权限才能使用语音功能，请点击确定前往设置开启',
+              showCancel: false,
+              success: () => {
+                uni.openSetting({
+                  success: (settingRes) => {
+                    if (settingRes.authSetting && settingRes.authSetting['scope.record'] === true) {
+                      doStartRecording()
+                    }
+                  }
+                })
+              }
+            })
+          }
+        })
+      } else {
+        uni.showModal({
+          title: '录音权限',
+          content: '需要录音权限才能使用语音功能，请点击确定前往设置开启',
+          showCancel: false,
+          success: () => {
+            uni.openSetting({
+              success: (settingRes) => {
+                if (settingRes.authSetting && settingRes.authSetting['scope.record'] === true) {
+                  doStartRecording()
+                }
+              }
+            })
+          }
+        })
+      }
+    },
+    fail: () => {
+      uni.showToast({ title: '获取权限设置失败', icon: 'none' })
+    }
+  })
+}
+
+function doStartRecording() {
+  const rm = initRecorder()
   if (!rm) {
     uni.showToast({ title: '当前环境不支持录音', icon: 'none' })
     return
@@ -382,14 +443,16 @@ function startVoice() {
 
 function stopVoice() {
   if (!recording.value) return
-  recording.value = false
-  const rm = ensureRecorder()
+  const rm = initRecorder()
   if (rm) {
     try {
       rm.stop()
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error('停止录音失败:', e)
+      recording.value = false
     }
+  } else {
+    recording.value = false
   }
 }
 
@@ -400,33 +463,51 @@ async function handleRecognize(filePath) {
   }
   uni.showLoading({ title: '识别中...' })
   try {
+    console.log('开始语音识别, filePath:', filePath)
     const data = await recognizeVoice(filePath)
+    console.log('语音识别结果:', data)
     uni.hideLoading()
     const text = data.text || data.content || ''
+    console.log('识别到的文本:', text)
     if (text) {
       inputText.value = text
       uni.showToast({ title: '已识别', icon: 'success' })
     } else {
       uni.showToast({ title: '未识别到内容', icon: 'none' })
     }
-  } catch {
+  } catch (e) {
+    console.error('语音识别失败:', e)
     uni.hideLoading()
     uni.showToast({ title: '语音识别失败', icon: 'none' })
   }
 }
 
-// 语音播报
-function playVoice(msg) {
+let audioContext = null
+
+function initAudioContext() {
+  if (audioContext) return audioContext
+  audioContext = uni.createInnerAudioContext()
+  audioContext.loop = false
+  return audioContext
+}
+
+async function playVoice(msg) {
   const isApp = typeof plus !== 'undefined' && plus.speech
+  
   if (msg.playing) {
     if (isApp) {
       try { plus.speech.stopSpeak() } catch { /* ignore */ }
     }
+    if (audioContext) {
+      try { audioContext.stop() } catch { /* ignore */ }
+    }
     msg.playing = false
     return
   }
+  
   messages.value.forEach(m => { m.playing = false })
   msg.playing = true
+  
   if (isApp) {
     try {
       plus.speech.startSpeak({ text: msg.content }, () => {
@@ -439,8 +520,69 @@ function playVoice(msg) {
       uni.showToast({ title: '语音合成不可用', icon: 'none' })
     }
   } else {
-    uni.showToast({ title: '语音播报需App环境', icon: 'none' })
-    setTimeout(() => { msg.playing = false }, 1500)
+    await playMiniProgramVoice(msg)
+  }
+}
+
+async function playMiniProgramVoice(msg) {
+  try {
+    console.log('开始语音合成, 文本:', msg.content)
+    
+    const { post } = await import('@/utils/request')
+    const data = await post('/ai/voice/synthesize', { text: msg.content })
+    
+    console.log('语音合成结果:', data)
+    
+    if (data && data.audioUrl) {
+      const baseUrl = 'http://192.168.110.90:8080'
+      const fullUrl = data.audioUrl.startsWith('http') ? data.audioUrl : baseUrl + data.audioUrl
+      
+      console.log('音频URL:', fullUrl)
+      
+      const ac = uni.createInnerAudioContext()
+      
+      ac.onError = (err) => {
+        console.error('音频播放错误:', err)
+        msg.playing = false
+        uni.showToast({ title: '音频播放失败', icon: 'none' })
+      }
+      
+      ac.onEnded = () => {
+        console.log('音频播放结束')
+        msg.playing = false
+        ac.destroy()
+      }
+      
+      ac.onStop = () => {
+        console.log('音频播放停止')
+        msg.playing = false
+        ac.destroy()
+      }
+      
+      ac.onLoadedMetadata = () => {
+        console.log('音频元数据加载完成')
+      }
+      
+      ac.onCanplay = () => {
+        console.log('音频可以播放')
+        setTimeout(() => {
+          ac.play()
+        }, 100)
+      }
+      
+      ac.src = fullUrl
+      
+      setTimeout(() => {
+        ac.play()
+      }, 500)
+    } else {
+      msg.playing = false
+      uni.showToast({ title: '语音合成失败', icon: 'none' })
+    }
+  } catch (e) {
+    console.error('语音合成错误:', e)
+    msg.playing = false
+    uni.showToast({ title: '语音合成不可用', icon: 'none' })
   }
 }
 
@@ -474,7 +616,6 @@ onShow(() => {
   height: 100vh;
   position: relative;
   background: #0f1929;
-  overflow: hidden;
 }
 
 /* 深色科技背景 */
@@ -665,6 +806,12 @@ onShow(() => {
   flex: 1;
   padding: $spacing-md $spacing-lg;
   box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chat-area::-webkit-scrollbar {
+  display: none;
 }
 
 .chat-list {

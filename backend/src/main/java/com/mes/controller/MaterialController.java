@@ -1,6 +1,8 @@
 package com.mes.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mes.annotation.OperationLog;
 import com.mes.common.Result;
 import com.mes.entity.MaterialInfo;
@@ -18,14 +20,24 @@ public class MaterialController {
     private MaterialInfoService materialInfoService;
 
     @GetMapping("/list")
-    public Result<List<MaterialInfo>> list(@RequestParam(required = false) String materialName,
-                                           @RequestParam(required = false) String materialCode,
-                                           @RequestParam(required = false) String materialType) {
+    public Result<IPage<MaterialInfo>> list(@RequestParam(defaultValue = "1") Integer pageNum,
+                                            @RequestParam(defaultValue = "20") Integer pageSize,
+                                            @RequestParam(required = false) String materialName,
+                                            @RequestParam(required = false) String materialCode,
+                                            @RequestParam(required = false) String materialType,
+                                            @RequestParam(required = false) String keyword) {
+        Page<MaterialInfo> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<MaterialInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.like(materialName != null && !materialName.isEmpty(), MaterialInfo::getMaterialName, materialName)
-                .like(materialCode != null && !materialCode.isEmpty(), MaterialInfo::getMaterialCode, materialCode)
-                .eq(materialType != null && !materialType.isEmpty(), MaterialInfo::getMaterialType, materialType);
-        return Result.success(materialInfoService.list(wrapper));
+        if (keyword != null && !keyword.isEmpty()) {
+            wrapper.like(MaterialInfo::getMaterialName, keyword)
+                    .or()
+                    .like(MaterialInfo::getMaterialCode, keyword);
+        } else {
+            wrapper.like(materialName != null && !materialName.isEmpty(), MaterialInfo::getMaterialName, materialName)
+                    .like(materialCode != null && !materialCode.isEmpty(), MaterialInfo::getMaterialCode, materialCode);
+        }
+        wrapper.eq(materialType != null && !materialType.isEmpty(), MaterialInfo::getMaterialType, materialType);
+        return Result.success(materialInfoService.page(page, wrapper));
     }
 
     @GetMapping("/{id}")

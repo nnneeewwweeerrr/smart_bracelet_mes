@@ -258,7 +258,7 @@ export default {
 <style lang="scss" scoped>
 .mine-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding-bottom: 120rpx;
   position: relative;
 }
@@ -275,7 +275,7 @@ export default {
   align-items: center;
   border-radius: 0 0 48rpx 48rpx;
   position: relative;
-  overflow: hidden;
+  z-index: 1;
 
   &::before {
     content: '';
@@ -287,6 +287,7 @@ export default {
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.12);
     animation: float 6s ease-in-out infinite;
+    pointer-events: none;
   }
 
   &::after {
@@ -299,6 +300,7 @@ export default {
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.08);
     animation: float 8s ease-in-out infinite reverse;
+    pointer-events: none;
   }
 }
 
@@ -335,7 +337,7 @@ export default {
   padding: 32rpx 0;
   box-shadow: 0 8rpx 32rpx rgba(59, 124, 255, 0.15), 0 2rpx 8rpx rgba(59, 124, 255, 0.08);
   position: relative;
-  z-index: 2;
+  z-index: 1;
   border: 1rpx solid rgba(255, 255, 255, 0.8);
 }
 
@@ -344,6 +346,9 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  cursor: pointer;
+  padding: 16rpx 0;
 }
 
 .stat-divider {
@@ -370,7 +375,7 @@ export default {
 
 .stat-badge {
   position: absolute;
-  top: 8rpx;
+  top: 4rpx;
   right: 50%;
   transform: translateX(50%);
   background: #FF4D4F;
