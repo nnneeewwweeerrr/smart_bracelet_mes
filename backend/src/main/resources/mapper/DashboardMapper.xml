@@ -12,12 +12,19 @@
         SELECT COUNT(*) FROM work_order WHERE status = 1
     </select>
 
+    <select id="getWorkOrderStatusCount" resultType="com.mes.vo.StatusCountVO">
+        SELECT status as status, COUNT(*) as count
+        FROM work_order
+        GROUP BY status
+        ORDER BY status
+    </select>
+
     <select id="getPendingQualityTasks" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM quality_task WHERE status = 0
     </select>
 
     <select id="getStockWarningCount" resultType="java.lang.Integer">
-        SELECT COUNT(*) FROM stock_info WHERE quantity &lt; COALESCE(warning_threshold, 100)
+        SELECT COUNT(*) FROM stock_info WHERE quantity &lt; 100
     </select>
 
     <select id="getProductionTrend" resultType="com.mes.vo.TrendDataVO">
