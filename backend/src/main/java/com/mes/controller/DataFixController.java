@@ -166,4 +166,138 @@ public class DataFixController {
         }
         return Result.success(log.toString());
     }
+
+    /**
+     * 修复 AI 知识库和问答历史表：字符集 + 补缺失列 + 重写中文数据
+     */
+    @PostMapping("/ai-tables")
+    public Result<String> fixAiTables() {
+        StringBuilder log = new StringBuilder();
+
+        // 1. 修改表字符集为 utf8mb4
+        String[] aiTables = {"ai_knowledge_document", "ai_chat_history"};
+        for (String table : aiTables) {
+            try {
+                jdbcTemplate.execute("ALTER TABLE " + table + " CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                log.append(table).append(" 字符集已修改为 utf8mb4\n");
+            } catch (Exception e) {
+                log.append(table).append(" 字符集修改失败: ").append(e.getMessage()).append("\n");
+            }
+        }
+
+        // 2. 给 ai_chat_history 补充缺失列（忽略已存在的列错误）
+        String[] addColumns = {
+                "ADD COLUMN session_id VARCHAR(50) COMMENT '会话ID'",
+                "ADD COLUMN model VARCHAR(50) COMMENT 'AI模型'",
+                "ADD COLUMN response_time INT DEFAULT 0 COMMENT '响应时间(毫秒)'",
+                "ADD COLUMN feedback INT COMMENT '反馈(1好评/-1差评)'",
+                "ADD COLUMN chat_time DATETIME COMMENT '对话时间'",
+                "ADD COLUMN scene VARCHAR(50) COMMENT '场景'",
+                "ADD COLUMN context TEXT COMMENT '上下文信息JSON'"
+        };
+        for (String col : addColumns) {
+            try {
+                jdbcTemplate.execute("ALTER TABLE ai_chat_history " + col);
+                log.append("ai_chat_history ").append(col).append("\n");
+            } catch (Exception e) {
+                // 列已存在则忽略
+                if (!e.getMessage().contains("Duplicate column")) {
+                    log.append("ai_chat_history ").append(col).append(" 失败: ").append(e.getMessage()).append("\n");
+                }
+            }
+        }
+
+        // 3. 给 ai_chat_history 补充 chat_status 列（如果不存在）
+        try {
+            jdbcTemplate.execute("ALTER TABLE ai_chat_history ADD COLUMN chat_status INT DEFAULT 0 COMMENT '状态(0成功,1失败)'");
+            log.append("ai_chat_history ADD COLUMN chat_status\n");
+        } catch (Exception e) {
+            if (!e.getMessage().contains("Duplicate column")) {
+                log.append("ai_chat_history chat_status 失败: ").append(e.getMessage()).append("\n");
+            }
+        }
+
+        // 4. 重写 ai_knowledge_document 中文数据
+        String[][] docs = {
+                {"1", "DOC001", "智能手环组装工艺规范", "PDF", "工艺规范", "/docs/assembly_process.pdf", "102400", "智能手环组装的标准工艺流程，包括PCB贴片、外壳组装、测试等环节", "组装,工艺,规范", "张工程师"},
+                {"2", "DOC002", "SMT贴片操作手册", "PDF", "操作手册", "/docs/smt_manual.pdf", "204800", "SMT贴片机的操作步骤、参数设置和日常维护指南", "SMT,贴片,操作", "李工程师"},
+                {"3", "DOC003", "质量检验标准文档", "WORD", "质量标准", "/docs/quality_standard.docx", "153600", "智能手环各工序的质量检验标准和判定准则", "质量,检验,标准", "王质检"},
+                {"4", "DOC004", "设备维护保养手册", "PDF", "设备管理", "/docs/maintenance_manual.pdf", "256000", "生产设备的日常保养、定期维护和故障处理指南", "设备,维护,保养", "赵设备"},
+                {"5", "DOC005", "物料识别与存储规范", "TEXT", "物料管理", "/docs/material_spec.txt", "51200", "原材料识别、存储条件和有效期管理规范", "物料,存储,规范", "钱仓管"},
+                {"6", "DOC006", "安全生产操作规程", "PDF", "安全管理", "/docs/safety_rules.pdf", "786432", "车间安全生产操作规程和应急处理流程", "安全,生产,规程", "孙安全"},
+                {"7", "DOC007", "包装作业指导书", "WORD", "作业指导", "/docs/packaging_guide.docx", "89600", "产品包装的标准作业流程和注意事项", "包装,作业,指导", "周包装"},
+                {"8", "DOC008", "焊接工艺参数表", "EXCEL", "工艺参数", "/docs/welding_params.xlsx", "64000", "回流焊和波峰焊的工艺参数设置标准", "焊接,工艺,参数", "吴工艺"},
+                {"9", "DOC009", "产品追溯管理规范", "PDF", "追溯管理", "/docs/traceability.pdf", "128000", "产品序列号管理和全流程追溯规范", "追溯,序列号,管理", "郑追溯"},
+                {"10", "DOC010", "不良品处理流程", "WORD", "质量标准", "/docs/defect_process.docx", "76800", "不良品的识别、隔离、处置和分析流程", "不良品,处理,流程", "冯质量"}
+        };
+        for (String[] d : docs) {
+            try {
+                int rows = jdbcTemplate.update("UPDATE ai_knowledge_document SET doc_name=?, category=?, " +
+                        "summary=?, keywords=?, uploader=? WHERE id=?",
+                        d[2], d[4], d[7], d[8], d[9], d[0]);
+                log.append("doc id=").append(d[0]).append(": ").append(rows).append(" 行更新\n");
+            } catch (Exception e) {
+                log.append("doc id=").append(d[0]).append(" 失败: ").append(e.getMessage()).append("\n");
+            }
+        }
+
+        // 5. 插入 ai_chat_history 测试数据（如果表为空）
+        try {
+            Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ai_chat_history", Integer.class);
+            if (count == null || count == 0) {
+                String[][] chats = {
+                        {"sess001", "1", "admin", "如何查看今日生产进度？", "请在Dashboard页面查看生产进度看板，包含工单完成率和实时产量。", "gpt-4o-mini", "1200", "1", "生产管理"},
+                        {"sess001", "1", "admin", "设备故障如何上报？", "在设备故障管理页面点击新增按钮，填写故障信息后提交即可。", "gpt-4o-mini", "980", "1", "设备管理"},
+                        {"sess002", "2", "order_clerk", "如何创建生产工单？", "在生产管理-工单管理页面点击新增，填写工单编号和产品信息。", "gpt-4o-mini", "1500", "1", "生产管理"},
+                        {"sess002", "2", "order_clerk", "工单状态有哪些？", "工单状态包括：待开始、进行中、已暂停、已完成、已取消。", "gpt-4o-mini", "850", "1", "生产管理"},
+                        {"sess003", "3", "quality_zhang", "质检标准在哪里查看？", "在知识库管理中搜索'质量检验标准文档'即可查看详细标准。", "gpt-4o-mini", "1100", "1", "质量管理"},
+                        {"sess003", "3", "quality_zhang", "不合格品如何处置？", "在不合格品管理页面进行登记，选择处置方式（退货/返修/返工/报废）。", "gpt-4o-mini", "1300", "1", "质量管理"},
+                        {"sess004", "4", "repair_zhang", "维修任务如何接单？", "在维修任务页面点击接单按钮，任务状态将变为维修中。", "gpt-4o-mini", "900", "1", "设备管理"},
+                        {"sess004", "4", "repair_zhang", "设备保养周期是多久？", "请参考设备维护保养手册，一般设备每月保养一次。", "gpt-4o-mini", "1050", "1", "设备管理"},
+                        {"sess005", "1", "admin", "库存预警如何设置？", "在库存预警页面可以设置安全库存，低于阈值时自动预警。", "gpt-4o-mini", "1150", "-1", "仓库管理"},
+                        {"sess005", "1", "admin", "如何导出报表？", "在各统计页面点击导出按钮，支持Excel和PDF格式导出。", "gpt-4o-mini", "800", "1", "系统操作"}
+                };
+                for (String[] c : chats) {
+                    try {
+                        jdbcTemplate.update("INSERT INTO ai_chat_history (session_id, user_id, user_name, question, answer, " +
+                                        "model, response_time, feedback, chat_status, scene, chat_time, create_time) " +
+                                        "VALUES (?,?,?,?,?,?,?,?,?,?,NOW(),NOW())",
+                                c[0], c[1], c[2], c[3], c[4], c[5], Integer.parseInt(c[6]), Integer.parseInt(c[7]), 0, c[8]);
+                        log.append("chat 插入: ").append(c[0]).append("\n");
+                    } catch (Exception e) {
+                        log.append("chat 插入失败: ").append(e.getMessage()).append("\n");
+                    }
+                }
+            } else {
+                // 表已有数据但中文可能是问号，按 id 重写
+                String[][] rewrite = {
+                        {"1", "sess001", "admin", "如何查看今日生产进度？", "请在Dashboard页面查看生产进度看板，包含工单完成率和实时产量。", "gpt-4o-mini", "1200", "1", "生产管理"},
+                        {"2", "sess001", "admin", "设备故障如何上报？", "在设备故障管理页面点击新增按钮，填写故障信息后提交即可。", "gpt-4o-mini", "980", "1", "设备管理"},
+                        {"3", "sess002", "order_clerk", "如何创建生产工单？", "在生产管理-工单管理页面点击新增，填写工单编号和产品信息。", "gpt-4o-mini", "1500", "1", "生产管理"},
+                        {"4", "sess002", "order_clerk", "工单状态有哪些？", "工单状态包括：待开始、进行中、已暂停、已完成、已取消。", "gpt-4o-mini", "850", "1", "生产管理"},
+                        {"5", "sess003", "quality_zhang", "质检标准在哪里查看？", "在知识库管理中搜索质量检验标准文档即可查看详细标准。", "gpt-4o-mini", "1100", "1", "质量管理"},
+                        {"6", "sess003", "quality_zhang", "不合格品如何处置？", "在不合格品管理页面进行登记，选择处置方式（退货/返修/返工/报废）。", "gpt-4o-mini", "1300", "1", "质量管理"},
+                        {"7", "sess004", "repair_zhang", "维修任务如何接单？", "在维修任务页面点击接单按钮，任务状态将变为维修中。", "gpt-4o-mini", "900", "1", "设备管理"},
+                        {"8", "sess004", "repair_zhang", "设备保养周期是多久？", "请参考设备维护保养手册，一般设备每月保养一次。", "gpt-4o-mini", "1050", "1", "设备管理"},
+                        {"9", "sess005", "admin", "库存预警如何设置？", "在库存预警页面可以设置安全库存，低于阈值时自动预警。", "gpt-4o-mini", "1150", "-1", "仓库管理"},
+                        {"10", "sess005", "admin", "如何导出报表？", "在各统计页面点击导出按钮，支持Excel和PDF格式导出。", "gpt-4o-mini", "800", "1", "系统操作"}
+                };
+                for (String[] c : rewrite) {
+                    try {
+                        jdbcTemplate.update("UPDATE ai_chat_history SET session_id=?, user_name=?, question=?, answer=?, " +
+                                        "model=?, response_time=?, feedback=?, scene=? WHERE id=?",
+                                c[1], c[2], c[3], c[4], c[5], Integer.parseInt(c[6]), Integer.parseInt(c[7]), c[8], c[0]);
+                        log.append("chat id=").append(c[0]).append(" 重写完成\n");
+                    } catch (Exception e) {
+                        log.append("chat id=").append(c[0]).append(" 重写失败: ").append(e.getMessage()).append("\n");
+                    }
+                }
+                log.append("ai_chat_history 已有 ").append(count).append(" 条数据，已重写中文\n");
+            }
+        } catch (Exception e) {
+            log.append("ai_chat_history 数据检查失败: ").append(e.getMessage()).append("\n");
+        }
+
+        return Result.success(log.toString());
+    }
 }
