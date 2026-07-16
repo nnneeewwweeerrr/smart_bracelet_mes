@@ -16,6 +16,17 @@
     "setting": {
       "urlCheck": false
     },
-    "usingComponents": true
+    "usingComponents": true,
+    "permission": {
+      "scope.record": {
+        "desc": "用于异常上报时的语音录入功能"
+      },
+      "scope.camera": {
+        "desc": "用于扫码功能"
+      },
+      "scope.album": {
+        "desc": "用于上传异常照片"
+      }
+    }
   }
 }

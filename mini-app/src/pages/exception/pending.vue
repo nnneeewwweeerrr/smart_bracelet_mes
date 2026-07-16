@@ -1,5 +1,7 @@
-﻿<template>
+<template>
   <view class="pending-page">
+    <DynamicBackground theme="theme-error"></DynamicBackground>
+    <view class="page-content">
     <view class="filter-bar">
       <u-tabs :list="statusList" :current="currentStatus" @click="onStatusChange" :activeStyle="{ color: '#3B7CFF', fontWeight: 'bold' }" :inactiveStyle="{ color: '#8C8C8C' }" lineColor="#3B7CFF" :lineWidth="30"></u-tabs>
     </view>
@@ -34,6 +36,7 @@
           <u-button v-if="item.status === 1" type="success" size="mini" text="完成处理" @click.stop="handleFinish(item)"></u-button>
         </view>
       </view>
+    </view>
     </view>
 
     <u-popup :show="showHandlePopup" mode="bottom" round="24" @close="showHandlePopup = false" closeable>
@@ -90,7 +93,7 @@ export default {
     async loadData() {
       const statusVal = this.statusList[this.currentStatus].value
       try {
-        const res = await getExceptionList({ status: statusVal, page: 1, size: 50 })
+        const res = await getExceptionList({ status: Number(statusVal), page: 1, size: 50 })
         const records = (res && res.records) || res || []
         this.list = records.map(item => ({
           ...item,
@@ -140,12 +143,15 @@ export default {
       try {
         const newStatus = this.currentException.status === 0 ? 1 : 2
         await handleException(this.currentException.id, {
+          status: newStatus,
           approveStatus: newStatus,
+          handleRemark: this.handleForm.remark,
           remark: this.handleForm.remark
         })
         uni.showToast({ title: '处理成功', icon: 'success' })
         this.showHandlePopup = false
         this.loadData()
+        uni.$emit('todoUpdate')
       } catch {
         // handled
       } finally {
@@ -159,7 +165,13 @@ export default {
 <style lang="scss" scoped>
 .pending-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
+  position: relative;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
 }
 
 .filter-bar {

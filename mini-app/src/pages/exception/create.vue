@@ -58,7 +58,7 @@
         </u-form-item>
 
         <u-form-item label="发现工序">
-          <u-input v-model="form.findProcess" placeholder="如：SMT贴片、功能测试">
+          <u-input v-model="form.findProcess" placeholder="扫描工位二维码或手动输入">
             <template #suffix>
               <text class="suffix-scan" @click="handleScanProcess">扫</text>
             </template>
@@ -162,7 +162,8 @@ export default {
       recordingTime: 0,
       recordingTimer: null,
       showPhotoPreview: false,
-      previewImage: ''
+      previewImage: '',
+      recorderManager: null
     }
   },
   onLoad(options) {
@@ -171,9 +172,10 @@ export default {
       this.form.workOrderNo = options.code
     }
     const user = getUser() || {}
-    if (user.name) {
-      this.form.findOperator = user.name
+    if (user.realName || user.name) {
+      this.form.findOperator = user.realName || user.name
     }
+    this.initRecorder()
   },
   onUnload() {
     this.stopRecording()
@@ -190,10 +192,41 @@ export default {
     async handleScanProcess() {
       try {
         const code = await scanCode()
-        this.form.findProcess = code
+        let data = null
+        try {
+          const { get } = await import('@/utils/request')
+          const res = await get('/mini/scan/decode', { code })
+          data = (res && res.data) || res
+        } catch {
+          data = this.getMockProcess(code)
+        }
+        if (data && data.processName) {
+          this.form.findProcess = data.processName
+        } else if (data && data.stationCode) {
+          this.form.findProcess = data.stationCode
+        } else {
+          this.form.findProcess = code
+        }
       } catch {
         // cancelled
       }
+    },
+    getMockProcess(code) {
+      const mockItems = {
+        'STATION0001': { processName: 'SMT贴片', stationCode: 'STATION0001' },
+        'STATION0002': { processName: 'AOI检测', stationCode: 'STATION0002' },
+        'STATION0003': { processName: '焊接组装', stationCode: 'STATION0003' },
+        'STATION0004': { processName: '功能测试', stationCode: 'STATION0004' },
+        'STATION0005': { processName: '外观检查', stationCode: 'STATION0005' },
+        'STATION0006': { processName: '包装入库', stationCode: 'STATION0006' },
+        'PR001': { processName: 'SMT贴片', stationCode: 'STATION0001' },
+        'PR002': { processName: 'AOI检测', stationCode: 'STATION0002' },
+        'PR003': { processName: '焊接组装', stationCode: 'STATION0003' },
+        'PR004': { processName: '功能测试', stationCode: 'STATION0004' },
+        'PR005': { processName: '外观检查', stationCode: 'STATION0005' },
+        'PR006': { processName: '包装入库', stationCode: 'STATION0006' }
+      }
+      return mockItems[code] || { processName: code }
     },
     choosePhoto() {
       uni.chooseImage({
@@ -244,70 +277,162 @@ export default {
       this.isRecording = true
       this.recordingTime = 0
       
+      const that = this
+      
+      uni.getSetting({
+        success: (res) => {
+          const authSetting = res.authSetting || {}
+          const recordAuth = authSetting['scope.record']
+          
+          if (recordAuth === true) {
+            that.doStartRecording()
+          } else if (recordAuth === undefined) {
+            uni.authorize({
+              scope: 'scope.record',
+              success: () => {
+                that.doStartRecording()
+              },
+              fail: () => {
+                that.isRecording = false
+                uni.showModal({
+                  title: '录音权限',
+                  content: '需要录音权限才能使用语音功能，请点击确定前往设置开启',
+                  showCancel: false,
+                  success: () => {
+                    uni.openSetting({
+                      success: (settingRes) => {
+                        if (settingRes.authSetting && settingRes.authSetting['scope.record'] === true) {
+                          that.isRecording = true
+                          that.doStartRecording()
+                        }
+                      }
+                    })
+                  }
+                })
+              }
+            })
+          } else {
+            that.isRecording = false
+            uni.showModal({
+              title: '录音权限',
+              content: '需要录音权限才能使用语音功能，请点击确定前往设置开启',
+              showCancel: false,
+              success: () => {
+                uni.openSetting({
+                  success: (settingRes) => {
+                    if (settingRes.authSetting && settingRes.authSetting['scope.record'] === true) {
+                      that.isRecording = true
+                      that.doStartRecording()
+                    }
+                  }
+                })
+              }
+            })
+          }
+        },
+        fail: () => {
+          that.isRecording = false
+          uni.showToast({ title: '获取权限设置失败', icon: 'none' })
+        }
+      })
+    },
+    initRecorder() {
+      if (this.recorderManager) return
+      this.recorderManager = uni.getRecorderManager()
+      const that = this
+      
+      this.recorderManager.onStart = () => {
+        that.isRecording = true
+        that.recordingTimer = setInterval(() => {
+          that.recordingTime++
+        }, 1000)
+      }
+      
+      this.recorderManager.onStop = (res) => {
+        that.isRecording = false
+        if (that.recordingTimer) {
+          clearInterval(that.recordingTimer)
+          that.recordingTimer = null
+        }
+        that.handleRecognize(res.tempFilePath)
+      }
+      
+      this.recorderManager.onError = (err) => {
+        that.isRecording = false
+        if (that.recordingTimer) {
+          clearInterval(that.recordingTimer)
+          that.recordingTimer = null
+        }
+        uni.showToast({
+          title: '录音失败: ' + (err.errMsg || ''),
+          icon: 'none'
+        })
+      }
+    },
+    doStartRecording() {
+      if (!this.recorderManager) {
+        this.initRecorder()
+      }
+      
       uni.showToast({
         title: '开始录音',
         icon: 'none',
         duration: 1500
       })
-
-      uni.authorize({
-        scope: 'scope.record',
-        success: () => {
-          this.recordingTimer = setInterval(() => {
-            this.recordingTime++
-          }, 1000)
-        },
-        fail: () => {
-          uni.showModal({
-            title: '录音权限',
-            content: '需要录音权限才能使用语音功能，请在设置中开启',
-            showCancel: false
-          })
-          this.isRecording = false
-        }
+      
+      this.recorderManager.start({
+        duration: 60000,
+        format: 'mp3',
+        sampleRate: 16000,
+        numberOfChannels: 1
       })
     },
     stopRecording() {
       if (!this.isRecording) return
       
+      if (this.recorderManager) {
+        try {
+          this.recorderManager.stop()
+        } catch {
+          // ignore
+        }
+      } else {
+        uni.stopRecord({
+          success: () => {},
+          fail: () => {}
+        })
+      }
       this.isRecording = false
       if (this.recordingTimer) {
         clearInterval(this.recordingTimer)
         this.recordingTimer = null
       }
-
-      if (this.recordingTime < 1) {
-        uni.showToast({
-          title: '录音时间太短',
-          icon: 'none'
-        })
+    },
+    async handleRecognize(filePath) {
+      console.log('异常上报页面 - 开始语音识别, filePath:', filePath)
+      if (!filePath) {
+        uni.showToast({ title: '录音文件无效', icon: 'none' })
         return
       }
-
       uni.showLoading({ title: '识别中...' })
-
-      setTimeout(() => {
+      try {
+        const { post } = await import('@/utils/request')
+        const data = await post('/ai/voice/recognize', { filePath })
+        console.log('异常上报页面 - 语音识别结果:', data)
         uni.hideLoading()
-        const voiceTexts = [
-          '屏幕表面有明显划痕，需要更换屏幕模组',
-          '蓝牙连接不稳定，多次连接失败',
-          '心率传感器读数异常，测试数据波动大',
-          '电池容量不足，实测只有350mAh',
-          '外壳组装有缝隙，需要重新装配',
-          '充电接口接触不良，充电时断时续',
-          'GPS定位信号弱，定位不准确',
-          '加速度计数据异常，运动计步不准',
-          '屏幕显示偏色，需要校准',
-          '震动马达异响，需要更换'
-        ]
-        const randomText = voiceTexts[Math.floor(Math.random() * voiceTexts.length)]
-        this.form.description += (this.form.description ? '\n' : '') + randomText
-        
-        uni.showToast({
-          title: '语音识别成功',
-          icon: 'success'
-        })
-      }, 1000)
+        const text = data.text || data.content || ''
+        console.log('异常上报页面 - 识别到的文本:', text)
+        if (text) {
+          this.form.description += (this.form.description ? '\n' : '') + text
+          uni.showToast({ title: '语音识别成功', icon: 'success' })
+        } else {
+          uni.showToast({ title: '未识别到内容', icon: 'none' })
+        }
+      } catch (e) {
+        console.error('异常上报页面 - 语音识别失败:', e)
+        uni.hideLoading()
+        uni.showToast({ title: '语音识别失败', icon: 'none' })
+      }
     },
     formatTime(seconds) {
       const mins = Math.floor(seconds / 60)
@@ -357,7 +482,7 @@ export default {
 
 .create-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   position: relative;
 }
 

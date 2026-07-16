@@ -1,5 +1,7 @@
-﻿<template>
+<template>
   <view class="todo-page">
+    <DynamicBackground theme="theme-primary"></DynamicBackground>
+    <view class="page-content">
     <view class="filter-bar">
       <u-tabs :list="typeList" :current="currentType" @click="onTypeChange" :activeStyle="{ color: '#3B7CFF', fontWeight: 'bold' }" :inactiveStyle="{ color: '#8C8C8C' }" lineColor="#3B7CFF" :lineWidth="30"></u-tabs>
     </view>
@@ -21,16 +23,18 @@
         </view>
       </view>
     </view>
+    </view>
   </view>
 </template>
 
 <script>
-import { getWorkerTasks } from '@/api/user'
+import DynamicBackground from '@/components/DynamicBackground'
 import { getWorkOrderList } from '@/api/production'
 import { getQualityTaskList } from '@/api/quality'
 import { getExceptionList } from '@/api/exception'
 
 export default {
+  components: { DynamicBackground },
   data() {
     return {
       currentType: 0,
@@ -44,6 +48,9 @@ export default {
     }
   },
   onLoad() {
+    this.loadData()
+  },
+  onShow() {
     this.loadData()
   },
   onPullDownRefresh() {
@@ -100,7 +107,7 @@ export default {
 
       if (type === 0 || type === 3) {
         try {
-          const res = await getExceptionList({ status: '0', page: 1, size: 50 })
+          const res = await getExceptionList({ status: 0, page: 1, size: 50 })
           const exceptions = (res && res.records) || res || []
           exceptions.forEach(e => {
             const typeMap = { equipment: '设备故障', material: '物料短缺', quality: '质量问题', other: '其他异常' }
@@ -119,6 +126,7 @@ export default {
       }
 
       this.list = allTasks
+      uni.$emit('todoUpdate')
     },
     goAction(item) {
       uni.navigateTo({ url: item.actionUrl })
@@ -130,7 +138,13 @@ export default {
 <style lang="scss" scoped>
 .todo-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
+  position: relative;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
 }
 
 .filter-bar {

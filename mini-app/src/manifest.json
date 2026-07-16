@@ -16,6 +16,26 @@
     "setting": {
       "urlCheck": false
     },
-    "usingComponents": true
+    "usingComponents": true,
+    "permission": {
+      "scope.record": {
+        "desc": "您的麦克风权限用于异常上报语音输入"
+      },
+      "scope.camera": {
+        "desc": "您的相机权限用于扫码功能"
+      },
+      "scope.album": {
+        "desc": "您的相册权限用于上传异常照片"
+      }
+    },
+    "requiredPrivateInfos": [
+      "getLocation",
+      "chooseLocation",
+      "chooseAddress",
+      "choosePoi",
+      "onLocationChange",
+      "startLocationUpdate",
+      "startLocationUpdateBackground"
+    ]
   }
 }

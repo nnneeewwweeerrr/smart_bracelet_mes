@@ -1,194 +1,162 @@
 <template>
   <view class="mine-page">
-    <DynamicBackground theme="theme-primary" />
-    <view class="page-content">
-    <view class="mine-header">
-      <view class="avatar-wrap">
-        <u-avatar :text="avatarText" size="52" bg-color="#ffffff" color="#3B7CFF"></u-avatar>
-      </view>
-      <view class="mine-info">
-        <text class="mine-name">{{ userInfo.realName || '未登录' }}</text>
-        <text class="mine-role">{{ roleText }}</text>
-      </view>
-    </view>
-
-    <view class="mine-stats">
-      <view class="stat-item" @click="goTo('/pages/mine/todo')">
-        <text class="stat-value">{{ todoCount }}</text>
-        <text class="stat-label">待办任务</text>
-        <view class="stat-badge" v-if="todoCount > 0">{{ todoCount }}</view>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item" @click="goTo('/pages/mine/notifications')">
-        <text class="stat-value">{{ notificationCount }}</text>
-        <text class="stat-label">消息通知</text>
-        <view class="stat-badge" v-if="notificationCount > 0">{{ notificationCount > 99 ? '99+' : notificationCount }}</view>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item" @click="goTo('/pages/mine/log')">
-        <text class="stat-value">{{ todayCount }}</text>
-        <text class="stat-label">今日操作</text>
-      </view>
-    </view>
-
-    <view class="performance-card">
-      <view class="section-header">
-        <text class="section-title">个人绩效</text>
-        <text class="section-sub">今日数据</text>
-      </view>
-      
-      <view class="performance-grid">
-        <view class="perf-card">
-          <view class="perf-icon-wrap output-icon">
-            <text class="perf-icon-text">产</text>
+    <view class="banner-area" :style="{ paddingTop: statusBarPadding }">
+      <view class="banner-bg"></view>
+      <view class="banner-decoration"></view>
+      <view class="banner-content">
+        <view class="user-info">
+          <view class="avatar-wrap">
+            <image class="user-avatar" src="/static/头像.jpg" mode="aspectFill"></image>
           </view>
-          <view class="perf-content">
-            <view class="perf-value-row">
-              <text class="perf-value">{{ performance.todayOutput }}</text>
-              <text class="perf-unit">件</text>
+          <view class="user-detail">
+            <text class="user-name">{{ userInfo.realName || '未登录' }}</text>
+            <text class="user-role">{{ roleText }}</text>
+          </view>
+        </view>
+        <view class="stats-row">
+          <view class="stat-item" @click="goTo('/pages/mine/todo')">
+            <text class="stat-value">{{ todoCount }}</text>
+            <text class="stat-label">待办任务</text>
+          </view>
+          <view class="stat-divider"></view>
+          <view class="stat-item" @click="goTo('/pages/mine/notifications')">
+            <text class="stat-value">{{ notificationCount }}</text>
+            <text class="stat-label">消息通知</text>
+            <u-badge v-if="notificationCount > 0" :count="notificationCount > 99 ? '99+' : notificationCount" type="error" class="stat-badge"></u-badge>
+          </view>
+          <view class="stat-divider"></view>
+          <view class="stat-item" @click="goTo('/pages/mine/log')">
+            <text class="stat-value">{{ todayCount }}</text>
+            <text class="stat-label">今日操作</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="main-content">
+      <view class="perf-card">
+        <view class="card-header">
+          <text class="card-title">个人绩效</text>
+          <text class="card-sub">今日数据</text>
+        </view>
+        <view class="perf-grid">
+          <view class="perf-item">
+            <view class="perf-icon output-icon">
+              <text class="icon-text">产</text>
             </view>
+            <text class="perf-value">{{ performance.todayOutput }}</text>
+            <text class="perf-unit">件</text>
             <text class="perf-label">今日产量</text>
           </view>
-        </view>
-        
-        <view class="perf-card">
-          <view class="perf-icon-wrap rate-icon">
-            <text class="perf-icon-text">完</text>
-          </view>
-          <view class="perf-content">
-            <view class="perf-value-row">
-              <text class="perf-value">{{ performance.completionRate }}</text>
-              <text class="perf-unit">%</text>
+          <view class="perf-item">
+            <view class="perf-icon rate-icon">
+              <text class="icon-text">完</text>
             </view>
+            <text class="perf-value">{{ performance.completionRate }}</text>
+            <text class="perf-unit">%</text>
             <text class="perf-label">完成率</text>
           </view>
-          <view class="perf-progress">
-            <view class="progress-bar">
-              <view class="progress-fill" :style="{ width: performance.completionRate + '%' }"></view>
+          <view class="perf-item">
+            <view class="perf-icon yield-icon">
+              <text class="icon-text">良</text>
             </view>
-          </view>
-        </view>
-        
-        <view class="perf-card">
-          <view class="perf-icon-wrap yield-icon">
-            <text class="perf-icon-text">良</text>
-          </view>
-          <view class="perf-content">
-            <view class="perf-value-row">
-              <text class="perf-value">{{ performance.yieldRate }}</text>
-              <text class="perf-unit">%</text>
-            </view>
+            <text class="perf-value">{{ performance.yieldRate }}</text>
+            <text class="perf-unit">%</text>
             <text class="perf-label">良品率</text>
           </view>
-        </view>
-        
-        <view class="perf-card">
-          <view class="perf-icon-wrap rank-icon">
-            <text class="perf-icon-text">排</text>
-          </view>
-          <view class="perf-content">
-            <view class="perf-value-row">
-              <text class="perf-value">第{{ performance.departmentRank }}</text>
-              <text class="perf-unit">名</text>
+          <view class="perf-item">
+            <view class="perf-icon rank-icon">
+              <text class="icon-text">排</text>
             </view>
-            <view class="perf-label-row">
-              <text class="perf-label">部门排名</text>
-              <text v-if="performance.rankTrend > 0" class="rank-trend trend-up">↑{{ performance.rankTrend }}</text>
-              <text v-else-if="performance.rankTrend < 0" class="rank-trend trend-down">↓{{ Math.abs(performance.rankTrend) }}</text>
-            </view>
+            <text class="perf-value">第{{ performance.departmentRank }}</text>
+            <text class="perf-unit">名</text>
+            <text class="perf-label">部门排名</text>
           </view>
         </view>
       </view>
 
-      <view class="weekly-chart">
-        <text class="chart-title">本周产量趋势</text>
-        <view class="chart-bars">
-          <view class="chart-bar-item" v-for="(item, idx) in performance.weeklyData" :key="idx">
-            <view class="bar-wrapper">
-              <view class="bar-fill" :style="{ height: (item.output / 160 * 100) + '%' }"></view>
-              <text class="bar-value">{{ item.output }}</text>
-            </view>
-            <text class="bar-label">{{ item.day }}</text>
+      <view class="menu-section">
+        <view class="menu-item" @click="goTo('/pages/mine/log')">
+          <view class="menu-icon log-icon">
+            <text class="menu-icon-text">记</text>
           </view>
+          <text class="menu-title">操作记录</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" @click="goTo('/pages/mine/profile')">
+          <view class="menu-icon profile-icon">
+            <text class="menu-icon-text">人</text>
+          </view>
+          <text class="menu-title">个人信息</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" @click="goTo('/pages/mine/notifications')">
+          <view class="menu-icon notify-icon">
+            <text class="menu-icon-text">信</text>
+          </view>
+          <text class="menu-title">消息通知</text>
+          <u-badge v-if="notificationCount > 0" :count="notificationCount > 99 ? '99+' : notificationCount" type="error" class="menu-badge"></u-badge>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" @click="goTo('/pages/mine/todo')">
+          <view class="menu-icon todo-icon">
+            <text class="menu-icon-text">事</text>
+          </view>
+          <text class="menu-title">待办任务</text>
+          <u-badge v-if="todoCount > 0" :count="todoCount" type="error" class="menu-badge"></u-badge>
+          <text class="menu-arrow">›</text>
         </view>
       </view>
-    </view>
 
-    <view class="mine-menu">
-      <view class="menu-item" @click="goTo('/pages/mine/log')">
-        <view class="menu-icon-wrap">
-          <text class="menu-icon-text">记</text>
+      <view class="menu-section">
+        <view class="menu-item" @click="goTo('/pages/mine/settings')">
+          <view class="menu-icon settings-icon">
+            <text class="menu-icon-text">设</text>
+          </view>
+          <text class="menu-title">系统设置</text>
+          <text class="menu-arrow">›</text>
         </view>
-        <text class="menu-title">操作记录</text>
-        <text class="menu-arrow">›</text>
-      </view>
-      <view class="menu-item" @click="goTo('/pages/mine/profile')">
-        <view class="menu-icon-wrap">
-          <text class="menu-icon-text">人</text>
+        <view class="menu-item" @click="showAbout">
+          <view class="menu-icon about-icon">
+            <text class="menu-icon-text">关</text>
+          </view>
+          <text class="menu-title">关于系统</text>
+          <text class="menu-arrow">›</text>
         </view>
-        <text class="menu-title">个人信息</text>
-        <text class="menu-arrow">›</text>
       </view>
-    </view>
 
-    <view class="mine-menu">
-      <view class="menu-item" @click="goTo('/pages/mine/settings')">
-        <view class="menu-icon-wrap">
-          <text class="menu-icon-text">设</text>
+      <view class="logout-section">
+        <view class="logout-btn" @click="handleLogout">
+          <text class="logout-text">退出登录</text>
         </view>
-        <text class="menu-title">系统设置</text>
-        <text class="menu-arrow">›</text>
       </view>
-      <view class="menu-item" @click="showAbout">
-        <view class="menu-icon-wrap">
-          <text class="menu-icon-text">关</text>
-        </view>
-        <text class="menu-title">关于系统</text>
-        <text class="menu-arrow">›</text>
-      </view>
-    </view>
-
-    <view class="logout-btn">
-      <u-button type="error" plain @click="handleLogout" customStyle="border-radius: 48rpx; height: 88rpx;">
-        退出登录
-      </u-button>
-    </view>
     </view>
   </view>
 </template>
 
 <script>
 import { getUser, isLoggedIn, logout } from '@/utils/auth'
-import { getWorkerTasks, getOperationLogCount, getPersonalPerformance } from '@/api/user'
-import DynamicBackground from '@/components/DynamicBackground'
+import { getOperationLogCount, getPersonalPerformance, getNotificationCount } from '@/api/user'
+import { getWorkOrderList } from '@/api/production'
+import { getQualityTaskList } from '@/api/quality'
+import { getExceptionList } from '@/api/exception'
 
 export default {
-  components: {
-    DynamicBackground
-  },
   data() {
     return {
       userInfo: {},
       todoCount: 0,
       logCount: 0,
       todayCount: 0,
-      notificationCount: 5,
+      notificationCount: 0,
+      statusBarPadding: '88rpx',
       performance: {
         todayOutput: 156,
         completionRate: 92,
         yieldRate: 98.5,
         departmentRank: 3,
         departmentTotal: 25,
-        rankTrend: 2,
-        weeklyData: [
-          { day: '周一', output: 120, rate: 95 },
-          { day: '周二', output: 135, rate: 97 },
-          { day: '周三', output: 142, rate: 98 },
-          { day: '周四', output: 150, rate: 96 },
-          { day: '周五', output: 156, rate: 98 },
-          { day: '周六', output: 80, rate: 99 },
-          { day: '周日', output: 60, rate: 97 }
-        ]
+        rankTrend: 2
       }
     }
   },
@@ -201,6 +169,11 @@ export default {
       return roleMap[this.userInfo.roleId] || '未知角色'
     }
   },
+  onLoad() {
+    const sysInfo = uni.getSystemInfoSync()
+    const statusBarHeight = sysInfo.statusBarHeight || 44
+    this.statusBarPadding = `calc(${statusBarHeight}px + 40rpx)`
+  },
   onShow() {
     if (!isLoggedIn()) {
       uni.reLaunch({ url: '/pages/login/index' })
@@ -208,13 +181,32 @@ export default {
     }
     this.userInfo = getUser() || {}
     this.loadStats()
+    uni.$on('notificationUpdate', this.loadStats)
+    uni.$on('todoUpdate', this.loadStats)
+  },
+  onHide() {
+    uni.$off('notificationUpdate', this.loadStats)
+    uni.$off('todoUpdate', this.loadStats)
   },
   methods: {
     async loadStats() {
+      let todoCount = 0
       try {
-        const tasks = await getWorkerTasks()
-        this.todoCount = (tasks || []).filter(t => t.status === 0 || t.status === 1).length
+        const res = await getWorkOrderList({ status: 1, page: 1, size: 50 })
+        const orders = (res && res.records) || res || []
+        todoCount += orders.length
       } catch { /* ignore */ }
+      try {
+        const res = await getQualityTaskList({ status: 0, page: 1, size: 50 })
+        const tasks = (res && res.records) || res || []
+        todoCount += tasks.length
+      } catch { /* ignore */ }
+      try {
+        const res = await getExceptionList({ status: 0, page: 1, size: 50 })
+        const exceptions = (res && res.records) || res || []
+        todoCount += exceptions.length
+      } catch { /* ignore */ }
+      this.todoCount = todoCount
       try {
         const res = await getOperationLogCount()
         this.logCount = res.total || 0
@@ -224,10 +216,16 @@ export default {
         const res = await getPersonalPerformance()
         this.performance = {
           todayOutput: res.todayOutput || 0,
+          completionRate: res.todayPassRate != null ? Number(res.todayPassRate).toFixed(1) : '0.0',
+          yieldRate: res.todayPassRate != null ? Number(res.todayPassRate).toFixed(1) : '0.0',
           departmentRank: res.departmentRank || '-',
           departmentTotal: res.departmentTotal || '-',
           rankTrend: res.rankTrend || 0
         }
+      } catch { /* ignore */ }
+      try {
+        const res = await getNotificationCount()
+        this.notificationCount = res.unreadCount || 0
       } catch { /* ignore */ }
     },
     goTo(url) {
@@ -258,85 +256,92 @@ export default {
 <style lang="scss" scoped>
 .mine-page {
   min-height: 100vh;
-  background: transparent;
-  padding-bottom: 120rpx;
-  position: relative;
+  background: #F5F7FA;
 }
 
-.page-content {
+.banner-area {
+  position: relative;
+  padding-top: calc(env(safe-area-inset-top) + 40rpx);
+  padding-left: 36rpx;
+  padding-right: 36rpx;
+  padding-bottom: 40rpx;
+  overflow: hidden;
+}
+
+.banner-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #3B7CFF 0%, #5B9AFF 30%, #7CB7FF 60%, #9DC8FF 100%);
+}
+
+.banner-decoration {
+  position: absolute;
+  top: -100rpx;
+  right: -80rpx;
+  width: 350rpx;
+  height: 350rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.banner-content {
   position: relative;
   z-index: 1;
 }
 
-.mine-header {
-  background: linear-gradient(135deg, #3B7CFF 0%, #5B9AFF 40%, #7CB7FF 80%, #9DC8FF 100%);
-  padding: 48rpx 32rpx 40rpx;
+.user-info {
   display: flex;
   align-items: center;
-  border-radius: 0 0 48rpx 48rpx;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -150rpx;
-    right: -100rpx;
-    width: 350rpx;
-    height: 350rpx;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.12);
-    animation: float 6s ease-in-out infinite;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -60rpx;
-    left: -60rpx;
-    width: 200rpx;
-    height: 200rpx;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
-    animation: float 8s ease-in-out infinite reverse;
-  }
+  margin-bottom: 32rpx;
 }
 
 .avatar-wrap {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-right: 24rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
+  overflow: hidden;
 }
 
-.mine-info {
-  flex: 1;
+.user-avatar {
+  width: 100%;
+  height: 100%;
 }
 
-.mine-name {
-  font-size: 36rpx;
+.user-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 40rpx;
   font-weight: 700;
   color: #ffffff;
-  display: block;
   margin-bottom: 8rpx;
 }
 
-.mine-role {
+.user-role {
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.75);
-  display: inline-block;
-  padding: 4rpx 16rpx;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 8rpx;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+  align-self: flex-start;
 }
 
-.mine-stats {
+.stats-row {
   display: flex;
-  background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
-  margin: -24rpx 24rpx 24rpx;
-  border-radius: 24rpx;
-  padding: 32rpx 0;
-  box-shadow: 0 8rpx 32rpx rgba(59, 124, 255, 0.15), 0 2rpx 8rpx rgba(59, 124, 255, 0.08);
-  position: relative;
-  z-index: 2;
-  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 32rpx;
+  padding: 24rpx;
+  backdrop-filter: blur(10px);
 }
 
 .stat-item {
@@ -344,282 +349,212 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
 }
 
 .stat-divider {
-  width: 1rpx;
-  height: 60rpx;
-  background: #F0F0F0;
-  align-self: center;
+  width: 2rpx;
+  height: 50rpx;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .stat-value {
   font-size: 44rpx;
   font-weight: 700;
-  color: #3B7CFF;
-  display: block;
-  margin-bottom: 8rpx;
-  line-height: 1.2;
+  color: #ffffff;
 }
 
 .stat-label {
-  font-size: 24rpx;
-  color: #8C8C8C;
-  display: block;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 4rpx;
 }
 
 .stat-badge {
   position: absolute;
-  top: 8rpx;
-  right: 50%;
-  transform: translateX(50%);
-  background: #FF4D4F;
-  color: #ffffff;
-  font-size: 20rpx;
-  padding: 2rpx 10rpx;
-  border-radius: 10rpx;
-  min-width: 32rpx;
-  text-align: center;
+  top: -8rpx;
+  right: 20rpx;
 }
 
-.performance-card {
-  background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
-  margin: 0 24rpx 24rpx;
-  border-radius: 24rpx;
+.main-content {
+  padding: 0 32rpx;
+  margin-top: -20rpx;
+}
+
+.perf-card {
+  background: #ffffff;
+  border-radius: 32rpx;
   padding: 28rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06), 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  margin-bottom: 24rpx;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.06), 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
-.section-header {
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24rpx;
 }
 
-.section-title {
+.card-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #1F1F1F;
+  color: #333;
 }
 
-.section-sub {
+.card-sub {
   font-size: 24rpx;
-  color: #8C8C8C;
+  color: #999;
 }
 
-.performance-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16rpx;
-  margin-bottom: 28rpx;
+.perf-grid {
+  display: flex;
+  gap: 20rpx;
 }
 
-.perf-card {
-  background: #F8FAFF;
-  border-radius: 20rpx;
-  padding: 20rpx;
+.perf-item {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 20rpx 12rpx;
+  background: #FAFBFC;
+  border-radius: 16rpx;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
 }
 
-.perf-icon-wrap {
+.perf-icon {
   width: 64rpx;
   height: 64rpx;
-  border-radius: 16rpx;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 12rpx;
-
-  &.output-icon { background: #E8F0FF; }
-  &.rate-icon { background: #FFF7E6; }
-  &.yield-icon { background: #F6FFED; }
-  &.rank-icon { background: #FFFBE6; }
 }
 
-.perf-icon-text {
-  font-size: 24rpx;
-  font-weight: 700;
+.output-icon { background: linear-gradient(135deg, rgba(59, 124, 255, 0.15) 0%, rgba(59, 124, 255, 0.05) 100%); }
+.rate-icon { background: linear-gradient(135deg, rgba(250, 173, 20, 0.15) 0%, rgba(250, 173, 20, 0.05) 100%); }
+.yield-icon { background: linear-gradient(135deg, rgba(82, 196, 26, 0.15) 0%, rgba(82, 196, 26, 0.05) 100%); }
+.rank-icon { background: linear-gradient(135deg, rgba(147, 112, 219, 0.15) 0%, rgba(147, 112, 219, 0.05) 100%); }
 
-  .output-icon & { color: #3B7CFF; }
-  .rate-icon & { color: #FAAD14; }
-  .yield-icon & { color: #52C41A; }
-  .rank-icon & { color: #FAAD14; }
+.icon-text {
+  font-size: 28rpx;
+  font-weight: 600;
 }
 
-.perf-content {
-  flex: 1;
-}
-
-.perf-value-row {
-  display: flex;
-  align-items: baseline;
-  margin-bottom: 4rpx;
-}
+.output-icon .icon-text { color: #3B7CFF; }
+.rate-icon .icon-text { color: #FAAD14; }
+.yield-icon .icon-text { color: #52C41A; }
+.rank-icon .icon-text { color: #9370DB; }
 
 .perf-value {
   font-size: 32rpx;
   font-weight: 700;
-  color: #1F1F1F;
+  color: #333;
 }
 
 .perf-unit {
-  font-size: 22rpx;
-  color: #8C8C8C;
+  font-size: 20rpx;
+  color: #999;
   margin-left: 4rpx;
 }
 
 .perf-label {
   font-size: 22rpx;
-  color: #8C8C8C;
+  color: #999;
+  margin-top: 4rpx;
 }
 
-.perf-label-row {
-  display: flex;
-  align-items: center;
-}
-
-.perf-progress {
-  margin-top: 12rpx;
-}
-
-.progress-bar {
-  height: 8rpx;
-  background: #E8EEF7;
-  border-radius: 4rpx;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #FAAD14 0%, #FFC53D 100%);
-  border-radius: 4rpx;
-  transition: width 0.5s ease;
-}
-
-.rank-trend {
-  font-size: 20rpx;
-  margin-left: 6rpx;
-  font-weight: 500;
-
-  &.trend-up { color: #52C41A; }
-  &.trend-down { color: #FF4D4F; }
-}
-
-.weekly-chart {
-  background: #F8FAFF;
-  border-radius: 20rpx;
-  padding: 20rpx;
-}
-
-.chart-title {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #1F1F1F;
-  display: block;
-  margin-bottom: 20rpx;
-}
-
-.chart-bars {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  height: 200rpx;
-  padding-top: 40rpx;
-}
-
-.chart-bar-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
-
-.bar-wrapper {
-  position: relative;
-  width: 36rpx;
-  flex: 1;
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: center;
-}
-
-.bar-fill {
-  width: 100%;
-  background: linear-gradient(180deg, #52C41A 0%, #73D13D 100%);
-  border-radius: 6rpx 6rpx 0 0;
-  transition: height 0.5s ease;
-  min-height: 8rpx;
-}
-
-.bar-value {
-  position: absolute;
-  top: -32rpx;
-  font-size: 20rpx;
-  color: #8C8C8C;
-}
-
-.bar-label {
-  font-size: 20rpx;
-  color: #8C8C8C;
-  margin-top: 12rpx;
-}
-
-.mine-menu {
-  margin: 0 24rpx 24rpx;
-  border-radius: 24rpx;
-  overflow: hidden;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06), 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-  background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
-  border: 1rpx solid rgba(255, 255, 255, 0.8);
+.menu-section {
+  background: #ffffff;
+  border-radius: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.06), 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 30rpx 28rpx;
-  border-bottom: 1rpx solid #F2F2F2;
+  padding: 28rpx;
+  border-bottom: 1rpx solid #F5F5F5;
+  position: relative;
+  transition: all 0.3s ease;
 
   &:last-child {
     border-bottom: none;
   }
 
   &:active {
-    background: #F8F8F8;
+    background: #FAFBFC;
+    transform: scale(0.95);
   }
 }
 
-.menu-icon-wrap {
-  width: 56rpx;
-  height: 56rpx;
-  border-radius: 14rpx;
-  background: #E8F0FF;
+.menu-icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-right: 20rpx;
 }
 
+.log-icon { background: linear-gradient(135deg, #3B7CFF 0%, #5B9AFF 100%); }
+.profile-icon { background: linear-gradient(135deg, #52C41A 0%, #389E0D 100%); }
+.notify-icon { background: linear-gradient(135deg, #FAAD14 0%, #D48806 100%); }
+.todo-icon { background: linear-gradient(135deg, #FF6B6B 0%, #FF4D4F 100%); }
+.settings-icon { background: linear-gradient(135deg, #9370DB 0%, #722ED1 100%); }
+.about-icon { background: linear-gradient(135deg, #13C2C2 0%, #08979C 100%); }
+
 .menu-icon-text {
-  font-size: 28rpx;
+  font-size: 32rpx;
   font-weight: 600;
-  color: #3B7CFF;
+  color: #ffffff;
 }
 
 .menu-title {
   flex: 1;
-  font-size: 28rpx;
-  color: #1F1F1F;
+  font-size: 30rpx;
+  color: #333;
 }
 
 .menu-arrow {
-  font-size: 32rpx;
-  color: #BFBFBF;
+  font-size: 36rpx;
+  color: #CCC;
+}
+
+.menu-badge {
+  position: absolute;
+  right: 80rpx;
+  top: 20rpx;
+}
+
+.logout-section {
+  padding: 40rpx 0 calc(env(safe-area-inset-bottom) + 100rpx);
 }
 
 .logout-btn {
-  margin: 40rpx 24rpx;
+  background: #ffffff;
+  border-radius: 44rpx;
+  padding: 28rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
+  border: 2rpx solid #FFE0E0;
+
+  &:active {
+    background: #FFF5F5;
+  }
+}
+
+.logout-text {
+  font-size: 30rpx;
+  color: #FF4D4F;
+  font-weight: 500;
 }
 </style>

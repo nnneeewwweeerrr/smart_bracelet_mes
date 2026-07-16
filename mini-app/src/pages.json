@@ -10,7 +10,8 @@
     {
       "path": "pages/workbench/index",
       "style": {
-        "navigationBarTitleText": "工作台"
+        "navigationBarTitleText": "工作台",
+        "navigationStyle": "custom"
       }
     },
     {
@@ -28,7 +29,8 @@
     {
       "path": "pages/scan/index",
       "style": {
-        "navigationBarTitleText": "扫码"
+        "navigationBarTitleText": "扫码",
+        "navigationStyle": "custom"
       }
     },
     {
@@ -166,7 +168,8 @@
     {
       "path": "pages/mine/index",
       "style": {
-        "navigationBarTitleText": "个人中心"
+        "navigationBarTitleText": "个人中心",
+        "navigationStyle": "custom"
       }
     },
     {
@@ -203,8 +206,7 @@
       "path": "pages/ai/index",
       "style": {
         "navigationBarTitleText": "AI生产助手",
-        "navigationBarBackgroundColor": "#1e3a5f",
-        "navigationBarTextStyle": "white"
+        "navigationStyle": "custom"
       }
     }
   ],
@@ -248,7 +250,7 @@
   },
   "permission": {
     "scope.record": {
-      "desc": "您的麦克风权限用于异常上报和AI助手语音输入"
+      "desc": "您的麦克风权限用于异常上报语音输入"
     },
     "scope.camera": {
       "desc": "您的相机权限用于扫码功能"
@@ -257,6 +259,13 @@
       "desc": "您的相册权限用于上传异常照片"
     }
   },
-  
-  
+  "requiredPrivateInfos": [
+    "getLocation",
+    "chooseLocation",
+    "chooseAddress",
+    "choosePoi",
+    "onLocationChange",
+    "startLocationUpdate",
+    "startLocationUpdateBackground"
+  ]
 }

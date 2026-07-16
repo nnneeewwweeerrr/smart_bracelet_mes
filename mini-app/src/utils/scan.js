@@ -4,9 +4,11 @@ export function scanCode() {
       onlyFromCamera: false,
       scanType: ['qrCode', 'barCode'],
       success(res) {
+        console.log('扫码结果:', res)
         resolve(res.result)
       },
       fail(err) {
+        console.error('扫码失败:', err)
         if (err.errMsg && err.errMsg.indexOf('cancel') === -1) {
           uni.showToast({ title: '扫码失败，请重试', icon: 'none' })
         }
@@ -27,6 +29,48 @@ export function parseScanResult(result) {
     const params = Object.fromEntries(url.searchParams)
     return { type, params, raw: trimmed }
   } catch {
+  }
+
+  let code = trimmed
+
+  if (code.startsWith('SN_SN')) {
+    code = code.substring(3)
+    return { type: 'sn_code', params: { snCode: code }, raw: trimmed }
+  }
+
+  if (code.startsWith('WO_WO')) {
+    code = code.substring(3)
+    return { type: 'work_order', params: { workOrderNo: code }, raw: trimmed }
+  }
+
+  if (code.startsWith('MTRL_')) {
+    code = code.substring(5)
+    return { type: 'material', params: { materialCode: code }, raw: trimmed }
+  }
+
+  if (code.startsWith('BATCH_BATCH')) {
+    code = code.substring(6)
+    return { type: 'batch', params: { batchNo: code }, raw: trimmed }
+  }
+
+  if (code.startsWith('BATCH_B')) {
+    code = code.substring(6)
+    return { type: 'batch', params: { batchNo: 'B' + code }, raw: trimmed }
+  }
+
+  if (code.startsWith('RP_RP')) {
+    code = code.substring(3)
+    return { type: 'repair', params: { repairNo: code }, raw: trimmed }
+  }
+
+  if (code.startsWith('STATION_')) {
+    code = code.substring(8)
+    return { type: 'station', params: { stationCode: 'STATION' + code }, raw: trimmed }
+  }
+
+  if (code.startsWith('QCTASK_')) {
+    code = code.substring(7)
+    return { type: 'qc_task', params: { taskNo: code }, raw: trimmed }
   }
 
   if (/^SN\d{8,15}$/.test(trimmed)) {
@@ -51,6 +95,22 @@ export function parseScanResult(result) {
 
   if (/^STATION\d{4,8}$/.test(trimmed)) {
     return { type: 'station', params: { stationCode: trimmed }, raw: trimmed }
+  }
+
+  if (/^STATION\w{4,8}$/.test(trimmed)) {
+    return { type: 'station', params: { stationCode: trimmed }, raw: trimmed }
+  }
+
+  if (/^QCTASK\d{6,12}$/.test(trimmed)) {
+    return { type: 'qc_task', params: { taskNo: trimmed }, raw: trimmed }
+  }
+
+  if (/^IC-\d{4,6}$/.test(trimmed)) {
+    return { type: 'material', params: { materialCode: trimmed }, raw: trimmed }
+  }
+
+  if (/^BAT-\d{4,6}$/.test(trimmed)) {
+    return { type: 'material', params: { materialCode: trimmed }, raw: trimmed }
   }
 
   return { type: 'text', params: { content: trimmed }, raw: trimmed }

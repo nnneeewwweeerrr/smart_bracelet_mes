@@ -1,5 +1,7 @@
-﻿<template>
+<template>
   <view class="log-page">
+    <DynamicBackground theme="theme-primary" />
+    <view class="page-content">
     <view class="filter-bar">
       <u-tabs :list="moduleList" :current="currentModule" @click="onModuleChange" :activeStyle="{ color: '#3B7CFF', fontWeight: 'bold' }" :inactiveStyle="{ color: '#8C8C8C' }" lineColor="#3B7CFF" :lineWidth="30"></u-tabs>
     </view>
@@ -12,31 +14,38 @@
       <view class="log-card" v-for="item in list" :key="item.id">
         <view class="log-header">
           <u-tag :text="item.moduleName" :type="item.moduleTag" size="mini" plain></u-tag>
-          <text class="log-time">{{ item.operationTime }}</text>
+          <text class="log-time">{{ item.createTime }}</text>
         </view>
-        <text class="log-action">{{ item.operationContent }}</text>
+        <text class="log-action">{{ item.operationDesc }}</text>
         <view class="log-detail">
-          <text class="log-no">{{ item.operationNo }}</text>
-          <text :class="['log-status', item.success ? 'success' : 'fail']">{{ item.success ? '成功' : '失败' }}</text>
+          <text class="log-no">{{ item.ipAddress }}</text>
+          <text class="log-status">{{ item.operationType }}</text>
         </view>
       </view>
+    </view>
     </view>
   </view>
 </template>
 
 <script>
 import { getOperationLogList } from '@/api/user'
+import DynamicBackground from '@/components/DynamicBackground'
 
 export default {
+  components: { DynamicBackground },
   data() {
     return {
       currentModule: 0,
       moduleList: [
         { name: '全部', value: '' },
-        { name: '仓储', value: 'stock' },
-        { name: '生产', value: 'production' },
-        { name: '质检', value: 'quality' },
-        { name: '异常', value: 'exception' }
+        { name: '入库管理', value: '入库管理' },
+        { name: '出库管理', value: '出库管理' },
+        { name: '报工管理', value: '报工管理' },
+        { name: '生产管理', value: '生产管理' },
+        { name: 'SOP管理', value: 'SOP管理' },
+        { name: '工单管理', value: '工单管理' },
+        { name: '设备档案', value: '设备档案' },
+        { name: '系统管理', value: '系统管理' }
       ],
       list: [],
       page: 1,
@@ -99,11 +108,51 @@ export default {
       }
     },
     getModuleName(m) {
-      const map = { stock: '仓储', production: '生产', quality: '质检', exception: '异常', system: '系统' }
+      const map = {
+        '入库管理': '入库管理',
+        '出库管理': '出库管理',
+        '报工管理': '报工管理',
+        '生产管理': '生产管理',
+        'SOP管理': 'SOP管理',
+        '工单管理': '工单管理',
+        '设备档案': '设备档案',
+        '设备保养': '设备保养',
+        '客户档案': '客户档案',
+        '物料档案': '物料档案',
+        '工序管理': '工序管理',
+        '订单管理': '订单管理',
+        '生产计划': '生产计划',
+        '产品档案': '产品档案',
+        '采购管理': '采购管理',
+        '供应商管理': '供应商管理',
+        '仓库管理': '仓库管理',
+        'SN追溯': 'SN追溯',
+        '系统管理': '系统管理'
+      }
       return map[m] || m || '未知'
     },
     getModuleTag(m) {
-      const map = { stock: 'success', production: 'warning', quality: 'error', exception: 'primary', system: 'info' }
+      const map = {
+        '入库管理': 'success',
+        '出库管理': 'warning',
+        '报工管理': 'primary',
+        '生产管理': 'primary',
+        'SOP管理': 'info',
+        '工单管理': 'warning',
+        '设备档案': 'info',
+        '设备保养': 'info',
+        '客户档案': 'info',
+        '物料档案': 'info',
+        '工序管理': 'primary',
+        '订单管理': 'warning',
+        '生产计划': 'warning',
+        '产品档案': 'info',
+        '采购管理': 'warning',
+        '供应商管理': 'info',
+        '仓库管理': 'success',
+        'SN追溯': 'error',
+        '系统管理': 'info'
+      }
       return map[m] || 'info'
     }
   }
@@ -113,7 +162,13 @@ export default {
 <style lang="scss" scoped>
 .log-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
+  position: relative;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
 }
 
 .filter-bar {
@@ -169,8 +224,6 @@ export default {
 .log-status {
   font-size: 24rpx;
   font-weight: 500;
-
-  &.success { color: #52C41A; }
-  &.fail { color: #FF4D4F; }
+  color: #3B7CFF;
 }
 </style>

@@ -1,5 +1,7 @@
 <template>
   <view class="material-page">
+    <DynamicBackground theme="theme-primary"></DynamicBackground>
+    <view class="page-content">
     <view class="search-bar">
       <u-search v-model="keyword" placeholder="搜索物料编码/名称" @search="doSearch" @custom="doSearch" @clear="doSearch"></u-search>
     </view>
@@ -25,13 +27,16 @@
         </view>
       </view>
     </view>
+    </view>
   </view>
 </template>
 
 <script>
+import DynamicBackground from '@/components/DynamicBackground'
 import { getMaterialList } from '@/api/stock'
 
 export default {
+  components: { DynamicBackground },
   data() {
     return {
       keyword: '',
@@ -75,52 +80,15 @@ export default {
           materialType: typeVal || undefined
         })
         const records = (res && res.records) || res || []
-        if (records.length > 0) {
-          this.list = records.map(item => ({
-            ...item,
-            materialTypeName: this.getTypeName(item.materialType)
-          }))
-        } else {
-          this.list = this.generateMockData(typeVal)
-        }
+        this.list = records.map(item => ({
+          ...item,
+          materialTypeName: this.getTypeName(item.materialType)
+        }))
       } catch {
-        this.list = this.generateMockData(typeVal)
+        this.list = []
       }
     },
-    generateMockData(type) {
-      const mockData = [
-        { id: 1, materialCode: 'MAT001', materialName: '主控芯片STM32L4', materialType: 'component', unit: '颗', unitPrice: 12.50, safetyStock: 500 },
-        { id: 2, materialCode: 'MAT002', materialName: '心率传感器MAX30102', materialType: 'component', unit: '颗', unitPrice: 8.90, safetyStock: 500 },
-        { id: 3, materialCode: 'MAT003', materialName: 'OLED显示屏0.96寸', materialType: 'component', unit: '片', unitPrice: 15.00, safetyStock: 300 },
-        { id: 4, materialCode: 'MAT004', materialName: '锂电池380mAh', materialType: 'component', unit: '节', unitPrice: 6.80, safetyStock: 1000 },
-        { id: 5, materialCode: 'MAT005', materialName: '蓝牙模块BLE5.0', materialType: 'component', unit: '个', unitPrice: 9.20, safetyStock: 500 },
-        { id: 6, materialCode: 'MAT006', materialName: 'PCB电路板A1', materialType: 'raw', unit: '块', unitPrice: 3.50, safetyStock: 2000 },
-        { id: 7, materialCode: 'MAT007', materialName: '硅胶表带-黑色', materialType: 'component', unit: '条', unitPrice: 2.80, safetyStock: 2000 },
-        { id: 8, materialCode: 'MAT008', materialName: '外壳ABS-白色', materialType: 'component', unit: '个', unitPrice: 4.20, safetyStock: 1000 },
-        { id: 9, materialCode: 'MAT009', materialName: '充电座Type-C', materialType: 'component', unit: '个', unitPrice: 5.50, safetyStock: 500 },
-        { id: 10, materialCode: 'MAT010', materialName: '智能运动手环A1', materialType: 'finished', unit: '台', unitPrice: 89.00, safetyStock: 100 },
-        { id: 11, materialCode: 'MAT011', materialName: '电阻电容包', materialType: 'raw', unit: '包', unitPrice: 18.00, safetyStock: 100 },
-        { id: 12, materialCode: 'MAT012', materialName: '防水胶圈', materialType: 'component', unit: '个', unitPrice: 0.50, safetyStock: 5000 }
-      ]
-      
-      let filtered = mockData
-      if (type) {
-        filtered = mockData.filter(item => item.materialType === type)
-      }
-      
-      if (this.keyword.trim()) {
-        const key = this.keyword.toLowerCase()
-        filtered = filtered.filter(item => 
-          item.materialCode.toLowerCase().includes(key) || 
-          item.materialName.toLowerCase().includes(key)
-        )
-      }
-      
-      return filtered.map(item => ({
-        ...item,
-        materialTypeName: this.getTypeName(item.materialType)
-      }))
-    },
+    
     async loadMore() {
       this.page++
       const typeVal = this.typeList[this.currentType].value
@@ -162,7 +130,13 @@ export default {
 <style lang="scss" scoped>
 .material-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
+  position: relative;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
 }
 
 .search-bar,
@@ -171,6 +145,8 @@ export default {
   background: #ffffff;
   border-radius: 28rpx;
   box-shadow: 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  position: relative;
+  z-index: 10;
 }
 
 .filter-bar {

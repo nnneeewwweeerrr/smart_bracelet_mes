@@ -122,21 +122,14 @@ export default {
   data() {
     return {
       dashboard: {
-        todayOutput: 320,
-        todayPassRate: '98.5',
-        outputTrend: 5,
-        rateTrend: 0.3,
-        weekOutput: [280, 310, 295, 340, 320, 0, 0],
-        weekPassRate: [97.2, 98.1, 97.8, 98.5, 98.5, 0, 0],
+        todayOutput: 0,
+        todayPassRate: '0.0',
+        outputTrend: 0,
+        rateTrend: 0,
+        weekOutput: [0, 0, 0, 0, 0, 0, 0],
+        weekPassRate: [0, 0, 0, 0, 0, 0, 0],
         weekLabels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-        processOutput: [
-          { processName: 'SMT贴片', output: 150, passRate: 98.7 },
-          { processName: '焊接组装', output: 148, passRate: 100 },
-          { processName: '固件烧录', output: 148, passRate: 100 },
-          { processName: '功能测试', output: 145, passRate: 97.3 },
-          { processName: '外观检查', output: 145, passRate: 100 },
-          { processName: '包装入库', output: 0, passRate: 0 }
-        ]
+        processOutput: []
       }
     }
   },
@@ -158,24 +151,27 @@ export default {
       try {
         const res = await getDashboard()
         this.dashboard = {
-          todayOutput: res.todayOutput || 320,
-          todayPassRate: res.todayPassRate != null ? Number(res.todayPassRate).toFixed(1) : '98.5',
-          outputTrend: res.outputTrend || 5,
-          rateTrend: res.rateTrend || 0.3,
-          weekOutput: res.weekOutput || [280, 310, 295, 340, 320, 0, 0],
-          weekPassRate: res.weekPassRate || [97.2, 98.1, 97.8, 98.5, 98.5, 0, 0],
+          todayOutput: res.todayOutput || 0,
+          todayPassRate: res.todayPassRate != null ? Number(res.todayPassRate).toFixed(1) : '0.0',
+          outputTrend: res.outputTrend || 0,
+          rateTrend: res.rateTrend || 0,
+          weekOutput: res.weekOutput || [0, 0, 0, 0, 0, 0, 0],
+          weekPassRate: res.weekPassRate || [0, 0, 0, 0, 0, 0, 0],
           weekLabels: res.weekLabels || ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-          processOutput: res.processOutput || [
-            { processName: 'SMT贴片', output: 150, passRate: 98.7 },
-            { processName: '焊接组装', output: 148, passRate: 100 },
-            { processName: '固件烧录', output: 148, passRate: 100 },
-            { processName: '功能测试', output: 145, passRate: 97.3 },
-            { processName: '外观检查', output: 145, passRate: 100 },
-            { processName: '包装入库', output: 0, passRate: 0 }
-          ]
+          processOutput: res.processOutput || []
         }
       } catch {
-        // keep default mock data
+        this.dashboard = {
+          todayOutput: 0,
+          todayPassRate: '0.0',
+          outputTrend: 0,
+          rateTrend: 0,
+          weekOutput: [0, 0, 0, 0, 0, 0, 0],
+          weekPassRate: [0, 0, 0, 0, 0, 0, 0],
+          weekLabels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+          processOutput: []
+        }
+        uni.showToast({ title: '获取数据失败', icon: 'none' })
       }
     },
     barHeight(val) {
@@ -197,7 +193,7 @@ export default {
 <style lang="scss" scoped>
 .stats-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding: 24rpx;
   padding-bottom: 40rpx;
   position: relative;

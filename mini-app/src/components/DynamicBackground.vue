@@ -90,6 +90,19 @@ export default {
   pointer-events: none;
 }
 
+.dynamic-bg .bg-gradient-layer,
+.dynamic-bg .circle-container,
+.dynamic-bg .circle-container .circle,
+.dynamic-bg .circle-container .circle .circle-ring,
+.dynamic-bg .circle-container .circle .circle-arc,
+.dynamic-bg .circle-container .circle .circle-center,
+.dynamic-bg .wave-container,
+.dynamic-bg .wave-container .wave,
+.dynamic-bg .bg-particles,
+.dynamic-bg .bg-particles .particle {
+  pointer-events: none;
+}
+
 .dynamic-bg-fixed {
   position: fixed;
 }

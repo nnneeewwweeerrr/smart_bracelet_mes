@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="quality-page">
     <DynamicBackground theme="theme-success" />
     <view class="page-content">
@@ -111,7 +111,7 @@ export default {
 <style lang="scss" scoped>
 .quality-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding: $spacing-lg;
   padding-bottom: $tabbar-height;
   position: relative;

@@ -1,145 +1,131 @@
 <template>
   <view class="workbench-page">
-    <DynamicBackground theme="theme-primary" />
-    <view class="page-content">
-    <view class="header-panel">
-      <view class="header-top">
-      <view class="header-left">
-        <text class="header-title">智能手环MES</text>
-        <text class="user-greeting">{{ greetingText }}，{{ userInfo.realName || '用户' }}</text>
-      </view>
-      <view class="avatar-wrap">
-        <u-avatar :text="avatarText" size="52" bg-color="#ffffff" color="#3B7CFF"></u-avatar>
-      </view>
-    </view>
-    </view>
-
-    <view class="content-area">
-      <view class="notice-card">
-        <view class="notice-line"></view>
-        <view class="notice-content">
-          <view class="notice-header">
-            <text class="notice-title">通知公告</text>
-            <text class="notice-tag">温度 17/26° 阴转晴</text>
+    <scroll-view class="page-body" scroll-y>
+      <view class="page-header" :style="{ paddingTop: statusBarPadding }">
+        <view class="header-bg"></view>
+        <view class="header-wave"></view>
+        <view class="header-content">
+          <view class="header-top">
+            <view class="location-tag">
+              <text class="location-icon">🏭</text>
+              <text class="location-text">生产车间</text>
+            </view>
+            <view class="avatar-wrap" @click="goTo('/pages/mine/index')">
+              <image class="user-avatar" src="/static/头像.jpg" mode="aspectFill"></image>
+            </view>
           </view>
-          <text class="notice-desc">今天请优先处理未完成工单，生产现场保持5S标准，及时上报异常。</text>
-        </view>
-      </view>
-
-      <view class="dashboard-cards">
-        <view class="data-card card-output" @click="goTo('/pages/workbench/stats')">
-          <view class="card-deco"></view>
-          <view class="card-content">
-            <view class="card-top">
-              <view class="card-icon-wrap output-icon">
-                <text class="icon-text">产</text>
+          <view class="header-title-area">
+            <text class="header-title">智能手环MES</text>
+            <text class="header-subtitle">{{ greetingText }}，{{ userInfo.realName || '操作员' }}</text>
+          </view>
+          <view class="stats-row">
+            <view class="stat-card">
+              <view class="stat-icon-wrap blue">
+                <text class="stat-icon">📊</text>
               </view>
-              <text class="card-label">今日产量</text>
-            </view>
-            <view class="card-body">
-              <text class="card-value">{{ dashboard.todayOutput }}</text>
-              <text class="card-unit">件</text>
-            </view>
-            <view class="card-trend">
-              <text :class="['trend-text', dashboard.outputTrend >= 0 ? 'trend-up' : 'trend-down']">
-                {{ dashboard.outputTrend >= 0 ? '↑' : '↓' }}{{ Math.abs(dashboard.outputTrend) }}%
-              </text>
-              <text class="trend-label">较昨日</text>
-            </view>
-          </view>
-        </view>
-        <view class="data-card card-rate" @click="goTo('/pages/workbench/stats')">
-          <view class="card-deco"></view>
-          <view class="card-content">
-            <view class="card-top">
-              <view class="card-icon-wrap rate-icon">
-                <text class="icon-text">合</text>
+              <view class="stat-info">
+                <text class="stat-value">{{ dashboard.todayOutput }}</text>
+                <text class="stat-label">今日产量</text>
               </view>
-              <text class="card-label">今日合格率</text>
             </view>
-            <view class="card-body">
-              <text class="card-value">{{ dashboard.todayPassRate }}</text>
-              <text class="card-unit">%</text>
-            </view>
-            <view class="card-trend">
-              <text :class="['trend-text', dashboard.rateTrend >= 0 ? 'trend-up' : 'trend-down']">
-                {{ dashboard.rateTrend >= 0 ? '↑' : '↓' }}{{ Math.abs(dashboard.rateTrend) }}%
-              </text>
-              <text class="trend-label">较昨日</text>
+            <view class="stat-card">
+              <view class="stat-icon-wrap green">
+                <text class="stat-icon">✅</text>
+              </view>
+              <view class="stat-info">
+                <text class="stat-value">{{ dashboard.todayPassRate }}%</text>
+                <text class="stat-label">合格率</text>
+              </view>
             </view>
           </view>
         </view>
       </view>
-
-      <!-- AI生产助手入口 -->
-      <view class="ai-entry-card" @click="goTo('/pages/ai/index')">
-        <view class="ai-card-bg"></view>
-        <view class="ai-card-content">
-          <view class="ai-card-left">
-            <view class="ai-avatar">
-              <text class="ai-avatar-icon">AI</text>
-              <view class="ai-pulse"></view>
+      <view class="notice-section">
+        <view class="notice-card">
+          <view class="notice-icon">📢</view>
+          <view class="notice-body">
+            <view class="notice-header">
+              <text class="notice-title">通知公告</text>
+              <text class="notice-time">{{ currentDate }}</text>
             </view>
-            <view class="ai-card-text">
-              <text class="ai-card-title">AI生产助手</text>
-              <text class="ai-card-desc">智能问答 · 语音交互 · 扫码联动</text>
-            </view>
-          </view>
-          <view class="ai-card-right">
-            <text class="ai-card-arrow">立即提问 ›</text>
+            <text class="notice-desc">今日任务：完成生产计划80%，注意保持5S标准，及时上报异常</text>
           </view>
         </view>
       </view>
 
-      <view class="quick-actions">
+      <view class="quick-section">
         <view class="section-header">
           <text class="section-title">快捷操作</text>
-          <text class="section-more" @click="goTo('/pages/workbench/apps')">更多</text>
+          <text class="section-more" @click="goTo('/pages/workbench/apps')">全部 ›</text>
         </view>
-        <view class="action-grid">
-          <view class="action-item" @click="goTo('/pages/scan/index')">
-            <view class="action-icon scan-icon">
-              <text class="action-icon-text">扫</text>
+        <view class="quick-grid">
+          <view class="quick-item" @click="goTo('/pages/scan/index')">
+            <view class="quick-icon scan">
+              <text class="icon-text">📷</text>
             </view>
-            <text class="action-text">扫码报工</text>
+            <text class="quick-label">扫码报工</text>
+            <u-badge v-if="scanCount > 0" :count="scanCount" type="error" class="item-badge"></u-badge>
           </view>
-          <view class="action-item" @click="goTo('/pages/stock/index')">
-            <view class="action-icon stock-icon">
-              <text class="action-icon-text">仓</text>
-              <u-badge v-if="stockWarningCount > 0" :count="stockWarningCount" :offset="[4, -4]" type="error"></u-badge>
+          <view class="quick-item" @click="goTo('/pages/stock/index')">
+            <view class="quick-icon stock">
+              <text class="icon-text">📦</text>
             </view>
-            <text class="action-text">仓储管理</text>
+            <text class="quick-label">仓储管理</text>
+            <u-badge v-if="stockWarningCount > 0" :count="stockWarningCount" type="error" class="item-badge"></u-badge>
           </view>
-          <view class="action-item" @click="goTo('/pages/production/index')">
-            <view class="action-icon prod-icon">
-              <text class="action-icon-text">工</text>
+          <view class="quick-item" @click="goTo('/pages/production/index')">
+            <view class="quick-icon prod">
+              <text class="icon-text">🏭</text>
             </view>
-            <text class="action-text">生产报工</text>
+            <text class="quick-label">生产报工</text>
           </view>
-          <view class="action-item" @click="goTo('/pages/quality/index')">
-            <view class="action-icon quality-icon">
-              <text class="action-icon-text">检</text>
+          <view class="quick-item" @click="goTo('/pages/quality/index')">
+            <view class="quick-icon quality">
+              <text class="icon-text">✅</text>
             </view>
-            <text class="action-text">质检录入</text>
+            <text class="quick-label">质检录入</text>
           </view>
-          <view class="action-item" @click="goTo('/pages/exception/index')">
-            <view class="action-icon exception-icon">
-              <text class="action-icon-text">异</text>
-              <u-badge v-if="pendingExceptionCount > 0" :count="pendingExceptionCount" :offset="[4, -4]" type="error"></u-badge>
+          <view class="quick-item" @click="goTo('/pages/exception/index')">
+            <view class="quick-icon exception">
+              <text class="icon-text">⚠️</text>
             </view>
-            <text class="action-text">异常上报</text>
+            <text class="quick-label">异常上报</text>
+            <u-badge v-if="pendingExceptionCount > 0" :count="pendingExceptionCount" type="error" class="item-badge"></u-badge>
           </view>
-          <view class="action-item" @click="goTo('/pages/quality/test-input')">
-            <view class="action-icon test-icon">
-              <text class="action-icon-text">测</text>
+          <view class="quick-item" @click="goTo('/pages/quality/test-input')">
+            <view class="quick-icon test">
+              <text class="icon-text">🔬</text>
             </view>
-            <text class="action-text">功能测试</text>
+            <text class="quick-label">功能测试</text>
           </view>
-          <view class="action-item" @click="goTo('/pages/production/repair')">
-            <view class="action-icon repair-icon">
-              <text class="action-icon-text">修</text>
+          <view class="quick-item" @click="goTo('/pages/production/trace')">
+            <view class="quick-icon trace">
+              <text class="icon-text">🔍</text>
             </view>
-            <text class="action-text">不良品维修</text>
+            <text class="quick-label">批次追溯</text>
+          </view>
+          <view class="quick-item" @click="goTo('/pages/production/repair')">
+            <view class="quick-icon repair">
+              <text class="icon-text">🔧</text>
+            </view>
+            <text class="quick-label">不良品维修</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="ai-section" @click="goTo('/pages/ai/index')">
+        <view class="ai-bg"></view>
+        <view class="ai-content">
+          <view class="ai-icon-wrap">
+            <text class="ai-icon">🤖</text>
+          </view>
+          <view class="ai-info">
+            <text class="ai-title">AI生产助手</text>
+            <text class="ai-desc">智能问答 · 语音交互 · 扫码联动</text>
+          </view>
+          <view class="ai-arrow">
+            <text class="arrow-text">立即提问</text>
+            <text class="arrow-icon">›</text>
           </view>
         </view>
       </view>
@@ -147,23 +133,29 @@
       <view class="task-section">
         <view class="section-header">
           <text class="section-title">我的任务</text>
-          <text class="section-more" @click="goTo('/pages/mine/todo')">查看全部</text>
+          <text class="section-more" @click="goTo('/pages/mine/todo')">查看全部 ›</text>
         </view>
-        <view v-if="tasks.length === 0" class="empty-tips">
-          <u-empty mode="data" text="暂无任务" iconSize="100"></u-empty>
+        <view v-if="tasks.length === 0" class="empty-state">
+          <text class="empty-icon">📋</text>
+          <text class="empty-text">暂无任务</text>
         </view>
         <view v-else class="task-list">
-          <view class="task-card" v-for="item in tasks" :key="item.id">
-            <view class="task-header">
-              <text class="task-name">{{ item.workNo || item.taskNo }}</text>
-              <u-tag :text="item.statusText" :type="item.statusType" size="mini" plain></u-tag>
+          <view class="task-item" v-for="item in tasks" :key="item.id" @click="goTaskDetail(item)">
+            <view class="task-status" :class="item.statusType"></view>
+            <view class="task-content">
+              <view class="task-top">
+                <text class="task-name">{{ item.workNo || item.taskNo }}</text>
+                <u-tag :text="item.statusText" :type="item.statusType" size="mini" plain class="task-tag"></u-tag>
+              </view>
+              <text class="task-desc">{{ item.description || '暂无描述' }}</text>
             </view>
-            <text class="task-desc">{{ item.description || '暂无描述' }}</text>
+            <text class="task-arrow">›</text>
           </view>
         </view>
       </view>
-    </view>
-    </view>
+
+      <view class="bottom-space"></view>
+    </scroll-view>
   </view>
 </template>
 
@@ -173,18 +165,16 @@ import { getWorkerTasks } from '@/api/user'
 import { getDashboard } from '@/api/production'
 import { getStockWarning } from '@/api/stock'
 import { getExceptionList } from '@/api/exception'
-import DynamicBackground from '@/components/DynamicBackground'
 
 export default {
-  components: {
-    DynamicBackground
-  },
   data() {
     return {
       userInfo: {},
       tasks: [],
       pendingExceptionCount: 0,
       stockWarningCount: 0,
+      scanCount: 0,
+      statusBarPadding: '',
       dashboard: {
         todayOutput: 0,
         todayPassRate: '0.0',
@@ -204,7 +194,20 @@ export default {
       if (h < 14) return '中午好'
       if (h < 18) return '下午好'
       return '晚上好'
+    },
+    currentDate() {
+      const now = new Date()
+      const month = now.getMonth() + 1
+      const day = now.getDate()
+      const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+      return `${month}月${day}日 ${weekDays[now.getDay()]}`
     }
+  },
+  onLoad() {
+    const sysInfo = uni.getSystemInfoSync()
+    const statusBarHeight = sysInfo.statusBarHeight || 44
+    this.statusBarPadding = `${statusBarHeight}px`
+    this.bodyPadding = `calc(${statusBarHeight}px + 30rpx)`
   },
   onShow() {
     if (!isLoggedIn()) {
@@ -226,32 +229,41 @@ export default {
           outputTrend: res.outputTrend || 0,
           rateTrend: res.rateTrend || 0
         }
-      } catch {
-        // keep default
+      } catch (e) {
+        console.error('获取工作台数据失败:', e)
       }
     },
     async loadTasks() {
       try {
         const res = await getWorkerTasks()
-        this.tasks = (res || []).map(item => ({
+        const list = Array.isArray(res) ? res : []
+        this.tasks = list.slice(0, 3).map(item => ({
           ...item,
           statusText: item.status === 1 ? '进行中' : item.status === 2 ? '已完成' : '待处理',
-          statusType: item.status === 1 ? 'primary' : item.status === 2 ? 'success' : 'info'
+          statusType: item.status === 1 ? 'primary' : item.status === 2 ? 'success' : 'warning'
         }))
-      } catch {
+      } catch (e) {
+        console.error('获取任务失败:', e)
         this.tasks = []
       }
     },
     async loadWarningCounts() {
       try {
         const warnings = await getStockWarning()
-        this.stockWarningCount = (warnings || []).length
-      } catch { /* ignore */ }
+        this.stockWarningCount = Array.isArray(warnings) ? warnings.length : 0
+      } catch (e) { console.error('获取库存预警失败:', e) }
       try {
         const res = await getExceptionList({ status: 0, page: 1, size: 1 })
         const records = (res && res.records) || res || []
         this.pendingExceptionCount = Array.isArray(records) ? records.length : 0
-      } catch { /* ignore */ }
+      } catch (e) { console.error('获取异常信息失败:', e) }
+    },
+    goTaskDetail(item) {
+      if (item.workNo) {
+        this.goTo(`/pages/production/detail?workOrderId=${encodeURIComponent(item.workNo)}`)
+      } else {
+        this.goTo('/pages/mine/todo')
+      }
     },
     goTo(url) {
       const tabPages = ['/pages/workbench/index', '/pages/scan/index', '/pages/mine/index']
@@ -268,122 +280,179 @@ export default {
 <style lang="scss" scoped>
 .workbench-page {
   min-height: 100vh;
-  background: transparent;
-  position: relative;
+  background: #F0F2F5;
 }
 
-.page-content {
+.page-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.header-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #3B7CFF 0%, #5B9AFF 40%, #7CB7FF 100%);
+}
+
+.header-wave {
+  position: absolute;
+  bottom: -2rpx;
+  left: 0;
+  right: 0;
+  height: 60rpx;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120'%3E%3Cpath fill='%23F0F2F5' fill-opacity='1' d='M0,64L60,69.3C120,75,240,85,360,80C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z'%3E%3C/path%3E%3C/svg%3E") no-repeat;
+  background-size: 100% 100%;
+}
+
+.header-content {
   position: relative;
   z-index: 1;
-}
-
-.header-panel {
-  padding: $spacing-md $spacing-lg $spacing-lg;
-  background: linear-gradient(135deg, #3B7CFF 0%, #5B9AFF 30%, #7CB7FF 60%, #9DC8FF 100%);
-  border-radius: 0 0 $radius-xl $radius-xl;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -150rpx;
-    right: -120rpx;
-    width: 400rpx;
-    height: 400rpx;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.12);
-    animation: float 6s ease-in-out infinite;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -80rpx;
-    left: -80rpx;
-    width: 240rpx;
-    height: 240rpx;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
-    animation: float 8s ease-in-out infinite reverse;
-  }
-
-  .header-decoration {
-    position: absolute;
-    top: 20rpx;
-    left: 20rpx;
-    width: 80rpx;
-    height: 80rpx;
-    border: 2rpx solid rgba(255, 255, 255, 0.1);
-    border-radius: 16rpx;
-    transform: rotate(15deg);
-  }
+  padding: 20rpx 32rpx 40rpx;
 }
 
 .header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 24rpx;
 }
 
-.header-left {
+.location-tag {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10rpx 24rpx;
+  border-radius: 24rpx;
+  backdrop-filter: blur(10px);
+}
+
+.location-icon {
+  font-size: 28rpx;
+  margin-right: 8rpx;
+}
+
+.location-text {
+  font-size: 26rpx;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.avatar-wrap {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3rpx solid rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+}
+
+.user-avatar {
+  width: 100%;
+  height: 100%;
+}
+
+.header-title-area {
+  margin-bottom: 28rpx;
 }
 
 .header-title {
-  font-size: $font-size-xl;
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #ffffff;
+  display: block;
+  letter-spacing: 2rpx;
+}
+
+.header-subtitle {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 6rpx;
+  display: block;
+}
+
+.stats-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.stat-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20rpx;
+  padding: 20rpx;
+  backdrop-filter: blur(10px);
+}
+
+.stat-icon-wrap {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16rpx;
+
+  &.blue { background: rgba(255, 255, 255, 0.2); }
+  &.green { background: rgba(82, 196, 26, 0.2); }
+}
+
+.stat-icon {
+  font-size: 28rpx;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 36rpx;
   font-weight: 700;
   color: #ffffff;
   display: block;
 }
 
-.user-greeting {
-  font-size: $font-size-sm;
-  color: rgba(255, 255, 255, 0.65);
-  margin-top: $spacing-xs;
+.stat-label {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 2rpx;
+  display: block;
 }
 
-.avatar-wrap {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: $radius-md;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2rpx solid rgba(255, 255, 255, 0.2);
+.page-body {
+  height: 100vh;
+  padding: 0;
 }
 
-.content-area {
-  padding: $spacing-lg;
-  margin-top: -40rpx;
-  position: relative;
-  z-index: 2;
+.notice-section {
+  margin-bottom: 24rpx;
+  padding: 0 32rpx;
 }
 
 .notice-card {
-  background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
-  border-radius: $radius-card;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06), 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
   display: flex;
-  padding: $spacing-lg;
-  margin-bottom: $spacing-lg;
-  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06);
 }
 
-.notice-line {
-  width: 6rpx;
-  background: linear-gradient(180deg, $brand-primary 0%, $brand-primary-light 100%);
-  border-radius: 3rpx;
-  margin-right: $spacing-md;
+.notice-icon {
+  font-size: 40rpx;
+  margin-right: 20rpx;
   flex-shrink: 0;
 }
 
-.notice-content {
+.notice-body {
   flex: 1;
 }
 
@@ -391,55 +460,84 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: $spacing-sm;
+  margin-bottom: 12rpx;
 }
 
 .notice-title {
-  font-size: $font-size-md;
+  font-size: 28rpx;
   font-weight: 600;
-  color: $text-primary;
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-
-  &::before {
-    content: '';
-    width: 8rpx;
-    height: 8rpx;
-    border-radius: 50%;
-    background: $brand-primary;
-  }
+  color: #333;
 }
 
-.notice-tag {
-  font-size: $font-size-xs;
-  color: $text-tertiary;
-  background: $bg-hover;
-  padding: $spacing-xs $spacing-sm;
-  border-radius: $radius-xs;
+.notice-time {
+  font-size: 22rpx;
+  color: #999;
 }
 
 .notice-desc {
-  font-size: $font-size-sm;
-  line-height: $line-height-relaxed;
-  color: $text-secondary;
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
 }
 
-.dashboard-cards {
+.quick-section {
+  margin-bottom: 24rpx;
+  padding: 0 32rpx;
+}
+
+.section-header {
   display: flex;
-  gap: $spacing-md;
-  margin-bottom: $spacing-lg;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
 }
 
-.data-card {
-  flex: 1;
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.section-more {
+  font-size: 24rpx;
+  color: #3B7CFF;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24rpx;
+}
+
+.quick-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding: 20rpx 0;
   background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
-  border-radius: $radius-card;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06), 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-  padding: $spacing-lg $spacing-md;
+  border-radius: 28rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:active {
+    transform: scale(0.96);
+    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  }
+}
+
+.quick-icon {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  border: 1rpx solid rgba(255, 255, 255, 0.8);
 
   &::before {
     content: '';
@@ -447,375 +545,215 @@ export default {
     top: 0;
     left: 0;
     right: 0;
-    height: 6rpx;
-    border-radius: 6rpx 6rpx 0 0;
-  }
-
-  &.card-output::before {
-    background: linear-gradient(90deg, #3B7CFF 0%, #5B9AFF 50%, #7CB7FF 100%);
-  }
-
-  &.card-rate::before {
-    background: linear-gradient(90deg, #52C41A 0%, #73D13D 50%, #95DE64 100%);
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
+    pointer-events: none;
   }
 
   &:active {
-    transform: scale(0.98);
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+    transform: scale(0.92);
   }
 
-  .card-deco {
-    position: absolute;
-    top: -40rpx;
-    right: -40rpx;
-    width: 140rpx;
-    height: 140rpx;
-    border-radius: 50%;
-  }
-
-  .card-output .card-deco {
-    background: radial-gradient(circle, rgba(59, 124, 255, 0.12) 0%, transparent 70%);
-  }
-
-  .card-rate .card-deco {
-    background: radial-gradient(circle, rgba(103, 194, 58, 0.12) 0%, transparent 70%);
-  }
+  &.scan { background: linear-gradient(135deg, #6B8FFF 0%, #3B7CFF 100%); }
+  &.stock { background: linear-gradient(135deg, #52C41A 0%, #389E0D 100%); }
+  &.prod { background: linear-gradient(135deg, #FAAD14 0%, #D48806 100%); }
+  &.quality { background: linear-gradient(135deg, #FF6B6B 0%, #FF4D4F 100%); }
+  &.exception { background: linear-gradient(135deg, #FAAD14 0%, #D48806 100%); }
+  &.test { background: linear-gradient(135deg, #9370DB 0%, #722ED1 100%); }
+  &.trace { background: linear-gradient(135deg, #13C2C2 0%, #08979C 100%); }
+  &.repair { background: linear-gradient(135deg, #FF6B6B 0%, #FF4D4F 100%); }
 }
 
-.card-content {
+.icon-text {
+  font-size: 44rpx;
   position: relative;
   z-index: 1;
 }
 
-.card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: $spacing-md;
-}
-
-.card-icon-wrap {
-  width: 56rpx;
-  height: 56rpx;
-  border-radius: $radius-md;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.output-icon { background: $brand-primary-light-10; }
-.rate-icon { background: $success-light-10; }
-
-.icon-text {
-  font-size: $font-size-md;
+.quick-label {
+  font-size: 26rpx;
+  color: #333333;
   font-weight: 600;
+  letter-spacing: 0.5rpx;
 }
 
-.output-icon .icon-text { color: $brand-primary; }
-.rate-icon .icon-text { color: $success-color; }
-
-.card-label {
-  font-size: $font-size-sm;
-  color: $text-tertiary;
-  font-weight: 500;
-}
-
-.card-body {
-  display: flex;
-  align-items: flex-end;
-  gap: $spacing-xs;
-  margin-bottom: $spacing-sm;
-}
-
-.card-value {
-  font-size: $font-size-display;
-  font-weight: 700;
-  color: $text-primary;
-  line-height: $line-height-tight;
-}
-
-.card-unit {
-  font-size: $font-size-sm;
-  color: $text-tertiary;
-  margin-bottom: 4rpx;
-}
-
-.card-trend {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-}
-
-.trend-text {
-  font-size: $font-size-sm;
-  font-weight: 600;
-}
-
-.trend-up { color: $success-color; }
-.trend-down { color: $error-color; }
-
-.trend-label {
-  font-size: $font-size-xs;
-  color: $text-placeholder;
-}
-
-/* AI助手入口卡片 */
-.ai-entry-card {
-  position: relative;
-  border-radius: $radius-card;
-  overflow: hidden;
-  margin-bottom: $spacing-lg;
-  cursor: pointer;
-}
-.ai-card-bg {
+.item-badge {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  opacity: 0.9;
+  top: 8rpx;
+  right: 12rpx;
 }
-.ai-card-content {
+
+.ai-section {
   position: relative;
+  margin-bottom: 24rpx;
+  border-radius: 24rpx;
+  overflow: hidden;
+  padding: 0 32rpx;
+}
+
+.ai-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2a5298 50%, #3B7CFF 100%);
+}
+
+.ai-content {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 28rpx 32rpx;
+  padding: 32rpx;
 }
-.ai-card-left {
-  display: flex;
-  align-items: center;
-}
-.ai-avatar {
-  position: relative;
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.2);
+
+.ai-icon-wrap {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 22rpx;
+  background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-right: 20rpx;
 }
-.ai-avatar-icon {
-  font-size: 28rpx;
-  font-weight: bold;
-  color: #fff;
-}
-.ai-pulse {
-  position: absolute;
-  top: -4rpx; left: -4rpx; right: -4rpx; bottom: -4rpx;
-  border-radius: 50%;
-  border: 2rpx solid rgba(255,255,255,0.4);
-  animation: aiPulse 2s ease-out infinite;
-}
-@keyframes aiPulse {
-  0% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(1.3); opacity: 0; }
-}
-.ai-card-text {
-  display: flex;
-  flex-direction: column;
-}
-.ai-card-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #fff;
-}
-.ai-card-desc {
-  font-size: 24rpx;
-  color: rgba(255,255,255,0.8);
-  margin-top: 4rpx;
-}
-.ai-card-right {
-  display: flex;
-  align-items: center;
-}
-.ai-card-arrow {
-  font-size: 26rpx;
-  color: rgba(255,255,255,0.9);
-  font-weight: 500;
+
+.ai-icon {
+  font-size: 40rpx;
 }
 
-.quick-actions {
-  background: $bg-card;
-  border-radius: $radius-card;
-  box-shadow: $shadow-card;
-  padding: $spacing-lg;
-  margin-bottom: $spacing-lg;
+.ai-info {
+  flex: 1;
 }
 
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: $spacing-lg;
-}
-
-.section-title {
-  font-size: $font-size-lg;
+.ai-title {
+  font-size: 30rpx;
   font-weight: 600;
-  color: $text-primary;
+  color: #ffffff;
+  display: block;
+}
+
+.ai-desc {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 6rpx;
+  display: block;
+}
+
+.ai-arrow {
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
-
-  &::after {
-    content: '';
-    width: 40rpx;
-    height: 4rpx;
-    background: $brand-gradient;
-    border-radius: 2rpx;
-  }
+  background: rgba(255, 255, 255, 0.2);
+  padding: 14rpx 28rpx;
+  border-radius: 30rpx;
 }
 
-.section-more {
-  font-size: $font-size-sm;
-  color: $brand-primary;
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-
-  &::after {
-    content: '›';
-    font-size: $font-size-lg;
-  }
-}
-
-.action-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-lg;
-}
-
-.action-item {
-  width: calc(20% - 10rpx);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: $spacing-md 0;
-  border-radius: $radius-lg;
-  transition: all $transition-fast;
-
-  &:active {
-    transform: scale(0.95);
-    background: rgba(59, 124, 255, 0.05);
-  }
-}
-
-.action-icon {
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 24rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: $spacing-sm;
-  position: relative;
-  transition: all $transition-fast;
-}
-
-.scan-icon { 
-  background: linear-gradient(135deg, rgba(59, 124, 255, 0.1) 0%, rgba(107, 161, 255, 0.05) 100%);
-  box-shadow: 0 6rpx 20rpx rgba(59, 124, 255, 0.12);
-}
-.stock-icon { 
-  background: linear-gradient(135deg, rgba(103, 194, 58, 0.1) 0%, rgba(115, 209, 61, 0.05) 100%);
-  box-shadow: 0 6rpx 20rpx rgba(103, 194, 58, 0.12);
-}
-.prod-icon { 
-  background: linear-gradient(135deg, rgba(250, 173, 20, 0.1) 0%, rgba(255, 197, 61, 0.05) 100%);
-  box-shadow: 0 6rpx 20rpx rgba(250, 173, 20, 0.12);
-}
-.quality-icon { 
-  background: linear-gradient(135deg, rgba(245, 108, 108, 0.1) 0%, rgba(255, 120, 117, 0.05) 100%);
-  box-shadow: 0 6rpx 20rpx rgba(245, 108, 108, 0.12);
-}
-.exception-icon { 
-  background: linear-gradient(135deg, rgba(250, 173, 20, 0.1) 0%, rgba(255, 197, 61, 0.05) 100%);
-  box-shadow: 0 6rpx 20rpx rgba(250, 173, 20, 0.12);
-}
-.test-icon { 
-  background: linear-gradient(135deg, rgba(147, 112, 219, 0.1) 0%, rgba(168, 140, 224, 0.05) 100%);
-  box-shadow: 0 6rpx 20rpx rgba(147, 112, 219, 0.12);
-}
-.repair-icon { 
-  background: linear-gradient(135deg, rgba(245, 108, 108, 0.1) 0%, rgba(255, 120, 117, 0.05) 100%);
-  box-shadow: 0 6rpx 20rpx rgba(245, 108, 108, 0.12);
-}
-
-.action-icon-text {
-  font-size: $font-size-xl;
-  font-weight: 700;
-}
-
-.scan-icon .action-icon-text { color: #3B7CFF; }
-.stock-icon .action-icon-text { color: #52C41A; }
-.prod-icon .action-icon-text { color: #FAAD14; }
-.quality-icon .action-icon-text { color: #FF4D4F; }
-.exception-icon .action-icon-text { color: #FAAD14; }
-.test-icon .action-icon-text { color: #9370DB; }
-.repair-icon .action-icon-text { color: #F56C6C; }
-
-.action-text {
-  font-size: $font-size-sm;
-  color: #4A5568;
+.arrow-text {
+  font-size: 24rpx;
+  color: #ffffff;
   font-weight: 500;
-  margin-top: 4rpx;
+}
+
+.arrow-icon {
+  font-size: 28rpx;
+  color: #ffffff;
+  margin-left: 6rpx;
 }
 
 .task-section {
-  background: $bg-card;
-  border-radius: $radius-card;
-  box-shadow: $shadow-card;
-  padding: $spacing-lg;
+  margin-bottom: 24rpx;
+  padding: 0 32rpx;
 }
 
-.empty-tips {
-  padding: $spacing-xxl 0;
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 0;
+  background: #ffffff;
+  border-radius: 24rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 16rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
 }
 
 .task-list {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 8rpx 0;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06);
 }
 
-.task-card {
-  padding: $spacing-lg;
-  border-radius: $radius-lg;
-  background: $bg-hover;
-  border: 1rpx solid $border-light;
-  transition: all $transition-fast;
+.task-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 28rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+  transition: all 0.3s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
 
   &:active {
-    background: $bg-active;
-    transform: scale(0.99);
+    background: #FAFAFA;
   }
 }
 
-.task-header {
+.task-status {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+
+  &.primary { background: #3B7CFF; }
+  &.success { background: #52C41A; }
+  &.warning { background: #FAAD14; }
+}
+
+.task-content {
+  flex: 1;
+}
+
+.task-top {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: $spacing-sm;
+  align-items: center;
+  margin-bottom: 8rpx;
 }
 
 .task-name {
-  font-size: $font-size-md;
+  font-size: 28rpx;
   font-weight: 600;
-  color: $text-primary;
-  max-width: 65%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: #333;
+}
+
+.task-tag {
+  font-size: 20rpx;
 }
 
 .task-desc {
-  font-size: $font-size-sm;
-  color: $text-tertiary;
-  line-height: $line-height-relaxed;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  font-size: 24rpx;
+  color: #999;
+  line-height: 1.5;
+}
+
+.task-arrow {
+  font-size: 32rpx;
+  color: #DDD;
+  margin-left: 16rpx;
+}
+
+.bottom-space {
+  height: 160rpx;
 }
 </style>

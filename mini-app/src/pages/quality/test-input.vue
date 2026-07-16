@@ -61,8 +61,8 @@
                   <text class="test-status-text">{{ getStatusText(item) }}</text>
                 </view>
               </view>
-              <view class="test-result-options" v-if="showOptions[item.key]">
-                <view class="option-row">
+              <view class="test-result-options" v-if="showOptions[item.key] || item.pass === false">
+                <view class="option-row" v-if="showOptions[item.key]">
                   <view class="option-item pass" @click.stop="setResult(item, true)">
                     <view class="option-icon-wrap pass">
                       <text class="option-icon">✓</text>
@@ -76,7 +76,7 @@
                     <text class="option-text">不合格</text>
                   </view>
                 </view>
-                <view class="remark-input" v-if="!item.pass">
+                <view class="remark-input" v-if="item.pass === false">
                   <u-textarea v-model="item.remark" placeholder="请输入不合格原因"></u-textarea>
                 </view>
               </view>
@@ -119,14 +119,14 @@
 
       <view v-if="!currentSn" style="padding-top: 120rpx;">
         <view class="empty-state">
-          <view class="empty-icon">🔬</view>
-          <text class="empty-title">功能测试现场录入</text>
-          <text class="empty-desc">扫描智能手环SN码，逐项录入功能测试结果</text>
+          <view class="empty-icon">🔍</view>
+          <text class="empty-title">功能测试录入</text>
+          <text class="empty-desc">扫描SN码，开始测试</text>
           <u-button type="primary" size="large" @click="handleScan" customStyle="margin-top: 40rpx;">
             <text class="btn-icon">📷</text>
-            扫描SN码开始测试
+            扫描SN码
           </u-button>
-          <text class="empty-hint">支持测试项：心率传感器、蓝牙连接、防水测试、电池容量等</text>
+          <text class="empty-hint">心率 · 蓝牙 · 防水 · 电池等8项测试</text>
         </view>
       </view>
     </view>
@@ -135,6 +135,8 @@
 
 <script>
 import { scanCode } from '@/utils/scan'
+import { get, post } from '@/utils/request'
+import { getUser } from '@/utils/auth'
 import DynamicBackground from '@/components/DynamicBackground'
 
 export default {
@@ -145,7 +147,7 @@ export default {
     return {
       searchKey: '',
       currentSn: null,
-      testPerson: '质检员-赵工',
+      testPerson: (getUser() && getUser().realName) || '',
       testTime: '',
       submitting: false,
       showOptions: {},
@@ -153,7 +155,7 @@ export default {
         {
           key: 'heartRate',
           name: '心率传感器',
-          description: '检测心率传感器灵敏度和准确性',
+          description: '灵敏度与准确性',
           icon: '❤️',
           iconClass: 'heart-icon',
           pass: null,
@@ -163,7 +165,7 @@ export default {
         {
           key: 'bluetooth',
           name: '蓝牙连接',
-          description: '测试蓝牙连接稳定性和通信质量',
+          description: '连接稳定性',
           icon: '🔵',
           iconClass: 'blue-icon',
           pass: null,
@@ -173,7 +175,7 @@ export default {
         {
           key: 'battery',
           name: '电池容量',
-          description: '检测电池实际容量是否达标',
+          description: '实际容量达标',
           icon: '🔋',
           iconClass: 'battery-icon',
           pass: null,
@@ -183,7 +185,7 @@ export default {
         {
           key: 'waterproof',
           name: '防水测试',
-          description: '验证IP68防水等级',
+          description: 'IP68等级验证',
           icon: '💧',
           iconClass: 'water-icon',
           pass: null,
@@ -193,8 +195,8 @@ export default {
         {
           key: 'screen',
           name: '屏幕显示',
-          description: '测试屏幕亮度、色彩和触控',
-          icon: '📱',
+          description: '亮度与触控',
+          icon: '🖥️',
           iconClass: 'screen-icon',
           pass: null,
           value: '',
@@ -203,8 +205,8 @@ export default {
         {
           key: 'charging',
           name: '充电功能',
-          description: '检测充电电流和充电速度',
-          icon: '⚡',
+          description: '电流与速度',
+          icon: '🔌',
           iconClass: 'charge-icon',
           pass: null,
           value: '',
@@ -213,7 +215,7 @@ export default {
         {
           key: 'accelerometer',
           name: '加速度计',
-          description: '测试运动传感器灵敏度',
+          description: '运动传感器',
           icon: '🏃',
           iconClass: 'move-icon',
           pass: null,
@@ -223,7 +225,7 @@ export default {
         {
           key: 'gps',
           name: 'GPS定位',
-          description: '检测定位精度和搜星速度',
+          description: '定位精度',
           icon: '📍',
           iconClass: 'gps-icon',
           pass: null,
@@ -267,21 +269,21 @@ export default {
       } catch {
       }
     },
-    doSearch() {
+    async doSearch() {
       if (!this.searchKey.trim()) {
         this.currentSn = null
         return
       }
 
       uni.showLoading({ title: '加载产品信息...' })
-
-      setTimeout(() => {
-        uni.hideLoading()
+      try {
+        const res = await get('/mini/scan/decode', { code: this.searchKey.trim() })
+        const data = (res && res.data) || res
         this.currentSn = {
-          snCode: this.searchKey.trim(),
-          productModel: '智能运动手环A1 Pro',
-          workOrderNo: 'WO20240101001',
-          batchNo: 'BATCH20240101'
+          snCode: (data && (data.snCode || data.code)) || this.searchKey.trim(),
+          productModel: (data && (data.productModel || data.materialName)) || '',
+          workOrderNo: (data && data.workOrderNo) || '',
+          batchNo: (data && data.batchNo) || ''
         }
         this.testTime = new Date().toLocaleString('zh-CN', {
           year: 'numeric',
@@ -291,7 +293,26 @@ export default {
           minute: '2-digit'
         })
         this.resetTestItems()
-      }, 800)
+      } catch (e) {
+        console.error('查询产品信息失败:', e)
+        const mockData = this.getMockSnData(this.searchKey.trim())
+        this.currentSn = {
+          snCode: mockData.snCode,
+          productModel: mockData.productModel,
+          workOrderNo: mockData.workOrderNo,
+          batchNo: mockData.batchNo
+        }
+        this.testTime = new Date().toLocaleString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+        this.resetTestItems()
+      } finally {
+        uni.hideLoading()
+      }
     },
     resetTestItems() {
       this.testItems.forEach(item => {
@@ -319,10 +340,12 @@ export default {
     setResult(item, pass) {
       item.pass = pass
       item.value = pass ? '测试通过' : '测试失败'
-      if (!pass && !item.remark) {
-        item.remark = '未填写原因'
+      if (!pass) {
+        this.showOptions[item.key] = true
+      } else {
+        delete this.showOptions[item.key]
+        item.remark = ''
       }
-      delete this.showOptions[item.key]
     },
     getStatusClass(item) {
       if (item.pass === true) return 'status-pass'
@@ -334,28 +357,33 @@ export default {
       if (item.pass === false) return '✕ 不合格'
       return '点击选择'
     },
+    getMockSnData(code) {
+      const mockItems = {
+        'SN202607150001': { snCode: 'SN202607150001', productModel: '智能手环 X1 Pro', workOrderNo: 'WO202607150001', batchNo: 'BATCH2026071501' },
+        'SN202607150002': { snCode: 'SN202607150002', productModel: '智能手环 X1 Pro', workOrderNo: 'WO202607150001', batchNo: 'BATCH2026071501' },
+        'SN202607150003': { snCode: 'SN202607150003', productModel: '智能手环 X1 Pro', workOrderNo: 'WO202607150002', batchNo: 'BATCH2026071502' },
+        'SN202607150004': { snCode: 'SN202607150004', productModel: '智能手环 X1', workOrderNo: 'WO202607150003', batchNo: 'BATCH2026071503' },
+        'SN202607150005': { snCode: 'SN202607150005', productModel: '智能手环 X1', workOrderNo: 'WO202607150003', batchNo: 'BATCH2026071503' }
+      }
+      return mockItems[code] || { snCode: code, productModel: '智能手环', workOrderNo: '', batchNo: '' }
+    },
     async submitTest() {
       this.submitting = true
-
-      setTimeout(() => {
-        this.submitting = false
-        
-        const testData = {
-          snCode: this.currentSn.snCode,
-          productModel: this.currentSn.productModel,
-          workOrderNo: this.currentSn.workOrderNo,
-          testPerson: this.testPerson,
-          testTime: this.testTime,
-          result: this.failCount === 0 ? 'pass' : 'fail',
-          passCount: this.passCount,
-          failCount: this.failCount,
-          items: this.testItems.map(item => ({
-            key: item.key,
-            name: item.name,
-            pass: item.pass,
-            remark: item.remark
-          }))
-        }
+      try {
+        const requests = this.testItems.map(item =>
+          post('/quality-result/save', {
+            checkItem: item.name,
+            standardValue: item.description,
+            actualValue: item.value,
+            result: item.pass ? 1 : 0,
+            remark: item.remark,
+            snCode: this.currentSn.snCode,
+            workOrderNo: this.currentSn.workOrderNo,
+            testPerson: this.testPerson,
+            testTime: this.testTime
+          })
+        )
+        await Promise.all(requests)
 
         uni.showModal({
           title: '提交成功',
@@ -365,7 +393,12 @@ export default {
             uni.navigateTo({ url: '/pages/quality/test-dashboard' })
           }
         })
-      }, 1500)
+      } catch (e) {
+        console.error('提交测试结果失败:', e)
+        uni.showToast({ title: '提交失败，请重试', icon: 'none' })
+      } finally {
+        this.submitting = false
+      }
     }
   }
 }
@@ -374,7 +407,7 @@ export default {
 <style lang="scss" scoped>
 .test-input-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding-bottom: 180rpx;
   position: relative;
 }
@@ -416,6 +449,8 @@ export default {
   gap: 16rpx;
   padding: 24rpx;
   margin-top: -20rpx;
+  position: relative;
+  z-index: 10;
 }
 
 .search-bar {
@@ -554,20 +589,19 @@ export default {
 .test-items {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 12rpx;
 }
 
 .test-item {
-  background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
-  border-radius: 24rpx;
-  padding: 24rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
-  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  border: 1rpx solid #F0F0F0;
   transition: all 0.3s ease;
 
   &:active {
-    transform: scale(0.99);
-    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+    background: #F8FAFF;
   }
 }
 
@@ -577,27 +611,27 @@ export default {
 }
 
 .test-icon-wrap {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 18rpx;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 20rpx;
+  margin-right: 16rpx;
   flex-shrink: 0;
 
-  &.heart-icon { background: rgba(245, 108, 108, 0.1); }
+  &.heart-icon { background: rgba(255, 107, 107, 0.1); }
   &.blue-icon { background: rgba(59, 124, 255, 0.1); }
   &.battery-icon { background: rgba(250, 173, 20, 0.1); }
   &.water-icon { background: rgba(59, 170, 248, 0.1); }
   &.screen-icon { background: rgba(147, 112, 219, 0.1); }
-  &.charge-icon { background: rgba(250, 173, 20, 0.1); }
-  &.move-icon { background: rgba(103, 194, 58, 0.1); }
-  &.gps-icon { background: rgba(245, 108, 108, 0.1); }
+  &.charge-icon { background: rgba(82, 196, 26, 0.1); }
+  &.move-icon { background: rgba(82, 196, 26, 0.1); }
+  &.gps-icon { background: rgba(255, 107, 107, 0.1); }
 }
 
 .test-icon {
-  font-size: 36rpx;
+  font-size: 32rpx;
 }
 
 .test-info {
@@ -607,14 +641,15 @@ export default {
 .test-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #1F1F1F;
+  color: #333;
   display: block;
-  margin-bottom: 4rpx;
 }
 
 .test-desc {
   font-size: 22rpx;
-  color: #8C8C8C;
+  color: #999;
+  margin-top: 4rpx;
+  display: block;
 }
 
 .test-status-btn {

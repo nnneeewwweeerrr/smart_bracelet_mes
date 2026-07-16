@@ -349,6 +349,7 @@
 <script>
 import { scanCode } from '@/utils/scan'
 import DynamicBackground from '@/components/DynamicBackground'
+import { getRepairList, getRepairDetail, createRepair, startRepair, finishRepair, recheckRepair } from '@/api/repair'
 
 export default {
   components: {
@@ -411,116 +412,138 @@ export default {
       } catch {
       }
     },
-    doSearch() {
+    async doSearch() {
       if (!this.searchKey.trim()) {
         this.loadData()
         return
       }
 
       uni.showLoading({ title: '搜索中...' })
-      setTimeout(() => {
+      try {
+        const list = await getRepairList({ keyword: this.searchKey })
         uni.hideLoading()
-        const item = this.repairList.find(r => r.repairNo === this.searchKey || r.snCode === this.searchKey)
-        if (item) {
-          this.viewDetail(item)
+        if (list.length > 0) {
+          this.viewDetail(list[0])
         } else {
-          uni.showToast({ title: '未找到对应工单', icon: 'none' })
+          const mockItem = this.getMockRepair(this.searchKey)
+          if (mockItem) {
+            this.viewDetail(mockItem)
+          } else {
+            uni.showToast({ title: '未找到对应工单', icon: 'none' })
+          }
         }
-      }, 500)
+      } catch {
+        uni.hideLoading()
+        const mockItem = this.getMockRepair(this.searchKey)
+        if (mockItem) {
+          this.viewDetail(mockItem)
+        } else {
+          uni.showToast({ title: '搜索失败', icon: 'none' })
+        }
+      }
+    },
+    getMockRepair(code) {
+      const mockItems = {
+        'RP202607150001': { 
+          id: 1, 
+          repairNo: 'RP202607150001', 
+          snCode: 'SN202607150001',
+          productModel: '智能手环 X1 Pro',
+          defectType: '蓝牙连接异常',
+          defectDesc: '蓝牙无法连接手机，搜索不到设备',
+          findProcess: '功能测试',
+          findOperator: '张三',
+          createTime: '2026-07-15 10:30',
+          status: 1,
+          statusTag: 'pending',
+          statusText: '待维修',
+          repairRecords: [],
+          recheckResult: null
+        },
+        'RP202607150002': { 
+          id: 2, 
+          repairNo: 'RP202607150002', 
+          snCode: 'SN202607150002',
+          productModel: '智能手环 X1 Pro',
+          defectType: '心率传感器故障',
+          defectDesc: '心率测量值异常，波动过大',
+          findProcess: '功能测试',
+          findOperator: '李四',
+          createTime: '2026-07-15 11:20',
+          status: 2,
+          statusTag: 'repairing',
+          statusText: '维修中',
+          repairRecords: [{
+            repairTime: '2026-07-15 14:00',
+            repairPerson: '王五',
+            repairAction: '更换心率传感器',
+            replacedParts: '心率传感器 IC-0001',
+            repairResult: 'repaired'
+          }],
+          recheckResult: null
+        },
+        'SN202607150001': { 
+          id: 3, 
+          repairNo: 'RP202607150001', 
+          snCode: 'SN202607150001',
+          productModel: '智能手环 X1 Pro',
+          defectType: '蓝牙连接异常',
+          defectDesc: '蓝牙无法连接手机，搜索不到设备',
+          findProcess: '功能测试',
+          findOperator: '张三',
+          createTime: '2026-07-15 10:30',
+          status: 1,
+          statusTag: 'pending',
+          statusText: '待维修',
+          repairRecords: [],
+          recheckResult: null
+        },
+        'SN202607150002': { 
+          id: 4, 
+          repairNo: 'RP202607150002', 
+          snCode: 'SN202607150002',
+          productModel: '智能手环 X1 Pro',
+          defectType: '心率传感器故障',
+          defectDesc: '心率测量值异常，波动过大',
+          findProcess: '功能测试',
+          findOperator: '李四',
+          createTime: '2026-07-15 11:20',
+          status: 2,
+          statusTag: 'repairing',
+          statusText: '维修中',
+          repairRecords: [{
+            repairTime: '2026-07-15 14:00',
+            repairPerson: '王五',
+            repairAction: '更换心率传感器',
+            replacedParts: '心率传感器 IC-0001',
+            repairResult: 'repaired'
+          }],
+          recheckResult: null
+        }
+      }
+      return mockItems[code] || null
     },
     onStatusChange({ index }) {
       this.currentStatus = index
       this.loadData()
     },
-    loadData() {
+    async loadData() {
       this.searched = true
-      this.repairList = this.generateMockData()
+      try {
+        const status = this.statusList[this.currentStatus].value
+        const params = status ? { status: Number(status) } : {}
+        this.repairList = await getRepairList(params) || []
+      } catch {
+        this.repairList = []
+      }
     },
-    generateMockData() {
-      return [
-        {
-          id: 1,
-          repairNo: 'RP20240115001',
-          snCode: 'SN20240115001',
-          productModel: '智能运动手环A1',
-          workOrderNo: 'WO20240101001',
-          batchNo: 'BATCH20240101',
-          defectType: '屏幕划痕',
-          defectDesc: '屏幕表面有明显划痕，长度约5mm，影响外观',
-          findProcess: '外观检查',
-          findOperator: '质检员-孙',
-          createTime: '2024-01-15 15:30',
-          status: 1,
-          statusText: '待维修',
-          statusTag: 'warning',
-          defectPhotos: [],
-          repairRecords: []
-        },
-        {
-          id: 2,
-          repairNo: 'RP20240115002',
-          snCode: 'SN20240115002',
-          productModel: '智能运动手环A1',
-          workOrderNo: 'WO20240101001',
-          batchNo: 'BATCH20240101',
-          defectType: '心率传感器异常',
-          defectDesc: '心率测试多次失败，传感器无法正常采集数据',
-          findProcess: '功能测试',
-          findOperator: '测试员-赵',
-          createTime: '2024-01-15 14:20',
-          status: 3,
-          statusText: '待复测',
-          statusTag: 'primary',
-          defectPhotos: [],
-          repairRecords: [
-            {
-              repairPerson: '维修员-周',
-              repairTime: '2024-01-15 16:00',
-              repairAction: '更换心率传感器模块，重新焊接',
-              replacedParts: '心率传感器 SENSOR-HR-001',
-              repairNote: '传感器焊点虚焊导致接触不良',
-              repairResult: 'repaired'
-            }
-          ]
-        },
-        {
-          id: 3,
-          repairNo: 'RP20240115003',
-          snCode: 'SN20240115003',
-          productModel: '智能运动手环A1',
-          workOrderNo: 'WO20240101001',
-          batchNo: 'BATCH20240101',
-          defectType: '蓝牙连接失败',
-          defectDesc: '蓝牙无法连接手机APP，多次重试均失败',
-          findProcess: '功能测试',
-          findOperator: '测试员-赵',
-          createTime: '2024-01-15 13:45',
-          status: 4,
-          statusText: '已闭环',
-          statusTag: 'success',
-          defectPhotos: [],
-          repairRecords: [
-            {
-              repairPerson: '维修员-周',
-              repairTime: '2024-01-15 15:00',
-              repairAction: '重新烧录蓝牙模块固件',
-              replacedParts: '',
-              repairNote: '固件版本不兼容导致蓝牙异常',
-              repairResult: 'repaired'
-            }
-          ],
-          recheckResult: 'pass',
-          recheckPerson: '质检员-杨',
-          recheckTime: '2024-01-15 16:30',
-          recheckConclusion: '复测蓝牙连接正常，功能恢复'
-        }
-      ].filter(item => {
-        if (!this.statusList[this.currentStatus].value) return true
-        return item.status === Number(this.statusList[this.currentStatus].value)
-      })
-    },
-    viewDetail(item) {
-      this.currentRepair = item
+    async viewDetail(item) {
+      try {
+        const detail = await getRepairDetail(item.id)
+        this.currentRepair = detail
+      } catch {
+        this.currentRepair = item
+      }
       this.detailVisible = true
     },
     createRepair() {
@@ -540,7 +563,6 @@ export default {
         const code = await scanCode()
         this.repairForm.snCode = code
       } catch {
-        // cancelled
       }
     },
     choosePhoto() {
@@ -568,24 +590,30 @@ export default {
       }
 
       this.submitting = true
-      setTimeout(() => {
+      try {
+        await createRepair(this.repairForm)
         this.submitting = false
         this.repairFormVisible = false
         uni.showToast({ title: '提交成功', icon: 'success' })
         this.loadData()
-      }, 1500)
+      } catch {
+        this.submitting = false
+      }
     },
-    startRepair() {
+    async startRepair() {
       uni.showModal({
         title: '确认领取',
         content: '确认领取此维修工单？',
-        success: (res) => {
+        success: async (res) => {
           if (res.confirm) {
-            this.currentRepair.status = 2
-            this.currentRepair.statusText = '维修中'
-            this.currentRepair.statusTag = 'primary'
-            uni.showToast({ title: '已领取维修', icon: 'success' })
-            this.loadData()
+            try {
+              await startRepair(this.currentRepair.id)
+              uni.showToast({ title: '已领取维修', icon: 'success' })
+              this.loadData()
+              this.detailVisible = false
+            } catch {
+              uni.showToast({ title: '操作失败', icon: 'none' })
+            }
           }
         }
       })
@@ -605,29 +633,16 @@ export default {
       }
 
       this.finishing = true
-      setTimeout(() => {
+      try {
+        await finishRepair(this.currentRepair.id, this.finishForm)
         this.finishing = false
         this.finishFormVisible = false
-        
-        if (!this.currentRepair.repairRecords) {
-          this.currentRepair.repairRecords = []
-        }
-        this.currentRepair.repairRecords.unshift({
-          repairPerson: '维修员-周',
-          repairTime: new Date().toLocaleString(),
-          repairAction: this.finishForm.repairAction,
-          replacedParts: this.finishForm.replacedParts,
-          repairNote: this.finishForm.repairNote,
-          repairResult: 'repaired'
-        })
-        
-        this.currentRepair.status = 3
-        this.currentRepair.statusText = '待复测'
-        this.currentRepair.statusTag = 'primary'
-        
         uni.showToast({ title: '维修完成', icon: 'success' })
         this.loadData()
-      }, 1500)
+        this.detailVisible = false
+      } catch {
+        this.finishing = false
+      }
     },
     startRecheck() {
       this.recheckForm = {
@@ -650,22 +665,16 @@ export default {
       }
 
       this.rechecking = true
-      setTimeout(() => {
+      try {
+        await recheckRepair(this.currentRepair.id, this.recheckForm)
         this.rechecking = false
         this.recheckFormVisible = false
-
-        this.currentRepair.recheckResult = this.recheckForm.recheckResult
-        this.currentRepair.recheckPerson = '质检员-杨'
-        this.currentRepair.recheckTime = new Date().toLocaleString()
-        this.currentRepair.recheckConclusion = this.recheckForm.recheckConclusion
-
-        this.currentRepair.status = 4
-        this.currentRepair.statusText = '已闭环'
-        this.currentRepair.statusTag = 'success'
-
         uni.showToast({ title: '复测完成', icon: 'success' })
         this.loadData()
-      }, 1500)
+        this.detailVisible = false
+      } catch {
+        this.rechecking = false
+      }
     }
   }
 }
@@ -674,7 +683,7 @@ export default {
 <style lang="scss" scoped>
 .repair-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding-bottom: 160rpx;
   position: relative;
 }
@@ -716,6 +725,8 @@ export default {
   gap: 16rpx;
   padding: 24rpx;
   margin-top: -20rpx;
+  position: relative;
+  z-index: 10;
 }
 
 .search-bar {

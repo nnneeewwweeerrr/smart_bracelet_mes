@@ -5,7 +5,12 @@ export function scanProductionReport(data) {
 }
 
 export function getWorkOrderList(params) {
-  return get('/work-order/list', params)
+  const newParams = { ...params }
+  if (newParams.page !== undefined) {
+    newParams.current = newParams.page
+    delete newParams.page
+  }
+  return get('/work-order/list', newParams)
 }
 
 export function getWorkOrderDetail(id) {
@@ -45,7 +50,7 @@ export function scanSop(code) {
 }
 
 export function getReverseTrace(snCode) {
-  return get('/sn-trace/reverse/' + snCode)
+  return get('/production/trace/reverse', { snCode })
 }
 
 export function getForwardTrace(batchNo) {

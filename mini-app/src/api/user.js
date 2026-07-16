@@ -13,7 +13,7 @@ export function getUserInfo() {
 }
 
 export function updateUserInfo(data) {
-  return put('/system/user/update', data)
+  return put('/system/user/' + data.id, data)
 }
 
 export function changePassword(data) {
@@ -30,4 +30,20 @@ export function getOperationLogCount() {
 
 export function getPersonalPerformance() {
   return get('/mini/production/dashboard')
+}
+
+export function getNotificationList(params) {
+  return get('/notification/list', params)
+}
+
+export function getNotificationCount() {
+  return get('/notification/count')
+}
+
+export function markNotificationAsRead(id) {
+  return put('/notification/read/' + id)
+}
+
+export function markAllNotificationsAsRead() {
+  return put('/notification/read/all')
 }

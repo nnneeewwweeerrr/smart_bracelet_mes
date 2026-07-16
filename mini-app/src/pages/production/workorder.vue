@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <view class="workorder-page">
     <view class="filter-bar">
       <u-tabs :list="statusList" :current="currentStatus" @click="onStatusChange" :activeStyle="{ color: '#3B7CFF', fontWeight: 'bold' }" :inactiveStyle="{ color: '#8C8C8C' }" lineColor="#3B7CFF" :lineWidth="30"></u-tabs>
@@ -81,12 +81,15 @@ export default {
     },
     async loadData() {
       const statusVal = this.statusList[this.currentStatus].value
+      const params = {
+        page: this.page,
+        size: this.size
+      }
+      if (statusVal && statusVal !== '') {
+        params.status = parseInt(statusVal)
+      }
       try {
-        const res = await getWorkOrderList({
-          page: this.page,
-          size: this.size,
-          status: statusVal || undefined
-        })
+        const res = await getWorkOrderList(params)
         const records = (res && res.records) || res || []
         this.list = records.map(item => ({
           ...item,
@@ -100,12 +103,15 @@ export default {
     async loadMore() {
       this.page++
       const statusVal = this.statusList[this.currentStatus].value
+      const params = {
+        page: this.page,
+        size: this.size
+      }
+      if (statusVal && statusVal !== '') {
+        params.status = parseInt(statusVal)
+      }
       try {
-        const res = await getWorkOrderList({
-          page: this.page,
-          size: this.size,
-          status: statusVal || undefined
-        })
+        const res = await getWorkOrderList(params)
         const records = (res && res.records) || res || []
         if (records.length === 0) { this.page--; return }
         this.list = this.list.concat(records.map(item => ({
@@ -142,7 +148,7 @@ export default {
 <style lang="scss" scoped>
 .workorder-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
 }
 
 .filter-bar {

@@ -1,56 +1,89 @@
-﻿<template>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
   <view class="iqc-page">
-    <view class="task-select">
-      <text class="section-title">选择质检任务</text>
-      <u-input v-model="taskNo" placeholder="请输入或扫码获取任务编号" @click="showTaskPicker = true" readonly>
-        <template #suffix>
-          <text class="suffix-scan" @click="handleScanTask">扫</text>
-        </template>
-      </u-input>
-    </view>
-
-    <view class="check-form" v-if="form.taskId">
-      <text class="section-title">检验项目</text>
-
-      <view class="check-item" v-for="(item, idx) in form.results" :key="idx">
-        <view class="check-header">
-          <text class="check-name">{{ item.checkItem }}</text>
-          <u-radio-group v-model="item.result" placement="row">
-            <u-radio name="1" label="合格" activeColor="#52C41A" size="18"></u-radio>
-            <u-radio name="0" label="不合格" activeColor="#FF4D4F" size="18"></u-radio>
-          </u-radio-group>
-        </view>
-        <view class="check-fields">
-          <u-form labelPosition="left" labelWidth="140rpx">
-            <u-form-item label="标准值">
-              <u-input v-model="item.standardValue" placeholder="标准值"></u-input>
-            </u-form-item>
-            <u-form-item label="实际值">
-              <u-input v-model="item.actualValue" placeholder="实际值"></u-input>
-            </u-form-item>
-          </u-form>
+    <DynamicBackground theme="theme-success"></DynamicBackground>
+    <view class="page-content">
+      <view class="page-header">
+        <view class="page-title-wrap">
+          <text class="page-title">质检录入</text>
+          <text class="page-desc">来料检验，保障产品质量</text>
         </view>
       </view>
 
-      <view class="add-check" @click="addCheckItem">
-        <text class="add-icon">+</text>
-        <text class="add-text">添加检验项</text>
+      <view class="task-select">
+        <view class="section-header">
+          <text class="section-title">📋 选择质检任务</text>
+        </view>
+        <view class="task-input-wrap" @click="showTaskPicker = true">
+          <text :class="{ 'placeholder': !taskNo }">{{ taskNo || '请选择或扫码获取任务编号' }}</text>
+          <view class="task-input-suffix">
+            <text class="suffix-scan" @click.stop="handleScanTask">扫</text>
+            <text class="suffix-arrow">›</text>
+          </view>
+        </view>
       </view>
 
-      <u-button type="primary" :loading="loading" @click="handleSubmit" customStyle="margin-top: 40rpx; height: 88rpx; border-radius: 48rpx;">
-        提交检验结果
-      </u-button>
-    </view>
+      <view class="check-form" v-if="form.taskId">
+        <view class="section-header">
+          <text class="section-title">🔍 检验项目</text>
+          <text class="section-count">共 {{ form.results.length }} 项</text>
+        </view>
 
-    <u-picker :show="showTaskPicker" :columns="taskColumns" keyName="taskNo" @confirm="onTaskConfirm" @cancel="showTaskPicker = false"></u-picker>
+        <view class="check-items">
+          <view class="check-item" v-for="(item, idx) in form.results" :key="idx">
+            <view class="check-item-header">
+              <view class="check-item-index">
+                <text class="index-num">{{ idx + 1 }}</text>
+              </view>
+              <view class="check-item-info">
+                <text class="check-name">{{ item.checkItem }}</text>
+              </view>
+              <view class="check-radio-wrap">
+                <u-radio-group v-model="item.result" placement="row">
+                  <u-radio name="1" label="合格" activeColor="#52C41A" size="18"></u-radio>
+                  <u-radio name="0" label="不合格" activeColor="#FF4D4F" size="18"></u-radio>
+                </u-radio-group>
+              </view>
+            </view>
+            <view class="check-fields">
+              <u-form labelPosition="left" labelWidth="140rpx">
+                <u-form-item label="标准值">
+                  <u-input v-model="item.standardValue" placeholder="标准值"></u-input>
+                </u-form-item>
+                <u-form-item label="实际值">
+                  <u-input v-model="item.actualValue" placeholder="实际值"></u-input>
+                </u-form-item>
+              </u-form>
+            </view>
+          </view>
+        </view>
+
+        <view class="add-check" @click="addCheckItem">
+          <view class="add-icon-wrap">
+            <text class="add-icon">+</text>
+          </view>
+          <text class="add-text">添加检验项</text>
+        </view>
+
+        <view class="submit-area">
+          <u-button type="primary" :loading="loading" @click="handleSubmit" customStyle="height: 88rpx; border-radius: 44rpx; font-size: 32rpx;">
+            <text class="btn-icon">📤</text>
+            提交检验结果
+          </u-button>
+        </view>
+      </view>
+
+      <u-picker :show="showTaskPicker" :columns="taskColumns" keyName="taskNo" @confirm="confirmTaskPicker" @cancel="showTaskPicker = false"></u-picker>
+    </view>
   </view>
 </template>
 
 <script>
+import DynamicBackground from '@/components/DynamicBackground'
 import { scanCode } from '@/utils/scan'
 import { getQualityTaskList, submitQualityResult } from '@/api/quality'
 
 export default {
+  components: { DynamicBackground },
   data() {
     return {
       taskNo: '',
@@ -79,19 +112,47 @@ export default {
         this.taskColumns = [this.taskList]
       } catch {
         this.taskList = []
-        this.taskColumns = [[]]
+        this.taskColumns = []
       }
     },
     async handleScanTask() {
       try {
         const code = await scanCode()
-        this.taskNo = code
-        this.form.taskId = code
+        const mockData = this.getMockTask(code)
+        this.taskNo = mockData.taskNo
+        this.form.taskId = mockData.taskId
+        if (mockData.results) {
+          this.form.results = mockData.results
+        }
       } catch {
         // cancelled
       }
     },
-    onTaskConfirm({ value }) {
+    getMockTask(code) {
+      const mockTasks = {
+        'QCTASK20260715001': { taskId: 'QCTASK20260715001', taskNo: 'QCTASK20260715001', results: [
+          { checkItem: '外观检查', standardValue: '无划痕、无变形', actualValue: '', result: '' },
+          { checkItem: '尺寸测量', standardValue: '符合图纸公差', actualValue: '', result: '' },
+          { checkItem: '功能测试', standardValue: '功能正常', actualValue: '', result: '' }
+        ]},
+        'QCTASK20260715002': { taskId: 'QCTASK20260715002', taskNo: 'QCTASK20260715002', results: [
+          { checkItem: '焊点检查', standardValue: '无虚焊、连锡', actualValue: '', result: '' },
+          { checkItem: '元件极性', standardValue: '极性正确', actualValue: '', result: '' },
+          { checkItem: 'AOI检测', standardValue: '零缺陷', actualValue: '', result: '' }
+        ]},
+        'QCTASK20260715003': { taskId: 'QCTASK20260715003', taskNo: 'QCTASK20260715003', results: [
+          { checkItem: '防水测试', standardValue: 'IP68', actualValue: '', result: '' },
+          { checkItem: '电池容量', standardValue: '≥420mAh', actualValue: '', result: '' },
+          { checkItem: '蓝牙连接', standardValue: '连接正常', actualValue: '', result: '' }
+        ]}
+      }
+      return mockTasks[code] || { taskId: code, taskNo: code, results: [
+        { checkItem: '外观检查', standardValue: '无划痕、无变形', actualValue: '', result: '' },
+        { checkItem: '尺寸测量', standardValue: '符合图纸公差', actualValue: '', result: '' },
+        { checkItem: '功能测试', standardValue: '功能正常', actualValue: '', result: '' }
+      ]}
+    },
+    confirmTaskPicker({ value }) {
       const item = value[0]
       if (item) {
         this.form.taskId = item.id
@@ -144,72 +205,232 @@ export default {
 <style lang="scss" scoped>
 .iqc-page {
   min-height: 100vh;
-  background: transparent;
-  padding: 24rpx;
+  background: #F5F7FA;
+  position: relative;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
+}
+
+.page-header {
+  padding: 40rpx 32rpx 32rpx;
+  background: linear-gradient(135deg, #52C41A 0%, #73D13D 40%, #95DE64 80%, #B7EB8F 100%);
+  border-radius: 0 0 48rpx 48rpx;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -120rpx;
+    right: -80rpx;
+    width: 300rpx;
+    height: 300rpx;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.page-title-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.page-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #ffffff;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.page-desc {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+  display: block;
 }
 
 .task-select {
-  background: #ffffff;
+  margin: 24rpx;
+  background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
   border-radius: 28rpx;
   padding: 34rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
 }
 
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
   color: #1F1F1F;
-  margin-bottom: 20rpx;
-  display: block;
 }
 
-.check-form {
-  background: #ffffff;
-  border-radius: 28rpx;
-  padding: 34rpx;
-  box-shadow: 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+.section-count {
+  font-size: 24rpx;
+  color: #8C8C8C;
 }
 
-.check-item {
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #F0F0F0;
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.check-header {
+.task-input-wrap {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 24rpx 32rpx;
+  background: #F8FAFF;
+  border-radius: 16rpx;
+  border: 2rpx solid #E8E8E8;
+  font-size: 28rpx;
+  color: #1F1F1F;
+  transition: all 0.3s ease;
+
+  &:active {
+    background: #F0F0F0;
+    border-color: #52C41A;
+  }
+
+  .placeholder {
+    color: #BFBFBF;
+  }
+}
+
+.task-input-suffix {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.suffix-scan {
+  font-size: 26rpx;
+  color: #52C41A;
+  font-weight: 600;
+  padding: 8rpx 16rpx;
+  background: rgba(82, 196, 26, 0.1);
+  border-radius: 12rpx;
+}
+
+.suffix-arrow {
+  font-size: 32rpx;
+  color: #BFBFBF;
+  font-weight: 300;
+}
+
+.check-form {
+  margin: 0 24rpx;
+  background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
+  border-radius: 28rpx;
+  padding: 34rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06);
+}
+
+.check-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.check-item {
+  background: #FAFBFC;
+  border-radius: 16rpx;
+  padding: 20rpx;
+}
+
+.check-item-header {
+  display: flex;
+  align-items: center;
   margin-bottom: 16rpx;
+}
+
+.check-item-index {
+  width: 44rpx;
+  height: 44rpx;
+  background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.index-num {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.check-item-info {
+  flex: 1;
 }
 
 .check-name {
   font-size: 28rpx;
   color: #4A4A4A;
-  font-weight: 500;
+  font-weight: 600;
+}
+
+.check-radio-wrap {
+  flex-shrink: 0;
 }
 
 .check-fields {
-  padding-left: 10rpx;
+  padding-left: 60rpx;
 }
 
 .add-check {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20rpx;
-  border: 1rpx dashed #dcdfe6;
-  border-radius: 12rpx;
-  margin-top: 20rpx;
+  gap: 12rpx;
+  padding: 24rpx;
+  border: 2rpx dashed #52C41A;
+  border-radius: 16rpx;
+  margin-top: 24rpx;
+  transition: all 0.3s ease;
+
+  &:active {
+    background: rgba(82, 196, 26, 0.05);
+  }
+}
+
+.add-icon-wrap {
+  width: 48rpx;
+  height: 48rpx;
+  background: rgba(82, 196, 26, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-icon {
+  font-size: 36rpx;
+  color: #52C41A;
+  font-weight: 500;
 }
 
 .add-text {
   font-size: 28rpx;
-  color: #3B7CFF;
-  margin-left: 8rpx;
+  color: #52C41A;
+  font-weight: 500;
+}
+
+.submit-area {
+  margin-top: 32rpx;
+}
+
+.btn-icon {
+  margin-right: 8rpx;
+}
+
+:deep(.u-button) {
+  border-radius: 48rpx !important;
+  box-shadow: 0 4rpx 12rpx rgba(82, 196, 26, 0.3);
 }
 </style>

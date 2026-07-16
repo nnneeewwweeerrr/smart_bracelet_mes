@@ -125,8 +125,8 @@ export default {
 <style lang="scss" scoped>
 .stock-page {
   min-height: 100vh;
-  background: transparent;
-  padding: 0;
+  background: #F5F7FA;
+  padding: 32rpx;
   padding-bottom: $tabbar-height;
   position: relative;
 }
@@ -196,18 +196,18 @@ export default {
 
 .func-card {
   background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
-  border-radius: 24rpx;
+  border-radius: 32rpx;
   padding: 28rpx 32rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06), 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.06), 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
   display: flex;
   align-items: center;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   border: 1rpx solid rgba(255, 255, 255, 0.8);
 
   &:active {
-    transform: scale(0.99);
+    transform: scale(0.97);
     box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
   }
 
@@ -231,7 +231,7 @@ export default {
 .card-icon {
   width: 80rpx;
   height: 80rpx;
-  border-radius: 20rpx;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -284,9 +284,9 @@ export default {
 .warning-section {
   margin: 0 32rpx 32rpx;
   background: linear-gradient(145deg, #FFFFFF 0%, #FFF7F7 100%);
-  border-radius: 24rpx;
+  border-radius: 32rpx;
   padding: 28rpx;
-  box-shadow: 0 8rpx 32rpx rgba(245, 108, 108, 0.08), 0 2rpx 8rpx rgba(245, 108, 108, 0.04);
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.06), 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
   border: 1rpx solid rgba(245, 108, 108, 0.1);
 }
 

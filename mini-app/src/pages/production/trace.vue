@@ -1,4 +1,4 @@
-<template>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
   <view class="trace-page">
     <DynamicBackground theme="theme-primary" />
     <view class="page-content">
@@ -17,42 +17,123 @@
     </view>
 
     <view class="trace-result" v-if="snData" v-show="showResult">
-      <view class="sn-header" :class="{ 'slide-in': showResult }">
-        <view class="sn-card">
-          <view class="sn-icon">
-            <text class="icon-text">SN</text>
+      <view v-if="mode === 'reverse'" :class="{ 'slide-in': showResult }">
+        <view class="sn-header">
+          <view class="sn-card">
+            <view class="sn-icon">
+              <text class="icon-text">SN</text>
+            </view>
+            <view class="sn-info">
+              <text class="sn-label">产品序列号</text>
+              <text class="sn-value">{{ snData.snCode }}</text>
+            </view>
           </view>
-          <view class="sn-info">
-            <text class="sn-label">产品序列号</text>
-            <text class="sn-value">{{ snData.snCode }}</text>
+          <view class="sn-status" :class="snData.statusClass">
+            <text class="status-text">{{ snData.statusText }}</text>
           </view>
         </view>
-        <view class="sn-status" :class="snData.statusClass">
-          <text class="status-text">{{ snData.statusText }}</text>
+
+        <view class="product-info" :class="{ 'slide-in-delay-1': showResult }">
+          <view class="info-grid">
+            <view class="info-item">
+              <text class="info-icon">📱</text>
+              <text class="info-label">产品型号</text>
+              <text class="info-value">{{ snData.productModel }}</text>
+            </view>
+            <view class="info-item">
+              <text class="info-icon">📋</text>
+              <text class="info-label">工单编号</text>
+              <text class="info-value">{{ snData.workOrderNo }}</text>
+            </view>
+            <view class="info-item">
+              <text class="info-icon">📦</text>
+              <text class="info-label">生产批次</text>
+              <text class="info-value">{{ snData.batchNo }}</text>
+            </view>
+            <view class="info-item">
+              <text class="info-icon">📅</text>
+              <text class="info-label">生产日期</text>
+              <text class="info-value">{{ snData.productionDate }}</text>
+            </view>
+          </view>
         </view>
       </view>
 
-      <view class="product-info" :class="{ 'slide-in-delay-1': showResult }">
-        <view class="info-grid">
-          <view class="info-item">
-            <text class="info-icon">📱</text>
-            <text class="info-label">产品型号</text>
-            <text class="info-value">{{ snData.productModel }}</text>
+      <view v-else :class="{ 'slide-in': showResult }">
+        <view class="batch-header">
+          <view class="batch-card">
+            <view class="batch-icon">
+              <text class="icon-text">批次</text>
+            </view>
+            <view class="batch-info">
+              <text class="batch-label">批次编号</text>
+              <text class="batch-value">{{ batchData.batchInfo?.batchNo || snData.batchNo }}</text>
+            </view>
           </view>
-          <view class="info-item">
-            <text class="info-icon">📋</text>
-            <text class="info-label">工单编号</text>
-            <text class="info-value">{{ snData.workOrderNo }}</text>
+          <view class="batch-count">
+            <text class="count-text">{{ batchData.batchInfo?.totalSnCount || 0 }}</text>
+            <text class="count-label">件产品</text>
           </view>
-          <view class="info-item">
-            <text class="info-icon">📦</text>
-            <text class="info-label">生产批次</text>
-            <text class="info-value">{{ snData.batchNo }}</text>
+        </view>
+
+        <view class="batch-summary" :class="{ 'slide-in-delay-1': showResult }">
+          <view class="summary-grid">
+            <view class="summary-item">
+              <text class="summary-icon">📦</text>
+              <text class="summary-label">关联物料</text>
+              <text class="summary-value">{{ batchData.batchInfo?.materialName || '-' }}</text>
+            </view>
+            <view class="summary-item">
+              <text class="summary-icon">📋</text>
+              <text class="summary-label">关联工单</text>
+              <text class="summary-value">{{ batchData.workOrderGroups?.length || 0 }}个</text>
+            </view>
+            <view class="summary-item">
+              <text class="summary-icon">🏭</text>
+              <text class="summary-label">生产工序</text>
+              <text class="summary-value">{{ batchData.processList?.length || 0 }}道</text>
+            </view>
+            <view class="summary-item">
+              <text class="summary-icon">✅</text>
+              <text class="summary-label">质检记录</text>
+              <text class="summary-value">{{ batchData.qualityList?.length || 0 }}条</text>
+            </view>
           </view>
-          <view class="info-item">
-            <text class="info-icon">📅</text>
-            <text class="info-label">生产日期</text>
-            <text class="info-value">{{ snData.productionDate }}</text>
+        </view>
+
+        <view class="section-card" :class="{ 'slide-in-delay-2': showResult }">
+          <view class="section-header">
+            <text class="section-title">📋 工单分组统计</text>
+          </view>
+          <view class="wo-group-list">
+            <view class="wo-group-item" v-for="group in batchData.workOrderGroups" :key="group.workOrderNo">
+              <view class="wo-group-header">
+                <text class="wo-group-no">{{ group.workOrderNo }}</text>
+                <text class="wo-group-count">{{ group.snCount }}件</text>
+              </view>
+              <view class="wo-group-sns">
+                <text class="wo-sn-tag" v-for="sn in group.snCodes" :key="sn" @click="loadSnDetail(sn)">{{ sn }}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="section-card" :class="{ 'slide-in-delay-3': showResult }">
+          <view class="section-header">
+            <text class="section-title">📱 产品SN列表</text>
+            <text class="section-count">{{ batchData.snList?.length || 0 }}件</text>
+          </view>
+          <view class="sn-list-grid">
+            <view class="sn-list-item" v-for="sn in batchData.snList" :key="sn.snCode" @click="loadSnDetail(sn.snCode)">
+              <view class="sn-list-icon" :class="getStatusClass(sn.status)">
+                <text class="sn-list-icon-text">{{ getStatusIcon(sn.status) }}</text>
+              </view>
+              <view class="sn-list-info">
+                <text class="sn-list-code">{{ sn.snCode }}</text>
+                <text class="sn-list-meta">{{ sn.productName || '智能手环' }}</text>
+              </view>
+              <text class="sn-list-arrow">›</text>
+            </view>
           </view>
         </view>
       </view>
@@ -264,7 +345,7 @@
 </template>
 
 <script>
-import { getReverseTrace, getForwardTrace } from '@/api/production'
+import { getSnReverseTrace, getSnForwardTrace } from '@/api/production'
 import { scanCode } from '@/utils/scan'
 import DynamicBackground from '@/components/DynamicBackground'
 
@@ -283,6 +364,7 @@ export default {
       searchKey: '',
       searched: false,
       snData: null,
+      batchData: null,
       showResult: false,
       currentTimelineIndex: 0,
       showTestDetailModal: false,
@@ -326,6 +408,7 @@ export default {
       this.mode = this.modeList[index].value
       this.searchKey = ''
       this.snData = null
+      this.batchData = null
       this.searched = false
       this.showResult = false
     },
@@ -342,19 +425,89 @@ export default {
 
       try {
         if (this.mode === 'reverse') {
-          const res = await getReverseTrace(this.searchKey.trim())
+          const res = await getSnReverseTrace(this.searchKey.trim())
           if (res) {
+            const snInfo = res.snInfo || {}
             this.snData = {
-              ...res,
-              statusClass: `status-${res.status}`
+              snCode: snInfo.snCode || '',
+              status: snInfo.status || 0,
+              statusClass: this.getStatusClass(snInfo.status),
+              statusText: this.getStatusText(snInfo.status),
+              productModel: snInfo.productName || '',
+              workOrderNo: snInfo.workOrderNo || '',
+              batchNo: '',
+              productionDate: snInfo.productionDate || '',
+              materialList: (res.materialList || []).map(item => ({
+                id: item.id || item.snId,
+                name: item.materialName || item.name || '',
+                code: item.materialCode || item.code || '',
+                batch: item.batchNo || item.batch || '',
+                supplier: item.supplierName || item.supplier || '',
+                color: '#3B7CFF'
+              })),
+              productionHistory: (res.processList || []).map(item => ({
+                processName: item.processName || '',
+                status: item.status === 1 ? 'pass' : (item.status === 0 ? 'pending' : 'running'),
+                statusText: item.status === 1 ? '完成' : (item.status === 0 ? '待执行' : '进行中'),
+                statusTag: item.status === 1 ? 'success' : (item.status === 0 ? 'warning' : 'primary'),
+                lineName: item.equipmentName || '',
+                workerName: item.workerName || '',
+                executeTime: item.endTime || item.startTime || ''
+              })),
+              qualityRecords: (res.qualityList || []).map(item => ({
+                id: item.id || '',
+                inspectionType: item.taskType || item.checkItem || '',
+                result: item.result === 1 ? 'pass' : 'fail',
+                resultText: item.result === 1 ? '合格' : '不合格',
+                resultTag: item.result === 1 ? 'success' : 'error',
+                detail: item.defectDesc || item.checkItem || '',
+                inspector: item.inspectorName || '',
+                inspectionTime: item.checkTime || ''
+              }))
             }
           }
         } else {
-          const res = await getForwardTrace(this.searchKey.trim())
-          if (res) {
+          const res = await getSnForwardTrace(this.searchKey.trim())
+          if (res && res.exists) {
+            this.batchData = res
+            const snList = res.snList || []
+            const firstSn = snList.length > 0 ? snList[0] : {}
             this.snData = {
+              snCode: this.searchKey.trim(),
               batchNo: this.searchKey.trim(),
-              productionHistory: res
+              status: firstSn.status || 1,
+              statusClass: this.getStatusClass(firstSn.status),
+              statusText: this.getStatusText(firstSn.status),
+              productModel: firstSn.productName || '智能运动手环',
+              workOrderNo: firstSn.workOrderNo || '-',
+              productionDate: firstSn.productionDate || '',
+              materialList: (res.materialList || []).map(item => ({
+                id: item.id || item.snId,
+                name: item.materialName || item.name || '',
+                code: item.materialCode || item.code || '',
+                batch: item.batchNo || item.batch || '',
+                supplier: item.supplierName || item.supplier || '',
+                color: '#3B7CFF'
+              })),
+              productionHistory: (res.processList || []).map(item => ({
+                processName: item.processName || '',
+                status: item.status === 1 ? 'pass' : (item.status === 0 ? 'pending' : 'running'),
+                statusText: item.status === 1 ? '完成' : (item.status === 0 ? '待执行' : '进行中'),
+                statusTag: item.status === 1 ? 'success' : (item.status === 0 ? 'warning' : 'primary'),
+                lineName: item.equipmentName || '',
+                workerName: item.workerName || '',
+                executeTime: item.endTime || item.startTime || ''
+              })),
+              qualityRecords: (res.qualityList || []).map(item => ({
+                id: item.id || '',
+                inspectionType: item.taskType || item.checkItem || '',
+                result: item.result === 1 ? 'pass' : 'fail',
+                resultText: item.result === 1 ? '合格' : '不合格',
+                resultTag: item.result === 1 ? 'success' : 'error',
+                detail: item.defectDesc || item.checkItem || '',
+                inspector: item.inspectorName || '',
+                inspectionTime: item.checkTime || ''
+              }))
             }
           }
         }
@@ -384,10 +537,18 @@ export default {
       }
     },
     getStatusText(status) {
+      if (typeof status === 'number') {
+        const m = { 0: '在产', 1: '成品', 2: '已出库', 3: '已售后' }
+        return m[status] || '未知'
+      }
       const m = { produced: '已生产', tested: '已测试', delivered: '已交付', returned: '已退货' }
       return m[status] || status || '未知'
     },
     getStatusClass(status) {
+      if (typeof status === 'number') {
+        const m = { 0: 'status-default', 1: 'status-produced', 2: 'status-tested', 3: 'status-delivered' }
+        return m[status] || 'status-default'
+      }
       const m = { produced: 'status-produced', tested: 'status-tested', delivered: 'status-delivered', returned: 'status-returned' }
       return m[status] || 'status-default'
     },
@@ -416,6 +577,20 @@ export default {
         '防水测试': '进行IP68防水等级验证，测试手环在2米水深下的防水性能，确保日常防水和游泳使用安全。'
       }
       return desc[name] || '该功能测试已完成验证。'
+    },
+    getStatusIcon(status) {
+      if (typeof status === 'number') {
+        const m = { 0: '🏭', 1: '✅', 2: '📤', 3: '🔄' }
+        return m[status] || '❓'
+      }
+      const m = { produced: '✅', tested: '✅', delivered: '📤', returned: '🔄' }
+      return m[status] || '❓'
+    },
+    loadSnDetail(snCode) {
+      this.mode = 'reverse'
+      this.modeIndex = 0
+      this.searchKey = snCode
+      this.doSearch()
     },
     loadDemo(key) {
       this.searchKey = key
@@ -450,7 +625,7 @@ export default {
 
 .trace-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding-bottom: $tabbar-height;
   position: relative;
 }
@@ -462,6 +637,8 @@ export default {
 
 .search-section {
   padding: 24rpx;
+  position: relative;
+  z-index: 10;
 }
 
 .search-bar {
@@ -1208,5 +1385,229 @@ export default {
   color: #4A4A4A;
   line-height: 1.6;
   display: block;
+}
+
+.batch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.batch-card {
+  flex: 1;
+  background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);
+  border-radius: 24rpx;
+  padding: 24rpx 32rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 8rpx 32rpx rgba(82, 196, 26, 0.3);
+}
+
+.batch-icon {
+  width: 72rpx;
+  height: 72rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.batch-info {
+  flex: 1;
+}
+
+.batch-label {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.batch-value {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #ffffff;
+  display: block;
+}
+
+.batch-count {
+  padding: 16rpx 24rpx;
+  background: rgba(82, 196, 26, 0.1);
+  border-radius: 32rpx;
+  text-align: center;
+  margin-left: 16rpx;
+}
+
+.count-text {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #52C41A;
+  display: block;
+}
+
+.count-label {
+  font-size: 20rpx;
+  color: #52C41A;
+  display: block;
+}
+
+.batch-summary {
+  background: linear-gradient(145deg, #FFFFFF 0%, #F0FFF0 100%);
+  border-radius: 28rpx;
+  padding: 28rpx 32rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06), 0 0 0 1rpx rgba(255, 255, 255, 0.9);
+  margin-bottom: 24rpx;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+}
+
+.summary-item {
+  text-align: center;
+  padding: 16rpx;
+  background: rgba(82, 196, 26, 0.05);
+  border-radius: 16rpx;
+}
+
+.summary-icon {
+  font-size: 32rpx;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.summary-label {
+  font-size: 22rpx;
+  color: #8C8C8C;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.summary-value {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1F1F1F;
+  display: block;
+}
+
+.wo-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.wo-group-item {
+  background: #F8FAFF;
+  border-radius: 16rpx;
+  padding: 20rpx;
+}
+
+.wo-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.wo-group-no {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1F1F1F;
+}
+
+.wo-group-count {
+  font-size: 24rpx;
+  color: #52C41A;
+  font-weight: 500;
+  padding: 4rpx 16rpx;
+  background: rgba(82, 196, 26, 0.1);
+  border-radius: 16rpx;
+}
+
+.wo-group-sns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.wo-sn-tag {
+  padding: 8rpx 16rpx;
+  background: rgba(59, 124, 255, 0.1);
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  color: #3B7CFF;
+  transition: all 0.3s ease;
+
+  &:active {
+    background: rgba(59, 124, 255, 0.2);
+    transform: scale(0.95);
+  }
+}
+
+.sn-list-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.sn-list-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: #F8FAFF;
+  border-radius: 16rpx;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  }
+}
+
+.sn-list-icon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+
+  &.status-default { background: rgba(191, 191, 191, 0.2); }
+  &.status-produced { background: rgba(250, 173, 20, 0.2); }
+  &.status-tested { background: rgba(59, 124, 255, 0.2); }
+  &.status-delivered { background: rgba(82, 196, 26, 0.2); }
+}
+
+.sn-list-icon-text {
+  font-size: 24rpx;
+}
+
+.sn-list-info {
+  flex: 1;
+}
+
+.sn-list-code {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1F1F1F;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.sn-list-meta {
+  font-size: 22rpx;
+  color: #8C8C8C;
+  display: block;
+}
+
+.sn-list-arrow {
+  font-size: 32rpx;
+  color: #BFBFBF;
 }
 </style>

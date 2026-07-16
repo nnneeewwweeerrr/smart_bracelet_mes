@@ -1,27 +1,38 @@
-feat: 融合feature/web-admin的AI助手模块，重建知识库管理和问答统计页面
+feat: 融合dev分支小程序端，扫码入库对接mes_demo数据库
 
-1. 重建知识库管理页面(knowledge-base/index.vue)
-   - 采用暗色科技风，与数字车间看板风格统一
-   - 字段严格对齐AiKnowledgeDocument实体(docNo/docName/docType/category/keywords/summary/uploader/uploadTime/status)
-   - 支持搜索/分页/新增/编辑/启用禁用/删除/同步知识库/统计卡片
+1. 融合dev分支小程序更新到master
+   - 取dev分支mini-app目录(扫码/SOP/异常上报/生产进度/AI助手等完整功能)
+   - 保留master后端完整接口(demo数据库/AI模块/质量模块)
 
-2. 重建问答统计页面(ai-stats/index.vue)
-   - 采用暗色科技风，融合feature/web-admin的ECharts设计
-   - 字段严格对齐AiChatHistory实体(sessionId/userName/question/answer/model/responseTime/feedback/chatTime/scene)
-   - 4个统计卡片(总提问/今日/好评率/会话数) + 近7天趋势图 + 用户分布图 + 对话记录表格
-   - 支持好评/差评反馈、删除、搜索
+2. 小程序扫码入库对接mes_demo数据库(演示重点)
+   - stock.js: 拆分scanStockIn(扫码查物料)和submitStockIn(确认入库)
+   - submitStockIn对接/api/demo/stock-in/scan(一步完成入库+库存更新)
+   - getWarehouseList改用/api/mini/warehouse/list(查demo仓库)
+   - getStockList/getStockInList/getStockOutList改用demo接口
+   - 库存预警/盘点改用demo接口
 
-3. 补全API文件缺失方法
-   - aiKnowledge.js: 新增toggleAiKnowledge/getAiKnowledgeStats/getAiKnowledgeCategories/getAiKnowledgeAll
-   - aiChatHistory.js: 新增getAiChatSessions/feedbackAiChat
+3. scan-in.vue改造(扫码入库演示页面)
+   - handleSubmit调用submitStockIn，传demo接口字段
+   - 字段: scanCode/materialId/materialNo/materialName/warehouseId/warehouseCode/warehouseName/quantity/operator
+   - 仓库选择时同时保存warehouseCode和warehouseName
+   - operator从localStorage读取用户信息
 
-4. 修复AI表数据库问题(DataFixController新增/api/fix/ai-tables接口)
-   - 修复ai_knowledge_document/ai_chat_history表字符集为utf8mb4
-   - 补充ai_chat_history缺失列(session_id/model/response_time/feedback/chat_time/scene/context/chat_status)
-   - 重写10条知识库文档中文数据(工艺规范/操作手册/质量标准等)
-   - 重写10条问答历史中文数据(生产管理/设备管理/质量管理等场景)
+4. scan-out.vue改造(扫码出库)
+   - handleSubmit调用submitStockOut对接/api/demo/stock-out/save
+   - 传完整字段: stockOutNo/type/materialNo/materialName/warehouseId/warehouseCode/warehouseName/quantity/operator/outDate/status
 
-5. 融合原则
-   - 后端保留master完整接口(AiKnowledgeDocumentController/AiChatHistoryController)
-   - 前端采用feature/web-admin的暗色科技风设计，但字段对齐master真实实体
-   - 路由/菜单配置已验证正确(AI助手: 知识库管理/知识图谱/问答统计)
+5. 后端新增接口
+   - MiniAppController新增 GET /api/mini/warehouse/list 查demo仓库(DemoWarehouseService)
+   - 注入DemoWarehouseService，只返回status=1的启用仓库
+
+6. 融合原则
+   - 后端主导: 保留master完整后端(demo库/AI/质量模块)
+   - 前端顺应: 小程序API调用全部对接master最新接口
+   - 数据库统一: 扫码入库数据写入mes_demo，与Web端仓库管理共享数据
+   - JWT白名单已包含/api/mini/**和/api/demo/**
+
+7. 联调验证通过
+   - 仓库列表: 5个仓库(一号原料仓WH001等)
+   - 扫码入库: 成功(IN1784206765207, 主控芯片, 100, 测试员)
+   - 库存自动更新: 主控芯片 一号原料仓 100
+   - 入库记录: total=11

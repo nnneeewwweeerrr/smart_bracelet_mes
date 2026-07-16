@@ -11,7 +11,7 @@
 
     <view class="search-section">
       <view class="search-bar">
-        <u-search v-model="searchKey" placeholder="搜索SN码/工单号" @search="doSearch" @custom="doSearch" @clear="doSearch" shape="round"></u-search>
+        <u-search v-model="searchKey" placeholder="搜索任务号/检验员" @search="doSearch" @custom="doSearch" @clear="doSearch" shape="round"></u-search>
       </view>
       <view class="filter-tabs">
         <u-tabs :list="filterList" :current="currentFilter" @click="onFilterChange" :activeStyle="{ color: '#52C41A', fontWeight: 'bold' }" :inactiveStyle="{ color: '#8C8C8C' }" lineColor="#52C41A" :lineWidth="40"></u-tabs>
@@ -32,24 +32,24 @@
       </view>
       <view class="stat-card">
         <text class="stat-icon-wrap blue">📊</text>
-        <text class="stat-number">{{ summary.total.toLocaleString() }}</text>
+        <text class="stat-number">{{ formatNumber(summary.total) }}</text>
         <text class="stat-name">测试总数</text>
       </view>
       <view class="stat-card">
-        <text class="stat-icon-wrap green">✅</text>
-        <text class="stat-number success">{{ summary.passCount.toLocaleString() }}</text>
+        <text class="stat-icon-wrap green">✓</text>
+        <text class="stat-number success">{{ formatNumber(summary.passCount) }}</text>
         <text class="stat-name">通过数</text>
       </view>
       <view class="stat-card">
-        <text class="stat-icon-wrap red">❌</text>
-        <text class="stat-number error">{{ summary.failCount.toLocaleString() }}</text>
+        <text class="stat-icon-wrap red">✗</text>
+        <text class="stat-number error">{{ formatNumber(summary.failCount) }}</text>
         <text class="stat-name">失败数</text>
       </view>
     </view>
 
     <view class="test-section" v-if="currentFilter === 0 || currentFilter === 1">
       <view class="section-header">
-        <text class="section-title">❤️ 心率传感器</text>
+        <text class="section-title">心率传感器</text>
         <text class="section-rate" :class="heartRate.passRate >= 95 ? 'rate-good' : 'rate-warning'">{{ heartRate.passRate }}%</text>
       </view>
       <view class="test-card">
@@ -74,9 +74,9 @@
           </view>
           <view class="metrics-grid">
             <view class="metric-card">
-              <text class="metric-icon">📊</text>
+              <text class="metric-icon">📏</text>
               <text class="metric-label">测试范围</text>
-              <text class="metric-value">60-180bpm</text>
+              <text class="metric-value">暂无</text>
             </view>
             <view class="metric-card">
               <text class="metric-icon">🎯</text>
@@ -109,7 +109,7 @@
 
     <view class="test-section" v-if="currentFilter === 0 || currentFilter === 2">
       <view class="section-header">
-        <text class="section-title">🔵 蓝牙连接</text>
+        <text class="section-title">蓝牙连接</text>
         <text class="section-rate" :class="bluetooth.passRate >= 95 ? 'rate-good' : 'rate-warning'">{{ bluetooth.passRate }}%</text>
       </view>
       <view class="test-card">
@@ -134,12 +134,12 @@
           </view>
           <view class="metrics-grid">
             <view class="metric-card">
-              <text class="metric-icon">📶</text>
+              <text class="metric-icon">📋</text>
               <text class="metric-label">协议版本</text>
-              <text class="metric-value">BLE 5.0</text>
+              <text class="metric-value">暂无</text>
             </view>
             <view class="metric-card">
-              <text class="metric-icon">📏</text>
+              <text class="metric-icon">📡</text>
               <text class="metric-label">连接距离</text>
               <text class="metric-value highlight">{{ bluetooth.range }}m</text>
             </view>
@@ -169,7 +169,7 @@
 
     <view class="test-section" v-if="currentFilter === 0 || currentFilter === 3">
       <view class="section-header">
-        <text class="section-title">🔋 电池充放电</text>
+        <text class="section-title">电池充放电</text>
         <text class="section-rate" :class="battery.passRate >= 95 ? 'rate-good' : 'rate-warning'">{{ battery.passRate }}%</text>
       </view>
       <view class="test-card">
@@ -194,17 +194,17 @@
           </view>
           <view class="metrics-grid">
             <view class="metric-card">
-              <text class="metric-icon">📦</text>
+              <text class="metric-icon">📐</text>
               <text class="metric-label">标称容量</text>
-              <text class="metric-value">380mAh</text>
+              <text class="metric-value">暂无</text>
             </view>
             <view class="metric-card">
-              <text class="metric-icon">⚡</text>
+              <text class="metric-icon">✅</text>
               <text class="metric-label">实测容量</text>
               <text class="metric-value highlight">{{ battery.actualCapacity }}mAh</text>
             </view>
             <view class="metric-card">
-              <text class="metric-icon">🔌</text>
+              <text class="metric-icon">⚡</text>
               <text class="metric-label">充电时间</text>
               <text class="metric-value">{{ battery.chargeTime }}h</text>
             </view>
@@ -229,7 +229,7 @@
 
     <view class="test-section" v-if="currentFilter === 0 || currentFilter === 4">
       <view class="section-header">
-        <text class="section-title">💧 防水测试</text>
+        <text class="section-title">防水测试</text>
         <text class="section-rate" :class="waterproof.passRate >= 95 ? 'rate-good' : 'rate-warning'">{{ waterproof.passRate }}%</text>
       </view>
       <view class="test-card">
@@ -254,17 +254,17 @@
           </view>
           <view class="metrics-grid">
             <view class="metric-card">
-              <text class="metric-icon">🏊</text>
+              <text class="metric-icon">🏷️</text>
               <text class="metric-label">防水等级</text>
-              <text class="metric-value">IP{{ waterproof.level }}</text>
+              <text class="metric-value">{{ waterproof.level ? 'IP' + waterproof.level : '暂无' }}</text>
             </view>
             <view class="metric-card">
-              <text class="metric-icon">📏</text>
+              <text class="metric-icon">🌊</text>
               <text class="metric-label">测试深度</text>
               <text class="metric-value highlight">{{ waterproof.depth }}m</text>
             </view>
             <view class="metric-card">
-              <text class="metric-icon">⏱️</text>
+              <text class="metric-icon">⏰</text>
               <text class="metric-label">测试时长</text>
               <text class="metric-value">{{ waterproof.duration }}h</text>
             </view>
@@ -289,45 +289,136 @@
 
     <view class="trend-section" v-if="currentFilter === 0">
       <view class="section-header">
-        <text class="section-title">📈 今日测试趋势</text>
+        <text class="section-title">今日测试趋势</text>
         <text class="section-sub">每小时通过率变化</text>
       </view>
       <view class="trend-chart">
-        <view class="chart-grid">
-          <view class="grid-line" v-for="i in 4" :key="i"></view>
-        </view>
-        <view class="chart-area">
-          <view class="chart-line-fill" :style="{ clipPath: getLineClipPath() }"></view>
-          <view class="chart-lines">
-            <view 
-              v-for="(point, idx) in trendData" 
-              :key="'line-' + idx" 
-              class="chart-line-segment"
-              :style="getLineStyle(idx)"
-            ></view>
+        <template v-if="trendData.length > 0">
+          <view class="chart-header-info">
+            <view class="chart-info-item">
+              <view class="info-dot green"></view>
+              <text class="info-text">优良 95%以上</text>
+            </view>
+            <view class="chart-info-item">
+              <view class="info-dot yellow"></view>
+              <text class="info-text">正常 (90-95%)</text>
+            </view>
+            <view class="chart-info-item">
+              <view class="info-dot red"></view>
+              <text class="info-text">需关注 90%以下</text>
+            </view>
           </view>
-          <view 
-            v-for="(point, idx) in trendData" 
-            :key="idx" 
-            class="chart-point"
-            :style="{ 
-              left: getPointX(idx) + '%', 
-              bottom: point.rate + '%' 
-            }"
-          >
-            <view class="point-dot" :class="point.rate >= 95 ? 'dot-good' : point.rate >= 90 ? 'dot-warning' : 'dot-error'"></view>
-            <text class="point-value">{{ point.rate }}%</text>
+          <view class="chart-container">
+            <view class="chart-y-axis">
+              <text class="y-label" v-for="(label, idx) in ['100%', '75%', '50%', '25%', '0%']" :key="idx">{{ label }}</text>
+            </view>
+            <view class="chart-main">
+              <view class="chart-grid">
+                <view class="grid-line" v-for="i in 4" :key="i"></view>
+              </view>
+
+              <view class="chart-content">
+                <svg class="chart-svg" :viewBox="`0 0 ${chartWidth} ${chartHeight}`" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="rgba(82, 196, 26, 0.5)" />
+                      <stop offset="30%" stop-color="rgba(82, 196, 26, 0.3)" />
+                      <stop offset="60%" stop-color="rgba(115, 209, 61, 0.15)" />
+                      <stop offset="100%" stop-color="rgba(115, 209, 61, 0.03)" />
+                    </linearGradient>
+                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#52C41A" />
+                      <stop offset="50%" stop-color="#73D13D" />
+                      <stop offset="100%" stop-color="#95DE64" />
+                    </linearGradient>
+                    <filter id="glow">
+                      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                      <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                    <filter id="pointGlow">
+                      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                      <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  <path :d="smoothAreaPath" fill="url(#areaGradient)" opacity="0.8" />
+                  <path :d="smoothLinePath" fill="none" stroke="url(#lineGradient)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" />
+                  <path :d="smoothLinePath" fill="none" stroke="#52C41A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                  <g v-for="(point, idx) in trendData" :key="idx">
+                    <circle
+                      :cx="getPointX(idx)"
+                      :cy="getPointY(point.rate)"
+                      r="8"
+                      :fill="getPointColor(point.rate)"
+                      stroke="#ffffff"
+                      stroke-width="3"
+                      filter="url(#pointGlow)"
+                      class="data-point"
+                    />
+                    <circle
+                      :cx="getPointX(idx)"
+                      :cy="getPointY(point.rate)"
+                      r="4"
+                      fill="#ffffff"
+                    />
+                    <rect
+                      :x="getPointX(idx) - 20"
+                      :y="getPointY(point.rate) - 35"
+                      width="40"
+                      height="24"
+                      rx="12"
+                      fill="#ffffff"
+                      stroke="rgba(82, 196, 26, 0.2)"
+                      stroke-width="1"
+                    />
+                    <text
+                      :x="getPointX(idx)"
+                      :y="getPointY(point.rate) - 20"
+                      text-anchor="middle"
+                      fill="#52C41A"
+                      font-size="11"
+                      font-weight="700"
+                    >{{ point.rate }}%</text>
+                  </g>
+                </svg>
+              </view>
+              <view class="chart-x-labels">
+                <view class="x-label-wrap" v-for="(item, idx) in trendData" :key="idx">
+                  <view class="x-tick"></view>
+                  <text class="x-label">{{ item.time }}</text>
+                </view>
+              </view>
+            </view>
           </view>
-        </view>
-        <view class="chart-labels">
-          <text v-for="(item, idx) in trendData" :key="idx" class="chart-label">{{ item.time }}</text>
+          <view class="chart-summary">
+            <view class="summary-item">
+              <text class="summary-label">最高通过率</text>
+              <text class="summary-value highlight">{{ maxRate }}%</text>
+            </view>
+            <view class="summary-item">
+              <text class="summary-label">最低通过率</text>
+              <text class="summary-value" :class="minRate < 95 ? 'warning' : ''">{{ minRate }}%</text>
+            </view>
+            <view class="summary-item">
+              <text class="summary-label">平均通过率</text>
+              <text class="summary-value">{{ avgRate }}%</text>
+            </view>
+          </view>
+        </template>
+        <view v-else class="chart-empty">
+          <text class="chart-empty-text">暂无趋势数据</text>
         </view>
       </view>
     </view>
 
     <view class="alarm-section" v-if="currentFilter === 0">
       <view class="section-header">
-        <text class="section-title">⚠️ 测试异常告警</text>
+        <text class="section-title">测试异常告警</text>
       </view>
       <view class="alarm-list" v-if="filteredAlarms.length > 0">
         <view class="alarm-item" v-for="item in filteredAlarms" :key="item.id">
@@ -348,41 +439,27 @@
 
     <view class="test-records-section" v-if="searchKey && searchResults.length > 0">
       <view class="section-header">
-        <text class="section-title">🔍 搜索结果</text>
+        <text class="section-title">搜索结果</text>
         <text class="section-count">找到 {{ searchResults.length }} 条记录</text>
       </view>
       <view class="record-list">
         <view class="record-card" v-for="item in searchResults" :key="item.id">
           <view class="record-header">
-            <text class="record-sn">{{ item.snCode }}</text>
-            <u-tag :text="item.statusText" :type="item.statusTag" size="mini"></u-tag>
+            <text class="record-sn">{{ item.taskNo }}</text>
+            <u-tag :text="item.statusText" :type="item.statusType" size="mini"></u-tag>
           </view>
           <view class="record-body">
             <view class="record-row">
-              <text class="record-label">产品型号</text>
-              <text class="record-value">{{ item.productModel }}</text>
+              <text class="record-label">任务类型</text>
+              <text class="record-value">{{ item.taskTypeName }}</text>
             </view>
             <view class="record-row">
-              <text class="record-label">测试工序</text>
-              <text class="record-value">{{ item.processName }}</text>
+              <text class="record-label">检验员</text>
+              <text class="record-value">{{ item.inspectorName || '-' }}</text>
             </view>
             <view class="record-row">
-              <text class="record-label">测试时间</text>
-              <text class="record-value">{{ item.testTime }}</text>
-            </view>
-            <view class="record-test-results">
-              <view class="test-result" :class="item.heartRate ? 'pass' : 'fail'">
-                <text class="result-icon">❤️</text>
-                <text class="result-text">{{ item.heartRate ? '通过' : '失败' }}</text>
-              </view>
-              <view class="test-result" :class="item.bluetooth ? 'pass' : 'fail'">
-                <text class="result-icon">🔵</text>
-                <text class="result-text">{{ item.bluetooth ? '通过' : '失败' }}</text>
-              </view>
-              <view class="test-result" :class="item.battery ? 'pass' : 'fail'">
-                <text class="result-icon">🔋</text>
-                <text class="result-text">{{ item.battery ? '通过' : '失败' }}</text>
-              </view>
+              <text class="record-label">创建时间</text>
+              <text class="record-value">{{ item.createTime }}</text>
             </view>
           </view>
         </view>
@@ -393,6 +470,7 @@
 </template>
 
 <script>
+import { get } from '@/utils/request'
 import DynamicBackground from '@/components/DynamicBackground'
 
 export default {
@@ -417,91 +495,198 @@ export default {
         failCount: 0
       },
       heartRate: {
-        passRate: 98,
-        accuracy: 99.2,
-        responseTime: 120,
-        todayPass: 485,
-        todayFail: 10,
-        total: 12580
+        passRate: 0,
+        accuracy: 0,
+        responseTime: 0,
+        todayPass: 0,
+        todayFail: 0,
+        total: 0
       },
       bluetooth: {
-        passRate: 96,
-        range: 10,
-        connectTime: 2.3,
-        todayPass: 472,
-        todayFail: 18,
-        total: 12450
+        passRate: 0,
+        range: 0,
+        connectTime: 0,
+        todayPass: 0,
+        todayFail: 0,
+        total: 0
       },
       battery: {
-        passRate: 97,
-        actualCapacity: 375,
-        chargeTime: 1.5,
-        todayPass: 478,
-        todayFail: 15,
-        total: 12380
+        passRate: 0,
+        actualCapacity: 0,
+        chargeTime: 0,
+        todayPass: 0,
+        todayFail: 0,
+        total: 0
       },
       waterproof: {
-        passRate: 95,
-        level: 68,
-        depth: 2,
-        duration: 1.5,
-        todayPass: 465,
-        todayFail: 23,
-        total: 12200
+        passRate: 0,
+        level: 0,
+        depth: 0,
+        duration: 0,
+        todayPass: 0,
+        todayFail: 0,
+        total: 0
       },
-      trendData: [
-        { time: '08:00', rate: 92 },
-        { time: '09:00', rate: 95 },
-        { time: '10:00', rate: 98 },
-        { time: '11:00', rate: 96 },
-        { time: '12:00', rate: 94 },
-        { time: '13:00', rate: 97 },
-        { time: '14:00', rate: 99 },
-        { time: '15:00', rate: 98 },
-        { time: '16:00', rate: 96 },
-        { time: '17:00', rate: 97 }
-      ],
-      alarmList: [
-        { id: 1, level: 'level-error', title: '心率传感器异常', detail: 'SN20240115002心率测试多次失败，建议复检', time: '16:30' },
-        { id: 2, level: 'level-warning', title: '蓝牙连接超时', detail: 'BATCH20240115批次蓝牙连接时间超过3秒', time: '15:20' },
-        { id: 3, level: 'level-info', title: '电池容量偏低', detail: 'SN20240115018实测容量368mAh，接近下限', time: '14:15' },
-        { id: 4, level: 'level-error', title: '防水测试失败', detail: 'SN20240115025防水测试IP68不达标', time: '13:45' }
-      ],
-      testRecords: [
-        { id: 1, snCode: 'SN20240115001', productModel: '智能运动手环A1', processName: '功能测试', testTime: '2024-01-15 16:30', heartRate: true, bluetooth: true, battery: true, waterproof: true, statusText: '全部通过', statusTag: 'success' },
-        { id: 2, snCode: 'SN20240115002', productModel: '智能运动手环A1', processName: '功能测试', testTime: '2024-01-15 16:25', heartRate: false, bluetooth: true, battery: true, waterproof: true, statusText: '心率失败', statusTag: 'error' },
-        { id: 3, snCode: 'SN20240115003', productModel: '智能运动手环A1', processName: '功能测试', testTime: '2024-01-15 16:20', heartRate: true, bluetooth: true, battery: true, waterproof: true, statusText: '全部通过', statusTag: 'success' },
-        { id: 4, snCode: 'SN20240115004', productModel: '智能运动手环A1', processName: '功能测试', testTime: '2024-01-15 16:15', heartRate: true, bluetooth: false, battery: true, waterproof: true, statusText: '蓝牙失败', statusTag: 'error' },
-        { id: 5, snCode: 'SN20240115005', productModel: '智能运动手环A1', processName: '功能测试', testTime: '2024-01-15 16:10', heartRate: true, bluetooth: true, battery: true, waterproof: true, statusText: '全部通过', statusTag: 'success' }
-      ],
-      searchResults: []
+      trendData: [],
+      alarmList: [],
+      testRecords: [],
+      searchResults: [],
+      chartWidth: 600,
+      chartHeight: 280
     }
   },
   computed: {
     filteredAlarms() {
       if (!this.searchKey) return this.alarmList
       const key = this.searchKey.toLowerCase()
-      return this.alarmList.filter(item => 
-        item.title.toLowerCase().includes(key) || 
-        item.detail.toLowerCase().includes(key)
+      return this.alarmList.filter(item =>
+        (item.title && item.title.toLowerCase().includes(key)) ||
+        (item.detail && item.detail.toLowerCase().includes(key))
       )
+    },
+    linePath() {
+      if (this.trendData.length === 0) return ''
+      const points = this.trendData.map((item, idx) => {
+        return `${this.getPointX(idx)},${this.getPointY(item.rate)}`
+      })
+      return `M ${points.join(' L ')}`
+    },
+    smoothLinePath() {
+      if (this.trendData.length < 2) return this.linePath()
+      const points = this.trendData.map((item, idx) => ({
+        x: this.getPointX(idx),
+        y: this.getPointY(item.rate)
+      }))
+      let path = `M ${points[0].x},${points[0].y}`
+      for (let i = 0; i < points.length - 1; i++) {
+        const current = points[i]
+        const next = points[i + 1]
+        const cpx1 = current.x + (next.x - current.x) / 3
+        const cpy1 = current.y
+        const cpx2 = current.x + 2 * (next.x - current.x) / 3
+        const cpy2 = next.y
+        path += ` C ${cpx1},${cpy1} ${cpx2},${cpy2} ${next.x},${next.y}`
+      }
+      return path
+    },
+    smoothAreaPath() {
+      if (this.trendData.length < 2) return this.areaPath()
+      const points = this.trendData.map((item, idx) => ({
+        x: this.getPointX(idx),
+        y: this.getPointY(item.rate)
+      }))
+      let path = `M ${points[0].x},${this.chartHeight}`
+      path += ` L ${points[0].x},${points[0].y}`
+      for (let i = 0; i < points.length - 1; i++) {
+        const current = points[i]
+        const next = points[i + 1]
+        const cpx1 = current.x + (next.x - current.x) / 3
+        const cpy1 = current.y
+        const cpx2 = current.x + 2 * (next.x - current.x) / 3
+        const cpy2 = next.y
+        path += ` C ${cpx1},${cpy1} ${cpx2},${cpy2} ${next.x},${next.y}`
+      }
+      path += ` L ${points[points.length - 1].x},${this.chartHeight} Z`
+      return path
+    },
+    areaPath() {
+      if (this.trendData.length === 0) return ''
+      const points = this.trendData.map((item, idx) => {
+        return `${this.getPointX(idx)},${this.getPointY(item.rate)}`
+      })
+      const startX = this.getPointX(0)
+      const endX = this.getPointX(this.trendData.length - 1)
+      return `M ${startX},${this.chartHeight} L ${points.join(' L ')} L ${endX},${this.chartHeight} Z`
+    },
+    maxRate() {
+      if (this.trendData.length === 0) return 0
+      return Math.max(...this.trendData.map(item => item.rate))
+    },
+    minRate() {
+      if (this.trendData.length === 0) return 0
+      return Math.min(...this.trendData.map(item => item.rate))
+    },
+    avgRate() {
+      if (this.trendData.length === 0) return 0
+      const sum = this.trendData.reduce((acc, item) => acc + item.rate, 0)
+      return (sum / this.trendData.length).toFixed(1)
     }
   },
-  onLoad() {
-    this.calcSummary()
+  onShow() {
+    this.loadStatistics()
+    this.loadTestRecords()
+  },
+  onReady() {
+    this.initChartSize()
   },
   methods: {
-    calcSummary() {
-      const total = this.heartRate.total + this.bluetooth.total + this.battery.total + this.waterproof.total
-      const passCount = Math.round(this.heartRate.total * this.heartRate.passRate / 100) +
-                        Math.round(this.bluetooth.total * this.bluetooth.passRate / 100) +
-                        Math.round(this.battery.total * this.battery.passRate / 100) +
-                        Math.round(this.waterproof.total * this.waterproof.passRate / 100)
-      
-      this.summary.total = total
-      this.summary.passCount = passCount
-      this.summary.failCount = total - passCount
-      this.summary.passRate = total > 0 ? ((passCount / total) * 100).toFixed(1) : 0
+    async loadStatistics() {
+      try {
+        const res = await get('/mini/quality/statistics')
+        if (res) {
+          const total = Number(res.total) || 0
+          const passed = Number(res.passed) || 0
+          const failed = Number(res.failed) || 0
+          this.summary.total = total
+          this.summary.passCount = passed
+          this.summary.failCount = failed
+          this.summary.passRate = total > 0 ? Number(((passed / total) * 100).toFixed(1)) : 0
+        }
+      } catch (e) {
+        // 接口异常时保持0值
+      }
+    },
+    async loadTestRecords() {
+      try {
+        const res = await get('/quality-task/list', { pageNum: 1, pageSize: 50 })
+        const records = (res && res.records) || res || []
+        this.testRecords = records.map(item => ({
+          ...item,
+          statusText: this.getStatusText(item.status),
+          statusType: this.getStatusType(item.status),
+          taskTypeName: this.getTypeName(item.taskType)
+        }))
+      } catch (e) {
+        this.testRecords = []
+      }
+    },
+    getStatusText(s) {
+      const m = { 0: '待处理', 1: '处理中', 2: '已完成' }
+      return m[s] || '未知'
+    },
+    getStatusType(s) {
+      const m = { 0: 'info', 1: 'primary', 2: 'success' }
+      return m[s] || 'info'
+    },
+    getTypeName(t) {
+      const m = { incoming: '来料检验', process: '过程检验', finished: '成品检验' }
+      return m[t] || t || '未知'
+    },
+    formatNumber(num) {
+      const n = Number(num) || 0
+      return n.toLocaleString()
+    },
+    initChartSize() {
+      const sysInfo = uni.getSystemInfoSync()
+      this.chartWidth = sysInfo.windowWidth - 140
+      this.chartHeight = 280
+    },
+    getPointX(index) {
+      const total = this.trendData.length
+      if (total <= 1) return this.chartWidth / 2
+      const padding = 30
+      const availableWidth = this.chartWidth - padding * 2
+      return padding + (index / (total - 1)) * availableWidth
+    },
+    getPointY(rate) {
+      const padding = 20
+      const availableHeight = this.chartHeight - padding * 2
+      return this.chartHeight - padding - (rate / 100) * availableHeight
+    },
+    getPointColor(rate) {
+      if (rate >= 95) return '#52C41A'
+      if (rate >= 90) return '#FAAD14'
+      return '#FF4D4F'
     },
     onFilterChange({ index }) {
       this.currentFilter = index
@@ -512,46 +697,14 @@ export default {
         return
       }
       const key = this.searchKey.toLowerCase()
-      this.searchResults = this.testRecords.filter(item => 
-        item.snCode.toLowerCase().includes(key) ||
-        item.productModel.toLowerCase().includes(key) ||
-        item.processName.toLowerCase().includes(key)
+      this.searchResults = this.testRecords.filter(item =>
+        (item.taskNo && item.taskNo.toLowerCase().includes(key)) ||
+        (item.inspectorName && item.inspectorName.toLowerCase().includes(key)) ||
+        (item.taskTypeName && item.taskTypeName.toLowerCase().includes(key))
       )
     },
     getRingRotation(percent) {
-      return (percent / 100) * 360
-    },
-    getPointX(index) {
-      const total = this.trendData.length
-      return ((index + 1) / (total + 1)) * 100
-    },
-    getLineClipPath() {
-      if (this.trendData.length === 0) return ''
-      const total = this.trendData.length
-      let points = []
-      points.push(`0% 100%`)
-      for (let i = 0; i < total; i++) {
-        const x = ((i + 1) / (total + 1)) * 100
-        const y = 100 - this.trendData[i].rate
-        points.push(`${x}% ${y}%`)
-      }
-      points.push(`100% 100%`)
-      return `polygon(${points.join(', ')})`
-    },
-    getLineStyle(idx) {
-      if (idx >= this.trendData.length - 1) return {}
-      const startX = this.getPointX(idx)
-      const startY = this.trendData[idx].rate
-      const endX = this.getPointX(idx + 1)
-      const endY = this.trendData[idx + 1].rate
-      const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2))
-      const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI
-      return {
-        width: `${length}%`,
-        transform: `rotate(${angle}deg)`,
-        left: `${startX}%`,
-        bottom: `${startY}%`
-      }
+      return (Number(percent) / 100) * 360
     }
   }
 }
@@ -560,7 +713,7 @@ export default {
 <style lang="scss" scoped>
 .test-dashboard-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding-bottom: $tabbar-height;
   position: relative;
 }
@@ -612,6 +765,8 @@ export default {
 
 .search-section {
   padding: 24rpx;
+  position: relative;
+  z-index: 10;
 }
 
 .search-bar {
@@ -1037,15 +1192,107 @@ export default {
   padding: 32rpx;
   box-shadow: 0 12rpx 48rpx rgba(0, 0, 0, 0.08), 0 0 0 1rpx rgba(255, 255, 255, 0.8);
   position: relative;
-  height: 320rpx;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 400rpx;
+    height: 400rpx;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(103, 194, 58, 0.15) 0%, transparent 70%);
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -20%;
+    width: 300rpx;
+    height: 300rpx;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(59, 124, 255, 0.1) 0%, transparent 70%);
+  }
+}
+
+.chart-header-info {
+  display: flex;
+  justify-content: center;
+  gap: 32rpx;
+  margin-bottom: 28rpx;
+  position: relative;
+  z-index: 10;
+}
+
+.chart-info-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.info-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  
+  &.green { 
+    background: #52C41A; 
+    box-shadow: 0 0 12rpx rgba(82, 196, 26, 0.5);
+  }
+  &.yellow { 
+    background: #FAAD14; 
+    box-shadow: 0 0 12rpx rgba(250, 173, 20, 0.5);
+  }
+  &.red { 
+    background: #FF4D4F; 
+    box-shadow: 0 0 12rpx rgba(245, 108, 108, 0.5);
+  }
+}
+
+.info-text {
+  font-size: 24rpx;
+  color: #8C8C8C;
+  font-weight: 500;
+}
+
+.chart-container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  height: 400rpx;
+}
+
+.chart-y-axis {
+  width: 80rpx;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-top: 20rpx;
+  padding-bottom: 40rpx;
+}
+
+.y-label {
+  font-size: 22rpx;
+  color: #8C8C8C;
+  font-weight: 500;
+  text-align: right;
+  padding-right: 12rpx;
+}
+
+.chart-main {
+  flex: 1;
+  position: relative;
 }
 
 .chart-grid {
   position: absolute;
-  top: 32rpx;
-  left: 32rpx;
-  right: 32rpx;
-  bottom: 50rpx;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 40rpx;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1056,101 +1303,109 @@ export default {
   background: linear-gradient(90deg, transparent 0%, rgba(103, 194, 58, 0.1) 50%, transparent 100%);
 }
 
-.chart-area {
-  position: absolute;
-  top: 32rpx;
-  left: 32rpx;
-  right: 32rpx;
-  bottom: 50rpx;
-  overflow: hidden;
-}
 
-.chart-line-fill {
+
+.chart-content {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(180deg, rgba(103, 194, 58, 0.35) 0%, rgba(103, 194, 58, 0.08) 60%, rgba(103, 194, 58, 0.02) 100%);
-  transition: clip-path 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  right: 0;
+  bottom: 40rpx;
 }
 
-.chart-lines {
-  position: absolute;
-  top: 0;
-  left: 0;
+.chart-svg {
   width: 100%;
   height: 100%;
 }
 
-.chart-line-segment {
-  position: absolute;
-  height: 4rpx;
-  background: linear-gradient(90deg, #52C41A 0%, #73D13D 100%);
-  border-radius: 2rpx;
-  transform-origin: left center;
-  box-shadow: 0 0 12rpx rgba(103, 194, 58, 0.5);
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.chart-point {
-  position: absolute;
-  transform: translate(-50%, 50%);
-  z-index: 10;
-}
-
-.point-dot {
-  width: 20rpx;
-  height: 20rpx;
-  border-radius: 50%;
-  border: 4rpx solid #ffffff;
-  box-shadow: 0 4rpx 16rpx rgba(103, 194, 58, 0.4), 0 0 0 4rpx rgba(103, 194, 58, 0.15);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  &:active {
-    transform: scale(1.3);
-  }
-
-  &.dot-good { 
-    background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%); 
-    box-shadow: 0 4rpx 16rpx rgba(103, 194, 58, 0.4), 0 0 0 4rpx rgba(103, 194, 58, 0.15);
-  }
-  &.dot-warning { 
-    background: linear-gradient(135deg, #FAAD14 0%, #FFC53D 100%); 
-    box-shadow: 0 4rpx 16rpx rgba(250, 173, 20, 0.4), 0 0 0 4rpx rgba(250, 173, 20, 0.15);
-  }
-  &.dot-error { 
-    background: linear-gradient(135deg, #FF4D4F 0%, #FF7875 100%); 
-    box-shadow: 0 4rpx 16rpx rgba(245, 108, 108, 0.4), 0 0 0 4rpx rgba(245, 108, 108, 0.15);
-  }
-}
-
-.point-value {
-  position: absolute;
-  top: -48rpx;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 22rpx;
-  font-weight: 700;
-  color: #52C41A;
-  white-space: nowrap;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 6rpx 12rpx;
-  border-radius: 12rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
-}
-
-.chart-labels {
+.chart-x-labels {
   position: absolute;
   bottom: 0;
-  left: 32rpx;
-  right: 32rpx;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: space-between;
 }
 
-.chart-label {
+.x-label-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.x-tick {
+  width: 1rpx;
+  height: 12rpx;
+  background: rgba(103, 194, 58, 0.2);
+  margin-bottom: 8rpx;
+}
+
+.x-label {
   font-size: 22rpx;
+  color: #8C8C8C;
+  font-weight: 500;
+}
+
+.chart-summary {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 28rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.06);
+  position: relative;
+  z-index: 10;
+}
+
+.summary-item {
+  text-align: center;
+  padding: 0 20rpx;
+}
+
+.summary-label {
+  font-size: 24rpx;
+  color: #8C8C8C;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.summary-value {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #52C41A;
+  display: block;
+  letter-spacing: -1rpx;
+  text-shadow: 0 2rpx 8rpx rgba(82, 196, 26, 0.3);
+  
+  &.highlight {
+    color: #52C41A;
+    font-size: 40rpx;
+  }
+  
+  &.warning {
+    color: #FAAD14;
+    text-shadow: 0 2rpx 8rpx rgba(250, 173, 20, 0.3);
+  }
+}
+
+.data-point {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+.chart-empty {
+  padding: 80rpx 40rpx;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.chart-empty-text {
+  font-size: 28rpx;
   color: #8C8C8C;
   font-weight: 500;
 }
@@ -1347,5 +1602,16 @@ export default {
 .result-text {
   font-size: 24rpx;
   font-weight: 600;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.1;
+  }
+  50% {
+    transform: translateY(-20rpx) scale(1.1);
+    opacity: 0.15;
+  }
 }
 </style>

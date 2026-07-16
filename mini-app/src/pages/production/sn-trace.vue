@@ -1,4 +1,4 @@
-﻿﻿﻿<template>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
   <view class="sn-trace-page">
     <DynamicBackground theme="theme-primary" fixed></DynamicBackground>
     <view class="page-content">

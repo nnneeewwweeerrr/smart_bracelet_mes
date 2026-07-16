@@ -62,6 +62,9 @@ public class MiniAppController {
     private ProcessMaterialBomService processMaterialBomService;
 
     @Autowired
+    private DemoWarehouseService demoWarehouseService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -154,7 +157,7 @@ public class MiniAppController {
         LambdaQueryWrapper<MaterialInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MaterialInfo::getMaterialNo, code);
         MaterialInfo material = materialInfoService.getOne(wrapper);
-        
+
         Map<String, Object> result = new HashMap<>();
         if (material != null) {
             result.put("materialId", material.getId());
@@ -162,6 +165,16 @@ public class MiniAppController {
             result.put("materialName", material.getMaterialName());
         }
         return Result.success(result);
+    }
+
+    /**
+     * 获取仓库列表（demo 库，供小程序扫码入库/出库选择仓库）
+     */
+    @GetMapping("/warehouse/list")
+    public Result<List<DemoWarehouse>> getWarehouseList() {
+        LambdaQueryWrapper<DemoWarehouse> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DemoWarehouse::getStatus, 1).orderByAsc(DemoWarehouse::getId);
+        return Result.success(demoWarehouseService.list(wrapper));
     }
 
     @GetMapping("/production/dashboard")

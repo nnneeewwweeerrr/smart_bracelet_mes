@@ -59,6 +59,7 @@
 
 <script>
 import DynamicBackground from '@/components/DynamicBackground'
+import { getNotificationList, markNotificationAsRead, markAllNotificationsAsRead } from '@/api/user'
 
 export default {
   components: {
@@ -71,128 +72,33 @@ export default {
         { name: '全部', value: 'all' },
         { name: '工单', value: 'workorder' },
         { name: '异常', value: 'exception' },
-        { name: '质量', value: 'quality' }
+        { name: '质量', value: 'quality' },
+        { name: '仓储', value: 'stock' }
       ],
-      notifications: [
-        {
-          id: 1,
-          type: 'exception',
-          title: '异常预警：屏幕划痕不良',
-          description: '发现1件屏幕划痕不良品，SN码：SN20240115001，请及时处理',
-          time: '2分钟前',
-          source: '质检系统',
-          read: false,
-          badge: 1
-        },
-        {
-          id: 2,
-          type: 'workorder',
-          title: '工单下发：WO20240115002',
-          description: '新工单已下发至A线，产品：智能运动手环A1，数量：500件，请及时安排生产',
-          time: '15分钟前',
-          source: '生产计划',
-          read: false,
-          badge: null
-        },
-        {
-          id: 3,
-          type: 'quality',
-          title: '质量预警：心率传感器合格率下降',
-          description: '心率传感器测试合格率下降至85%，低于目标值95%，请排查原因',
-          time: '30分钟前',
-          source: '质检看板',
-          read: false,
-          badge: 3
-        },
-        {
-          id: 4,
-          type: 'stock',
-          title: '库存预警：电池物料不足',
-          description: '锂电池BAT-380库存不足500件，建议及时补货',
-          time: '1小时前',
-          source: '仓储系统',
-          read: true,
-          badge: null
-        },
-        {
-          id: 5,
-          type: 'workorder',
-          title: '工单进度提醒：WO20240115001',
-          description: '工单WO20240115001进度已达80%，预计今日完成，请做好收尾工作',
-          time: '2小时前',
-          source: '生产监控',
-          read: true,
-          badge: null
-        },
-        {
-          id: 6,
-          type: 'exception',
-          title: '异常处理通知：已闭环',
-          description: '您上报的蓝牙连接异常（SN20240115003）已维修完成并复测合格',
-          time: '3小时前',
-          source: '维修系统',
-          read: true,
-          badge: null
-        },
-        {
-          id: 7,
-          type: 'quality',
-          title: '抽检任务：请执行IQC检验',
-          description: '新到物料IC-MCU-001批次IC20240115需进行IQC来料检验',
-          time: '4小时前',
-          source: '质检任务',
-          read: false,
-          badge: 1
-        },
-        {
-          id: 8,
-          type: 'workorder',
-          title: '报工提醒：今日报工未完成',
-          description: '您今日还有3笔报工记录未提交，请及时完成',
-          time: '5小时前',
-          source: '报工系统',
-          read: true,
-          badge: null
-        },
-        {
-          id: 9,
-          type: 'quality',
-          title: '功能测试任务：待测试50件',
-          description: '待功能测试产品50件，请尽快完成测试录入',
-          time: '6小时前',
-          source: '测试系统',
-          read: false,
-          badge: 50
-        },
-        {
-          id: 10,
-          type: 'stock',
-          title: '物料入库通知',
-          description: '屏幕模组LCD-001批次LCD20240115已入库，数量：1000件',
-          time: '昨天',
-          source: '仓储系统',
-          read: true,
-          badge: null
-        }
-      ]
+      notifications: []
     }
   },
   computed: {
     filteredNotifications() {
       if (this.currentTab === 0) return this.notifications
       const type = this.tabList[this.currentTab].value
-      const typeMap = {
-        workorder: ['workorder'],
-        exception: ['exception'],
-        quality: ['quality']
-      }
-      return this.notifications.filter(n => typeMap[type]?.includes(n.type))
+      return this.notifications.filter(n => n.type === type)
     },
     unreadCount() {
       return this.notifications.filter(n => !n.read).length
     }
   },
+  onShow() {
+    this.loadNotifications()
+  },
   methods: {
+    async loadNotifications() {
+      try {
+        this.notifications = await getNotificationList() || []
+      } catch {
+        this.notifications = []
+      }
+    },
     onTabChange({ index }) {
       this.currentTab = index
     },
@@ -205,20 +111,25 @@ export default {
       }
       return icons[type] || '📌'
     },
-    handleNotificationClick(item) {
+    async handleNotificationClick(item) {
       item.read = true
       item.badge = null
-      uni.showToast({
-        title: `已查看：${item.title}`,
-        icon: 'none',
-        duration: 1500
-      })
+      try {
+        await markNotificationAsRead(item.id)
+      } catch { /* ignore */ }
+      this.$emit('update-count', this.unreadCount)
+      uni.$emit('notificationUpdate')
     },
-    markAllRead() {
+    async markAllRead() {
       this.notifications.forEach(n => {
         n.read = true
         n.badge = null
       })
+      try {
+        await markAllNotificationsAsRead()
+      } catch { /* ignore */ }
+      this.$emit('update-count', 0)
+      uni.$emit('notificationUpdate')
       uni.showToast({ title: '已全部标记为已读', icon: 'success' })
     }
   }
@@ -228,7 +139,7 @@ export default {
 <style lang="scss" scoped>
 .notifications-page {
   min-height: 100vh;
-  background: transparent;
+  background: #F5F7FA;
   padding-bottom: 120rpx;
   position: relative;
 }
