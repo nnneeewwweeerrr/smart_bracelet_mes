@@ -79,7 +79,7 @@ public class SopController {
             item.put("sortOrder", bom.getSortOrder());
             MaterialInfo material = materialInfoService.getById(bom.getMaterialId());
             if (material != null) {
-                item.put("materialCode", material.getMaterialCode());
+                item.put("materialCode", material.getMaterialNo());
                 item.put("materialName", material.getMaterialName());
                 item.put("unit", material.getUnit());
             }
@@ -196,7 +196,7 @@ public class SopController {
             item.put("sortOrder", bom.getSortOrder());
             MaterialInfo material = materialInfoService.getById(bom.getMaterialId());
             if (material != null) {
-                item.put("materialCode", material.getMaterialCode());
+                item.put("materialCode", material.getMaterialNo());
                 item.put("materialName", material.getMaterialName());
                 item.put("unit", material.getUnit());
             }
@@ -262,7 +262,7 @@ public class SopController {
             item.put("sortOrder", bom.getSortOrder());
             MaterialInfo material = materialInfoService.getById(bom.getMaterialId());
             if (material != null) {
-                item.put("materialCode", material.getMaterialCode());
+                item.put("materialCode", material.getMaterialNo());
                 item.put("materialName", material.getMaterialName());
                 item.put("unit", material.getUnit());
             }
@@ -311,7 +311,7 @@ public class SopController {
 
         // 查询物料
         LambdaQueryWrapper<MaterialInfo> matWrapper = new LambdaQueryWrapper<>();
-        matWrapper.eq(MaterialInfo::getMaterialCode, materialCode);
+        matWrapper.eq(MaterialInfo::getMaterialNo, materialCode);
         MaterialInfo material = materialInfoService.getOne(matWrapper);
 
         if (material == null) {
@@ -321,7 +321,7 @@ public class SopController {
             return Result.success(result);
         }
 
-        result.put("materialCode", material.getMaterialCode());
+        result.put("materialCode", material.getMaterialNo());
         result.put("materialName", material.getMaterialName());
 
         // 查询工序BOM

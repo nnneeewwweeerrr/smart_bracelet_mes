@@ -1,18 +1,19 @@
 <template>
   <div class="page-container">
+    <!-- 搜索区 -->
     <el-card class="search-card" shadow="never">
       <el-form :model="searchForm" :inline="true">
         <el-form-item label="盘点单号">
-          <el-input v-model="searchForm.takeNo" placeholder="请输入盘点单号" clearable style="width: 180px" />
+          <el-input v-model="searchForm.checkNo" placeholder="请输入" clearable style="width: 180px" />
         </el-form-item>
         <el-form-item label="仓库">
-          <el-select v-model="searchForm.warehouse" placeholder="全部仓库" clearable style="width: 140px">
-            <el-option v-for="item in warehouseList" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
+          <el-input v-model="searchForm.warehouseName" placeholder="请输入" clearable style="width: 160px" />
         </el-form-item>
-        <el-form-item label="盘点状态">
-          <el-select v-model="searchForm.status" placeholder="全部状态" clearable style="width: 140px">
-            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+        <el-form-item label="状态">
+          <el-select v-model="searchForm.status" placeholder="请选择" clearable style="width: 140px">
+            <el-option label="进行中" :value="0" />
+            <el-option label="已审核" :value="1" />
+            <el-option label="已完成" :value="2" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -22,54 +23,33 @@
       </el-form>
     </el-card>
 
+    <!-- 表格区 -->
     <el-card class="table-card" shadow="never">
       <div class="table-header">
-        <span class="table-title">库存盘点列表</span>
+        <span class="table-title">库存盘点</span>
         <el-button type="primary" @click="handleAdd">
-          <el-icon><Plus /></el-icon>
-          新增盘点
+          <el-icon><Plus /></el-icon> 新增盘点
         </el-button>
       </div>
 
       <el-table v-loading="loading" :data="tableData" border stripe style="width: 100%">
         <el-table-column type="index" label="序号" width="60" align="center" />
-        <el-table-column prop="takeNo" label="盘点单号" width="160" />
-        <el-table-column prop="warehouse" label="仓库" width="120" />
-        <el-table-column prop="takeDate" label="盘点日期" width="120" />
-        <el-table-column prop="takePerson" label="盘点人" width="100" />
-        <el-table-column prop="itemCount" label="物料数" width="90" align="center" />
-        <el-table-column prop="diffCount" label="差异数" width="90" align="center">
-          <template #default="{ row }">
-            <span :class="row.diffCount > 0 ? 'text-danger' : ''">{{ row.diffCount }}</span>
-          </template>
-        </el-table-column>
+        <el-table-column prop="checkNo" label="盘点单号" width="160" />
+        <el-table-column prop="warehouseName" label="仓库" width="120" />
+        <el-table-column prop="checkDate" label="盘点时间" width="170" />
+        <el-table-column prop="operator" label="操作人" width="100" />
         <el-table-column prop="status" label="状态" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="getStatusType(row.status)" size="small">
-              {{ getStatusText(row.status) }}
-            </el-tag>
+            <el-tag :type="statusTagType(row.status)">{{ statusText(row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="170" />
+        <el-table-column prop="remark" label="备注" min-width="150" />
         <el-table-column label="操作" width="200" fixed="right" align="center">
           <template #default="{ row }">
-            <el-button type="primary" link @click="handleView(row)">查看</el-button>
-            <el-button
-              type="primary"
-              link
-              @click="handleEdit(row)"
-              :disabled="row.status !== 0"
-            >
-              编辑
-            </el-button>
-            <el-button
-              type="success"
-              link
-              @click="handleComplete(row)"
-              :disabled="row.status !== 0"
-            >
-              完成
-            </el-button>
+            <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+            <el-button v-if="row.status === 0" type="warning" link @click="handleAudit(row)">审核</el-button>
+            <el-button v-if="row.status === 1" type="success" link @click="handleComplete(row)">完成</el-button>
+            <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -78,7 +58,7 @@
         <el-pagination
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
-          :page-sizes="[10, 20, 50, 100]"
+          :page-sizes="[10, 20, 50]"
           :total="total"
           layout="total, sizes, prev, pager, next, jumper"
           background
@@ -88,227 +68,111 @@
       </div>
     </el-card>
 
-    <el-dialog
-      v-model="dialogVisible"
-      :title="dialogTitle"
-      width="900px"
-      :close-on-click-modal="false"
-    >
-      <el-form
-        ref="takeFormRef"
-        :model="takeForm"
-        :rules="takeRules"
-        label-width="100px"
-        :disabled="isView"
-      >
+    <!-- 新增/编辑弹窗 -->
+    <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑盘点' : '新增盘点'" width="600px" :close-on-click-modal="false">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="仓库" prop="warehouse">
-              <el-select v-model="takeForm.warehouse" placeholder="请选择仓库" style="width: 100%" @change="handleWarehouseChange">
-                <el-option v-for="item in warehouseList" :key="item.value" :label="item.label" :value="item.value" />
+            <el-form-item label="盘点单号" prop="checkNo">
+              <el-input v-model="form.checkNo" placeholder="如：PC202607001" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="仓库" prop="warehouseName">
+              <el-select v-model="form.warehouseName" placeholder="请选择" style="width: 100%">
+                <el-option label="原材料仓" value="原材料仓" />
+                <el-option label="成品仓" value="成品仓" />
+                <el-option label="半成品仓" value="半成品仓" />
+                <el-option label="辅料仓" value="辅料仓" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="盘点人" prop="takePerson">
-              <el-input v-model="takeForm.takePerson" placeholder="请输入盘点人" />
+            <el-form-item label="操作人" prop="operator">
+              <el-input v-model="form.operator" placeholder="请输入操作人" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="状态">
+              <el-select v-model="form.status" style="width: 100%">
+                <el-option label="进行中" :value="0" />
+                <el-option label="已审核" :value="1" />
+                <el-option label="已完成" :value="2" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="备注">
+              <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="请输入备注" />
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="takeForm.remark" type="textarea" :rows="2" placeholder="请输入备注" />
-        </el-form-item>
-
-        <div class="detail-title">盘点明细</div>
-        <el-table :data="takeForm.items" border stripe style="width: 100%">
-          <el-table-column type="index" label="序号" width="60" align="center" />
-          <el-table-column prop="materialCode" label="物料编码" width="140" />
-          <el-table-column prop="materialName" label="物料名称" min-width="160" />
-          <el-table-column prop="spec" label="规格" width="120" />
-          <el-table-column prop="unit" label="单位" width="70" align="center" />
-          <el-table-column prop="systemQty" label="系统数量" width="110" align="center" />
-          <el-table-column prop="actualQty" label="实盘数量" width="110" align="center">
-            <template #default="{ row }">
-              <el-input-number
-                v-if="!isView"
-                v-model="row.actualQty"
-                :min="0"
-                :max="99999"
-                size="small"
-                style="width: 100%"
-                @change="handleQtyChange"
-              />
-              <span v-else>{{ row.actualQty }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="diffQty" label="差异数量" width="110" align="center">
-            <template #default="{ row }">
-              <span :class="row.diffQty !== 0 ? 'text-danger' : ''">{{ row.diffQty }}</span>
-            </template>
-          </el-table-column>
-        </el-table>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">{{ isView ? '关闭' : '取消' }}</el-button>
-        <el-button v-if="!isView" type="primary" :loading="submitLoading" @click="handleSubmit">确定</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="submitLoading" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { demoStockCheck } from '@/api/demo'
 
 const loading = ref(false)
 const submitLoading = ref(false)
 const dialogVisible = ref(false)
 const isEdit = ref(false)
-const isView = ref(false)
-const takeFormRef = ref(null)
+const formRef = ref(null)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
-const searchForm = reactive({
-  takeNo: '',
-  warehouse: '',
-  status: ''
-})
+const searchForm = reactive({ checkNo: '', warehouseName: '', status: '' })
 
-const takeForm = reactive({
+const form = reactive({
   id: null,
-  takeNo: '',
-  warehouse: '',
-  takeDate: '',
-  takePerson: '',
-  remark: '',
-  items: []
+  checkNo: '',
+  warehouseName: '原材料仓',
+  operator: '',
+  status: 0,
+  remark: ''
 })
 
-const warehouseList = [
-  { label: '原材料仓', value: '原材料仓' },
-  { label: '成品仓', value: '成品仓' },
-  { label: '半成品仓', value: '半成品仓' }
-]
-
-const statusOptions = [
-  { label: '盘点中', value: 0 },
-  { label: '已完成', value: 1 },
-  { label: '已审核', value: 2 }
-]
-
-const takeRules = {
-  warehouse: [
-    { required: true, message: '请选择仓库', trigger: 'change' }
-  ],
-  takePerson: [
-    { required: true, message: '请输入盘点人', trigger: 'blur' }
-  ]
+const rules = {
+  checkNo: [{ required: true, message: '请输入盘点单号', trigger: 'blur' }],
+  warehouseName: [{ required: true, message: '请选择仓库', trigger: 'change' }],
+  operator: [{ required: true, message: '请输入操作人', trigger: 'blur' }]
 }
-
-const stockItems = [
-  { materialCode: 'M-001', materialName: 'PCB主板', spec: 'SH-P001', unit: '块', systemQty: 500 },
-  { materialCode: 'M-002', materialName: '显示屏', spec: '1.5寸', unit: '块', systemQty: 480 },
-  { materialCode: 'M-003', materialName: '电池', spec: '100mAh', unit: '个', systemQty: 600 },
-  { materialCode: 'M-004', materialName: '表带', spec: '硅胶黑色', unit: '条', systemQty: 520 },
-  { materialCode: 'M-005', materialName: '心率传感器', spec: 'MAX30102', unit: '个', systemQty: 450 }
-]
-
-const finishedItems = [
-  { materialCode: 'P-001', materialName: '智能手环Pro', spec: 'SH-P001', unit: '台', systemQty: 200 },
-  { materialCode: 'P-002', materialName: '智能手环Lite', spec: 'SH-L002', unit: '台', systemQty: 350 },
-  { materialCode: 'P-003', materialName: '智能手环Ultra', spec: 'SH-U003', unit: '台', systemQty: 80 }
-]
-
-const mockData = ref([
-  {
-    id: 1,
-    takeNo: 'ST-20240115001',
-    warehouse: '原材料仓',
-    takeDate: '2024-01-15',
-    takePerson: '王仓库',
-    itemCount: 5,
-    diffCount: 1,
-    status: 1,
-    createTime: '2024-01-15 09:00:00',
-    remark: '月末盘点',
-    items: [
-      { materialCode: 'M-001', materialName: 'PCB主板', spec: 'SH-P001', unit: '块', systemQty: 500, actualQty: 500, diffQty: 0 },
-      { materialCode: 'M-002', materialName: '显示屏', spec: '1.5寸', unit: '块', systemQty: 480, actualQty: 478, diffQty: -2 },
-      { materialCode: 'M-003', materialName: '电池', spec: '100mAh', unit: '个', systemQty: 600, actualQty: 600, diffQty: 0 },
-      { materialCode: 'M-004', materialName: '表带', spec: '硅胶黑色', unit: '条', systemQty: 520, actualQty: 520, diffQty: 0 },
-      { materialCode: 'M-005', materialName: '心率传感器', spec: 'MAX30102', unit: '个', systemQty: 450, actualQty: 450, diffQty: 0 }
-    ]
-  },
-  {
-    id: 2,
-    takeNo: 'ST-20240110001',
-    warehouse: '成品仓',
-    takeDate: '2024-01-10',
-    takePerson: '李仓库',
-    itemCount: 3,
-    diffCount: 0,
-    status: 2,
-    createTime: '2024-01-10 14:00:00',
-    remark: '',
-    items: [
-      { materialCode: 'P-001', materialName: '智能手环Pro', spec: 'SH-P001', unit: '台', systemQty: 200, actualQty: 200, diffQty: 0 },
-      { materialCode: 'P-002', materialName: '智能手环Lite', spec: 'SH-L002', unit: '台', systemQty: 350, actualQty: 350, diffQty: 0 },
-      { materialCode: 'P-003', materialName: '智能手环Ultra', spec: 'SH-U003', unit: '台', systemQty: 80, actualQty: 80, diffQty: 0 }
-    ]
-  },
-  {
-    id: 3,
-    takeNo: 'ST-20240116001',
-    warehouse: '半成品仓',
-    takeDate: '2024-01-16',
-    takePerson: '张仓库',
-    itemCount: 4,
-    diffCount: 2,
-    status: 0,
-    createTime: '2024-01-16 08:30:00',
-    remark: '周盘点',
-    items: []
-  }
-])
 
 const tableData = ref([])
 
-const dialogTitle = computed(() => {
-  if (isView.value) return '盘点详情'
-  return isEdit.value ? '编辑盘点' : '新增盘点'
-})
-
-function getStatusType(status) {
-  const types = ['warning', 'primary', 'success']
-  return types[status] || 'info'
+function statusText(status) {
+  const map = { 0: '进行中', 1: '已审核', 2: '已完成' }
+  return map[status] || '未知'
 }
 
-function getStatusText(status) {
-  const texts = ['盘点中', '已完成', '已审核']
-  return texts[status] || '未知'
+function statusTagType(status) {
+  const map = { 0: 'info', 1: 'warning', 2: 'success' }
+  return map[status] || 'info'
 }
 
 function fetchData() {
   loading.value = true
-  setTimeout(() => {
-    let filtered = [...mockData.value]
-    if (searchForm.takeNo) {
-      filtered = filtered.filter(item => item.takeNo.includes(searchForm.takeNo))
-    }
-    if (searchForm.warehouse) {
-      filtered = filtered.filter(item => item.warehouse === searchForm.warehouse)
-    }
-    if (searchForm.status !== '') {
-      filtered = filtered.filter(item => item.status === searchForm.status)
-    }
-    total.value = filtered.length
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    tableData.value = filtered.slice(start, end)
+  demoStockCheck.getList({
+    pageNum: currentPage.value,
+    pageSize: pageSize.value,
+    ...searchForm
+  }).then(res => {
+    tableData.value = res.data.records || []
+    total.value = res.data.total || 0
+  }).catch(err => {
+    ElMessage.error('加载失败: ' + (err.message || ''))
+  }).finally(() => {
     loading.value = false
-  }, 300)
+  })
 }
 
 function handleSearch() {
@@ -317,8 +181,8 @@ function handleSearch() {
 }
 
 function handleReset() {
-  searchForm.takeNo = ''
-  searchForm.warehouse = ''
+  searchForm.checkNo = ''
+  searchForm.warehouseName = ''
   searchForm.status = ''
   currentPage.value = 1
   fetchData()
@@ -337,135 +201,64 @@ function handleCurrentChange(page) {
 
 function handleAdd() {
   isEdit.value = false
-  isView.value = false
-  resetForm()
+  Object.assign(form, {
+    id: null, checkNo: '', warehouseName: '原材料仓',
+    operator: '', status: 0, remark: ''
+  })
   dialogVisible.value = true
 }
 
 function handleEdit(row) {
   isEdit.value = true
-  isView.value = false
-  Object.assign(takeForm, JSON.parse(JSON.stringify(row)))
+  Object.assign(form, row)
   dialogVisible.value = true
 }
 
-function handleView(row) {
-  isEdit.value = false
-  isView.value = true
-  Object.assign(takeForm, JSON.parse(JSON.stringify(row)))
-  dialogVisible.value = true
+function handleAudit(row) {
+  ElMessageBox.confirm(`确定要审核盘点单「${row.checkNo}」吗？`, '提示', { type: 'warning' })
+    .then(() => {
+      demoStockCheck.audit(row.id).then(() => {
+        ElMessage.success('审核成功')
+        fetchData()
+      }).catch(err => ElMessage.error('审核失败: ' + (err.message || '')))
+    }).catch(() => {})
 }
 
 function handleComplete(row) {
-  ElMessageBox.confirm(`确定要完成盘点「${row.takeNo}」吗？完成后不可修改。`, '确认', {
-    confirmButtonText: '确定完成',
-    cancelButtonText: '取消',
-    type: 'success'
-  }).then(() => {
-    const take = mockData.value.find(item => item.id === row.id)
-    if (take) {
-      take.status = 1
-      let diffCount = 0
-      take.items.forEach(item => {
-        if (item.diffQty !== 0) diffCount++
-      })
-      take.diffCount = diffCount
-    }
-    ElMessage.success('盘点完成')
-    fetchData()
-  }).catch(() => {})
+  ElMessageBox.confirm(`确定要完成盘点单「${row.checkNo}」吗？完成后将更新库存。`, '提示', { type: 'warning' })
+    .then(() => {
+      demoStockCheck.complete(row.id).then(() => {
+        ElMessage.success('完成成功')
+        fetchData()
+      }).catch(err => ElMessage.error('操作失败: ' + (err.message || '')))
+    }).catch(() => {})
 }
 
-function handleWarehouseChange(val) {
-  let items = []
-  if (val === '原材料仓') {
-    items = JSON.parse(JSON.stringify(stockItems))
-  } else if (val === '成品仓') {
-    items = JSON.parse(JSON.stringify(finishedItems))
-  } else {
-    items = JSON.parse(JSON.stringify(stockItems.slice(0, 3)))
-  }
-  items.forEach(item => {
-    item.actualQty = item.systemQty
-    item.diffQty = 0
-  })
-  takeForm.items = items
+function handleDelete(row) {
+  ElMessageBox.confirm(`确定要删除盘点单「${row.checkNo}」吗？`, '提示', { type: 'warning' })
+    .then(() => {
+      demoStockCheck.remove(row.id).then(() => {
+        ElMessage.success('删除成功')
+        fetchData()
+      }).catch(err => ElMessage.error('删除失败: ' + (err.message || '')))
+    }).catch(() => {})
 }
 
-function handleQtyChange() {
-  takeForm.items.forEach(item => {
-    item.diffQty = item.actualQty - item.systemQty
-  })
-}
-
-function resetForm() {
-  takeForm.id = null
-  takeForm.takeNo = ''
-  takeForm.warehouse = ''
-  takeForm.takeDate = ''
-  takeForm.takePerson = ''
-  takeForm.remark = ''
-  takeForm.items = []
-  if (takeFormRef.value) {
-    takeFormRef.value.resetFields()
-  }
-}
-
-async function handleSubmit() {
-  if (!takeFormRef.value) return
-  
-  try {
-    await takeFormRef.value.validate()
+function handleSubmit() {
+  formRef.value.validate(valid => {
+    if (!valid) return
     submitLoading.value = true
-    
-    setTimeout(() => {
-      let diffCount = 0
-      takeForm.items.forEach(item => {
-        if (item.diffQty !== 0) diffCount++
-      })
-      
-      if (isEdit.value) {
-        const index = mockData.value.findIndex(item => item.id === takeForm.id)
-        if (index !== -1) {
-          mockData.value[index] = {
-            ...mockData.value[index],
-            warehouse: takeForm.warehouse,
-            takePerson: takeForm.takePerson,
-            remark: takeForm.remark,
-            items: takeForm.items,
-            itemCount: takeForm.items.length,
-            diffCount: diffCount
-          }
-        }
-        ElMessage.success('编辑成功')
-      } else {
-        const maxId = Math.max(...mockData.value.map(item => item.id), 0)
-        const now = new Date()
-        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '')
-        const newTake = {
-          id: maxId + 1,
-          takeNo: 'ST-' + dateStr + String(maxId + 1).padStart(3, '0'),
-          warehouse: takeForm.warehouse,
-          takeDate: now.toISOString().slice(0, 10),
-          takePerson: takeForm.takePerson,
-          itemCount: takeForm.items.length,
-          diffCount: diffCount,
-          status: 0,
-          createTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-'),
-          remark: takeForm.remark,
-          items: takeForm.items
-        }
-        mockData.value.unshift(newTake)
-        ElMessage.success('新增成功')
-      }
-      
+    const action = isEdit.value ? demoStockCheck.update(form) : demoStockCheck.save(form)
+    action.then(() => {
+      ElMessage.success(isEdit.value ? '修改成功' : '新增成功')
       dialogVisible.value = false
-      submitLoading.value = false
       fetchData()
-    }, 300)
-  } catch (error) {
-    submitLoading.value = false
-  }
+    }).catch(err => {
+      ElMessage.error('操作失败: ' + (err.message || ''))
+    }).finally(() => {
+      submitLoading.value = false
+    })
+  })
 }
 
 onMounted(() => {
@@ -474,45 +267,23 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page-container {
-  width: 100%;
-}
-
-.search-card {
-  margin-bottom: 20px;
-}
-
-.table-card {
-  margin-bottom: 20px;
-}
-
+.page-container { width: 100%; }
+.search-card { margin-bottom: 20px; }
+.table-card { margin-bottom: 20px; }
 .table-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
 }
-
 .table-title {
   font-size: 16px;
   font-weight: bold;
   color: #303133;
 }
-
 .pagination-wrapper {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
-}
-
-.detail-title {
-  font-size: 14px;
-  font-weight: bold;
-  color: #303133;
-  margin: 10px 0;
-}
-
-.text-danger {
-  color: #F56C6C;
 }
 </style>

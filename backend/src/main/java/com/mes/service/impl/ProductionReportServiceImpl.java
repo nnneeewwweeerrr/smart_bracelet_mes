@@ -78,7 +78,7 @@ public class ProductionReportServiceImpl extends ServiceImpl<ProductionReportMap
         // ===== 物料校验 =====
         if (materialCode != null && !materialCode.isEmpty()) {
             LambdaQueryWrapper<MaterialInfo> matWrapper = new LambdaQueryWrapper<>();
-            matWrapper.eq(MaterialInfo::getMaterialCode, materialCode);
+            matWrapper.eq(MaterialInfo::getMaterialNo, materialCode);
             MaterialInfo material = materialInfoService.getOne(matWrapper);
 
             if (material == null) {

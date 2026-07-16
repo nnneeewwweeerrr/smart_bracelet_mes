@@ -106,7 +106,13 @@ public class AiChatController {
             }
 
             AiChatHistory record = new AiChatHistory();
-            record.setUserId(userId);
+            if (userId != null && !userId.isEmpty()) {
+                try {
+                    record.setUserId(Long.parseLong(userId));
+                } catch (NumberFormatException e) {
+                    record.setUserName(userId);
+                }
+            }
             record.setUserName(userName);
             record.setQuestion(question);
             record.setAnswer(answer);
@@ -125,7 +131,13 @@ public class AiChatController {
             log.error("AI chat error", e);
 
             AiChatHistory record = new AiChatHistory();
-            record.setUserId(userId);
+            if (userId != null && !userId.isEmpty()) {
+                try {
+                    record.setUserId(Long.parseLong(userId));
+                } catch (NumberFormatException nfe) {
+                    record.setUserName(userId);
+                }
+            }
             record.setUserName(userName);
             record.setQuestion(question);
             record.setAnswer("抱歉，系统出错，请稍后再试。");

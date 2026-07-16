@@ -1,10 +1,12 @@
 package com.mes.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @TableName("material_info")
@@ -13,57 +15,31 @@ public class MaterialInfo {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @TableField("material_code")
-    private String materialCode;
-
-    @TableField("material_name")
-    private String materialName;
-
-    @TableField("material_type")
-    private String materialType;
-
-    @TableField("unit")
-    private String unit;
-
-    @TableField("unit_price")
-    private java.math.BigDecimal unitPrice;
-
-    @TableField("safety_stock")
-    private Integer safetyStock;
-
-    @TableField("status")
-    private Integer status;
-
-    @TableField(exist = false)
     private String materialNo;
 
-    @TableField(exist = false)
-    private String name;
+    private String materialName;
 
-    @TableField(exist = false)
     private String type;
 
-    @TableField(exist = false)
-    private java.math.BigDecimal price;
-
-    @TableField(exist = false)
     private String spec;
 
-    @TableField(exist = false)
-    private String supplierName;
+    private String unit;
 
-    @TableField(exist = false)
-    private String supplier;
+    private BigDecimal price;
 
-    @TableField(exist = false)
-    private java.time.LocalDateTime createTime;
+    private Integer stockQty;
 
-    @TableField(exist = false)
-    private java.time.LocalDateTime updateTime;
+    private Integer safetyStock;
 
-    @TableField(exist = false)
     private Long supplierId;
 
-    @TableField(exist = false)
+    private String supplierName;
+
+    private Integer status;
+
     private String remark;
+
+    private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 }

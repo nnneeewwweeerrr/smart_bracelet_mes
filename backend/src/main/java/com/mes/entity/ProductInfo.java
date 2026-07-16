@@ -1,7 +1,6 @@
 package com.mes.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -16,41 +15,31 @@ public class ProductInfo {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String productCode;
+    private String productNo;
 
     private String productName;
 
-    private String productType;
+    private String category;
 
-    private String specification;
+    private String model;
 
-    private BigDecimal unitPrice;
+    private BigDecimal price;
+
+    private BigDecimal cost;
+
+    private String unit;
+
+    private Integer stockQty;
+
+    private Integer safetyStock;
+
+    private String description;
 
     private Integer status;
 
+    private String remark;
+
     private LocalDateTime createTime;
 
-    @TableField(exist = false)
-    private String productNo;
-
-    @TableField(exist = false)
-    private String model;
-
-    @TableField(exist = false)
-    private String category;
-
-    @TableField(exist = false)
-    private BigDecimal price;
-
-    @TableField(exist = false)
-    private BigDecimal cost;
-
-    @TableField(exist = false)
-    private String unit;
-
-    @TableField(exist = false)
-    private String description;
-
-    @TableField(exist = false)
-    private String remark;
+    private LocalDateTime updateTime;
 }

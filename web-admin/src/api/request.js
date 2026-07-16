@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '../router'
-import { useUserStore } from '../stores/user'
 
 const request = axios.create({
   baseURL: '/api',
@@ -10,9 +9,9 @@ const request = axios.create({
 
 request.interceptors.request.use(
   (config) => {
-    const userStore = useUserStore()
-    if (userStore.token) {
-      config.headers['Authorization'] = 'Bearer ' + userStore.token
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers['Authorization'] = 'Bearer ' + token
     }
     return config
   },
@@ -27,8 +26,8 @@ request.interceptors.response.use(
     if (res.code !== 200) {
       ElMessage.error(res.message || '请求失败')
       if (res.code === 401) {
-        const userStore = useUserStore()
-        userStore.logout()
+        localStorage.removeItem('token')
+        localStorage.removeItem('userInfo')
         router.push('/login')
       }
       return Promise.reject(new Error(res.message || '请求失败'))
@@ -36,7 +35,16 @@ request.interceptors.response.use(
     return res
   },
   (error) => {
-    ElMessage.error(error.message || '网络错误')
+    if (error.response && error.response.status === 403) {
+      ElMessage.error('没有权限访问该资源')
+    } else if (error.response && error.response.status === 401) {
+      ElMessage.error('登录已失效，请重新登录')
+      localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
+      router.push('/login')
+    } else {
+      ElMessage.error(error.message || '网络错误')
+    }
     return Promise.reject(error)
   }
 )

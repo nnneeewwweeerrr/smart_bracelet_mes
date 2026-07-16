@@ -4,6 +4,10 @@ export const getList = (params) => {
   return request.get('/equipment/list', { params })
 }
 
+export const getAll = () => {
+  return request.get('/equipment/all')
+}
+
 export const getById = (id) => {
   return request.get('/equipment/' + id)
 }
@@ -22,8 +26,4 @@ export const remove = (id) => {
 
 export const getStatistics = () => {
   return request.get('/equipment/statistics')
-}
-
-export const getStatusList = () => {
-  return request.get('/equipment/status-list')
 }

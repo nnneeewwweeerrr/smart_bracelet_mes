@@ -2,20 +2,21 @@
   <div class="page-container">
     <el-card class="search-card" shadow="never">
       <el-form :model="searchForm" :inline="true">
-        <el-form-item label="设备编码">
-          <el-input v-model="searchForm.equipmentCode" placeholder="请输入设备编码" clearable style="width: 180px" />
+        <el-form-item label="维保单号">
+          <el-input v-model="searchForm.maintainNo" placeholder="请输入维保单号" clearable style="width: 180px" />
+        </el-form-item>
+        <el-form-item label="设备编号">
+          <el-input v-model="searchForm.equipmentNo" placeholder="请输入设备编号" clearable style="width: 160px" />
         </el-form-item>
         <el-form-item label="设备名称">
           <el-input v-model="searchForm.equipmentName" placeholder="请输入设备名称" clearable style="width: 180px" />
         </el-form-item>
-        <el-form-item label="保养类型">
-          <el-select v-model="searchForm.maintainType" placeholder="全部类型" clearable style="width: 140px">
-            <el-option v-for="item in maintainTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="保养状态">
-          <el-select v-model="searchForm.status" placeholder="全部状态" clearable style="width: 140px">
-            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+        <el-form-item label="维保类型">
+          <el-select v-model="searchForm.maintainType" placeholder="请选择" clearable style="width: 140px">
+            <el-option label="日常保养" value="日常保养" />
+            <el-option label="定期保养" value="定期保养" />
+            <el-option label="故障维修" value="故障维修" />
+            <el-option label="大修" value="大修" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -27,54 +28,37 @@
 
     <el-card class="table-card" shadow="never">
       <div class="table-header">
-        <span class="table-title">设备保养记录</span>
+        <span class="table-title">设备维保记录</span>
         <el-button type="primary" @click="handleAdd">
           <el-icon><Plus /></el-icon>
-          新增保养
+          新增维保
         </el-button>
       </div>
 
       <el-table v-loading="loading" :data="tableData" border stripe style="width: 100%">
         <el-table-column type="index" label="序号" width="60" align="center" />
-        <el-table-column prop="maintainNo" label="保养单号" width="160" />
-        <el-table-column prop="equipmentCode" label="设备编码" width="140" />
+        <el-table-column prop="maintainNo" label="维保单号" width="160" />
+        <el-table-column prop="equipmentNo" label="设备编号" width="120" />
         <el-table-column prop="equipmentName" label="设备名称" min-width="160" />
-        <el-table-column prop="maintainType" label="保养类型" width="110" align="center">
+        <el-table-column prop="maintainType" label="维保类型" width="110" align="center">
           <template #default="{ row }">
-            <el-tag :type="getMaintainTypeTag(row.maintainType)" size="small">
-              {{ getMaintainTypeText(row.maintainType) }}
-            </el-tag>
+            <el-tag :type="getMaintainTypeTag(row.maintainType)">{{ row.maintainType }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="maintainDate" label="保养日期" width="120" />
-        <el-table-column prop="maintainPerson" label="保养人" width="100" />
+        <el-table-column prop="maintainLevel" label="维保级别" width="100" align="center" />
+        <el-table-column prop="actualDate" label="维保日期" width="160" />
+        <el-table-column prop="maintainer" label="维保人" width="100" />
+        <el-table-column prop="cost" label="费用(元)" width="100" align="right" />
         <el-table-column prop="status" label="状态" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="getStatusType(row.status)" size="small">
-              {{ getStatusText(row.status) }}
-            </el-tag>
+            <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="170" />
         <el-table-column label="操作" width="200" fixed="right" align="center">
           <template #default="{ row }">
             <el-button type="primary" link @click="handleView(row)">查看</el-button>
-            <el-button
-              type="primary"
-              link
-              @click="handleEdit(row)"
-              :disabled="row.status === 1"
-            >
-              编辑
-            </el-button>
-            <el-button
-              type="danger"
-              link
-              @click="handleDelete(row)"
-              :disabled="row.status === 1"
-            >
-              删除
-            </el-button>
+            <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+            <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -96,7 +80,7 @@
     <el-dialog
       v-model="dialogVisible"
       :title="dialogTitle"
-      width="650px"
+      width="800px"
       :close-on-click-modal="false"
     >
       <el-form
@@ -108,64 +92,85 @@
       >
         <el-row :gutter="20">
           <el-col :span="12">
+            <el-form-item label="维保单号" prop="maintainNo">
+              <el-input v-model="maintainForm.maintainNo" placeholder="如：MT202607001" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item label="设备" prop="equipmentId">
-              <el-select v-model="maintainForm.equipmentId" placeholder="请选择设备" style="width: 100%" @change="handleEquipmentChange">
+              <el-select v-model="maintainForm.equipmentId" placeholder="请选择设备" style="width: 100%" @change="handleEquipmentChange" filterable>
                 <el-option
                   v-for="item in equipmentList"
                   :key="item.id"
-                  :label="item.equipmentName"
+                  :label="`${item.equipmentNo} - ${item.equipmentName}`"
                   :value="item.id"
                 />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="设备编码">
-              <el-input v-model="maintainForm.equipmentCode" disabled />
+            <el-form-item label="设备编号">
+              <el-input v-model="maintainForm.equipmentNo" disabled />
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="保养类型" prop="maintainType">
-              <el-select v-model="maintainForm.maintainType" placeholder="请选择类型" style="width: 100%">
-                <el-option label="日常保养" :value="1" />
-                <el-option label="定期保养" :value="2" />
-                <el-option label="一级保养" :value="3" />
-                <el-option label="二级保养" :value="4" />
+            <el-form-item label="设备名称">
+              <el-input v-model="maintainForm.equipmentName" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="维保类型" prop="maintainType">
+              <el-select v-model="maintainForm.maintainType" placeholder="请选择" style="width: 100%">
+                <el-option label="日常保养" value="日常保养" />
+                <el-option label="定期保养" value="定期保养" />
+                <el-option label="故障维修" value="故障维修" />
+                <el-option label="大修" value="大修" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="保养日期" prop="maintainDate">
-              <el-date-picker
-                v-model="maintainForm.maintainDate"
-                type="date"
-                placeholder="选择日期"
-                value-format="YYYY-MM-DD"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="保养人" prop="maintainPerson">
-              <el-input v-model="maintainForm.maintainPerson" placeholder="请输入保养人" />
+            <el-form-item label="维保级别" prop="maintainLevel">
+              <el-select v-model="maintainForm.maintainLevel" placeholder="请选择" style="width: 100%">
+                <el-option label="一级" value="一级" />
+                <el-option label="二级" value="二级" />
+                <el-option label="三级" value="三级" />
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="耗时(小时)" prop="costHours">
-              <el-input-number v-model="maintainForm.costHours" :min="0" :precision="1" :step="0.5" style="width: 100%" />
+            <el-form-item label="维保人" prop="maintainer">
+              <el-input v-model="maintainForm.maintainer" placeholder="请输入维保人" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="耗时(小时)" prop="durationHours">
+              <el-input-number v-model="maintainForm.durationHours" :min="0" :precision="1" :step="0.5" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="维保费用(元)" prop="cost">
+              <el-input-number v-model="maintainForm.cost" :min="0" :precision="2" :step="100" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="维保结果" prop="maintainResult">
+              <el-select v-model="maintainForm.maintainResult" placeholder="请选择" style="width: 100%">
+                <el-option label="合格" value="合格" />
+                <el-option label="不合格" value="不合格" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="维保内容" prop="maintainContent">
+              <el-input v-model="maintainForm.maintainContent" type="textarea" :rows="3" placeholder="请输入维保内容" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="maintainForm.remark" type="textarea" :rows="2" placeholder="请输入备注" />
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="保养内容" prop="content">
-          <el-input v-model="maintainForm.content" type="textarea" :rows="4" placeholder="请输入保养内容" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="maintainForm.remark" type="textarea" :rows="2" placeholder="请输入备注" />
-        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">{{ isView ? '关闭' : '取消' }}</el-button>
@@ -178,6 +183,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { demoEquipment, demoEquipmentMaintain } from '@/api/demo'
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -188,198 +194,84 @@ const maintainFormRef = ref(null)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
+const equipmentList = ref([])
 
 const searchForm = reactive({
-  equipmentCode: '',
+  maintainNo: '',
+  equipmentNo: '',
   equipmentName: '',
-  maintainType: '',
-  status: ''
+  maintainType: ''
 })
 
 const maintainForm = reactive({
   id: null,
   maintainNo: '',
   equipmentId: null,
-  equipmentCode: '',
+  equipmentNo: '',
   equipmentName: '',
-  maintainType: 1,
-  maintainDate: '',
-  maintainPerson: '',
-  costHours: 0,
-  content: '',
+  maintainType: '日常保养',
+  maintainLevel: '一级',
+  planDate: '',
+  actualDate: '',
+  maintainContent: '',
+  maintainResult: '合格',
+  cost: 0,
+  maintainer: '',
+  durationHours: 0,
+  status: 1,
   remark: ''
 })
 
-const maintainTypeOptions = [
-  { label: '日常保养', value: 1 },
-  { label: '定期保养', value: 2 },
-  { label: '一级保养', value: 3 },
-  { label: '二级保养', value: 4 }
-]
-
-const statusOptions = [
-  { label: '待执行', value: 0 },
-  { label: '已完成', value: 1 }
-]
-
 const maintainRules = {
-  equipmentId: [
-    { required: true, message: '请选择设备', trigger: 'change' }
-  ],
-  maintainType: [
-    { required: true, message: '请选择保养类型', trigger: 'change' }
-  ],
-  maintainDate: [
-    { required: true, message: '请选择保养日期', trigger: 'change' }
-  ],
-  maintainPerson: [
-    { required: true, message: '请输入保养人', trigger: 'blur' }
-  ],
-  content: [
-    { required: true, message: '请输入保养内容', trigger: 'blur' }
-  ]
+  maintainNo: [{ required: true, message: '请输入维保单号', trigger: 'blur' }],
+  equipmentId: [{ required: true, message: '请选择设备', trigger: 'change' }],
+  maintainType: [{ required: true, message: '请选择维保类型', trigger: 'change' }],
+  maintainer: [{ required: true, message: '请输入维保人', trigger: 'blur' }],
+  maintainContent: [{ required: true, message: '请输入维保内容', trigger: 'blur' }]
 }
 
-const equipmentList = ref([
-  { id: 1, equipmentCode: 'EQ-001', equipmentName: 'SMT贴片机01' },
-  { id: 2, equipmentCode: 'EQ-002', equipmentName: 'SMT贴片机02' },
-  { id: 3, equipmentCode: 'EQ-003', equipmentName: '回流焊机01' },
-  { id: 4, equipmentCode: 'EQ-004', equipmentName: '回流焊机02' },
-  { id: 5, equipmentCode: 'EQ-005', equipmentName: '自动组装线01' },
-  { id: 6, equipmentCode: 'EQ-006', equipmentName: '自动组装线02' },
-  { id: 7, equipmentCode: 'EQ-007', equipmentName: '测试台01' },
-  { id: 8, equipmentCode: 'EQ-008', equipmentName: '测试台02' },
-  { id: 9, equipmentCode: 'EQ-009', equipmentName: '自动包装机01' },
-  { id: 10, equipmentCode: 'EQ-010', equipmentName: '自动包装机02' }
-])
-
-const mockData = ref([
-  {
-    id: 1,
-    maintainNo: 'EM-20240115001',
-    equipmentId: 1,
-    equipmentCode: 'EQ-001',
-    equipmentName: 'SMT贴片机01',
-    maintainType: 2,
-    maintainDate: '2024-01-15',
-    maintainPerson: '王工',
-    costHours: 2,
-    status: 1,
-    content: '清洁设备表面及内部灰尘，检查吸嘴磨损情况，润滑丝杆导轨',
-    remark: '保养完成，设备运行正常',
-    createTime: '2024-01-15 08:00:00'
-  },
-  {
-    id: 2,
-    maintainNo: 'EM-20240114001',
-    equipmentId: 3,
-    equipmentCode: 'EQ-003',
-    equipmentName: '回流焊机01',
-    maintainType: 3,
-    maintainDate: '2024-01-14',
-    maintainPerson: '李工',
-    costHours: 4,
-    status: 1,
-    content: '检查加热模块校准，清洁炉膛，更换过滤网，检查传送带',
-    remark: '温区校准完成',
-    createTime: '2024-01-14 09:00:00'
-  },
-  {
-    id: 3,
-    maintainNo: 'EM-20240116001',
-    equipmentId: 5,
-    equipmentCode: 'EQ-005',
-    equipmentName: '自动组装线01',
-    maintainType: 1,
-    maintainDate: '2024-01-16',
-    maintainPerson: '张工',
-    costHours: 1,
-    status: 0,
-    content: '日常清洁，检查传感器',
-    remark: '',
-    createTime: '2024-01-16 07:30:00'
-  },
-  {
-    id: 4,
-    maintainNo: 'EM-20240113001',
-    equipmentId: 9,
-    equipmentCode: 'EQ-009',
-    equipmentName: '自动包装机01',
-    maintainType: 2,
-    maintainDate: '2024-01-13',
-    maintainPerson: '赵工',
-    costHours: 1.5,
-    status: 1,
-    content: '清洁切刀检查，热封模块清洁，皮带张紧度调整',
-    remark: '',
-    createTime: '2024-01-13 14:00:00'
-  },
-  {
-    id: 5,
-    maintainNo: 'EM-20240117001',
-    equipmentId: 2,
-    equipmentCode: 'EQ-002',
-    equipmentName: 'SMT贴片机02',
-    maintainType: 4,
-    maintainDate: '2024-01-17',
-    maintainPerson: '王工',
-    costHours: 8,
-    status: 0,
-    content: '二级保养：全面检查，更换易损件，精度校准',
-    remark: '计划明天开始',
-    createTime: '2024-01-12 10:00:00'
-  }
-])
+const dialogTitle = computed(() => {
+  if (isView.value) return '维保详情'
+  return isEdit.value ? '编辑维保记录' : '新增维保记录'
+})
 
 const tableData = ref([])
 
-const dialogTitle = computed(() => {
-  if (isView.value) return '保养详情'
-  return isEdit.value ? '编辑保养记录' : '新增保养记录'
-})
-
-function getMaintainTypeText(type) {
-  const texts = ['', '日常保养', '定期保养', '一级保养', '二级保养']
-  return texts[type] || '未知'
-}
-
 function getMaintainTypeTag(type) {
-  const types = ['', 'info', 'primary', 'warning', 'danger']
-  return types[type] || 'info'
+  const map = { '日常保养': 'info', '定期保养': 'primary', '故障维修': 'warning', '大修': 'danger' }
+  return map[type] || 'info'
 }
 
 function getStatusType(status) {
-  const types = ['warning', 'success']
-  return types[status] || 'info'
+  const map = ['', 'success', 'info']
+  return map[status] || 'info'
 }
 
 function getStatusText(status) {
-  const texts = ['待执行', '已完成']
-  return texts[status] || '未知'
+  const map = ['未完成', '已完成', '已取消']
+  return map[status] || '未知'
 }
 
 function fetchData() {
   loading.value = true
-  setTimeout(() => {
-    let filtered = [...mockData.value]
-    if (searchForm.equipmentCode) {
-      filtered = filtered.filter(item => item.equipmentCode.includes(searchForm.equipmentCode))
-    }
-    if (searchForm.equipmentName) {
-      filtered = filtered.filter(item => item.equipmentName.includes(searchForm.equipmentName))
-    }
-    if (searchForm.maintainType !== '') {
-      filtered = filtered.filter(item => item.maintainType === searchForm.maintainType)
-    }
-    if (searchForm.status !== '') {
-      filtered = filtered.filter(item => item.status === searchForm.status)
-    }
-    total.value = filtered.length
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    tableData.value = filtered.slice(start, end)
+  demoEquipmentMaintain.getList({
+    pageNum: currentPage.value,
+    pageSize: pageSize.value,
+    ...searchForm
+  }).then(res => {
+    tableData.value = res.data.records || []
+    total.value = res.data.total || 0
     loading.value = false
-  }, 300)
+  }).catch(err => {
+    ElMessage.error('加载维保记录失败: ' + (err.message || '未知错误'))
+    loading.value = false
+  })
+}
+
+function fetchEquipments() {
+  demoEquipment.getAll().then(res => {
+    equipmentList.value = res.data || []
+  }).catch(() => {})
 }
 
 function handleSearch() {
@@ -388,10 +280,10 @@ function handleSearch() {
 }
 
 function handleReset() {
-  searchForm.equipmentCode = ''
+  searchForm.maintainNo = ''
+  searchForm.equipmentNo = ''
   searchForm.equipmentName = ''
   searchForm.maintainType = ''
-  searchForm.status = ''
   currentPage.value = 1
   fetchData()
 }
@@ -417,145 +309,92 @@ function handleAdd() {
 function handleEdit(row) {
   isEdit.value = true
   isView.value = false
-  Object.assign(maintainForm, JSON.parse(JSON.stringify(row)))
+  Object.assign(maintainForm, row)
   dialogVisible.value = true
 }
 
 function handleView(row) {
   isEdit.value = false
   isView.value = true
-  Object.assign(maintainForm, JSON.parse(JSON.stringify(row)))
+  Object.assign(maintainForm, row)
   dialogVisible.value = true
 }
 
 function handleDelete(row) {
-  ElMessageBox.confirm(`确定要删除保养记录「${row.maintainNo}」吗？`, '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    const index = mockData.value.findIndex(item => item.id === row.id)
-    if (index !== -1) {
-      mockData.value.splice(index, 1)
-    }
-    ElMessage.success('删除成功')
-    fetchData()
-  }).catch(() => {})
+  ElMessageBox.confirm(`确定要删除维保记录「${row.maintainNo}」吗？`, '提示', { type: 'warning' })
+    .then(() => {
+      demoEquipmentMaintain.remove(row.id).then(() => {
+        ElMessage.success('删除成功')
+        fetchData()
+      }).catch(err => {
+        ElMessage.error('删除失败: ' + (err.message || '未知错误'))
+      })
+    }).catch(() => {})
 }
 
 function handleEquipmentChange(val) {
   const equip = equipmentList.value.find(e => e.id === val)
   if (equip) {
-    maintainForm.equipmentCode = equip.equipmentCode
+    maintainForm.equipmentNo = equip.equipmentNo
     maintainForm.equipmentName = equip.equipmentName
   }
 }
 
 function resetForm() {
-  maintainForm.id = null
-  maintainForm.maintainNo = ''
-  maintainForm.equipmentId = null
-  maintainForm.equipmentCode = ''
-  maintainForm.equipmentName = ''
-  maintainForm.maintainType = 1
-  maintainForm.maintainDate = ''
-  maintainForm.maintainPerson = ''
-  maintainForm.costHours = 0
-  maintainForm.content = ''
-  maintainForm.remark = ''
-  if (maintainFormRef.value) {
-    maintainFormRef.value.resetFields()
-  }
+  Object.keys(maintainForm).forEach(key => {
+    if (typeof maintainForm[key] === 'number') {
+      maintainForm[key] = 0
+    } else {
+      maintainForm[key] = ''
+    }
+  })
+  maintainForm.status = 1
+  maintainForm.maintainType = '日常保养'
+  maintainForm.maintainLevel = '一级'
+  maintainForm.maintainResult = '合格'
+  maintainForm.durationHours = 0
+  maintainForm.cost = 0
+  if (maintainFormRef.value) maintainFormRef.value.resetFields()
 }
 
-async function handleSubmit() {
-  if (!maintainFormRef.value) return
-  
-  try {
-    await maintainFormRef.value.validate()
+function handleSubmit() {
+  maintainFormRef.value.validate(valid => {
+    if (!valid) return
     submitLoading.value = true
-    
-    setTimeout(() => {
-      if (isEdit.value) {
-        const index = mockData.value.findIndex(item => item.id === maintainForm.id)
-        if (index !== -1) {
-          mockData.value[index] = {
-            ...mockData.value[index],
-            equipmentId: maintainForm.equipmentId,
-            equipmentCode: maintainForm.equipmentCode,
-            equipmentName: maintainForm.equipmentName,
-            maintainType: maintainForm.maintainType,
-            maintainDate: maintainForm.maintainDate,
-            maintainPerson: maintainForm.maintainPerson,
-            costHours: maintainForm.costHours,
-            content: maintainForm.content,
-            remark: maintainForm.remark
-          }
-        }
-        ElMessage.success('编辑成功')
-      } else {
-        const maxId = Math.max(...mockData.value.map(item => item.id), 0)
-        const now = new Date()
-        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '')
-        const newItem = {
-          id: maxId + 1,
-          maintainNo: 'EM-' + dateStr + String(maxId + 1).padStart(3, '0'),
-          equipmentId: maintainForm.equipmentId,
-          equipmentCode: maintainForm.equipmentCode,
-          equipmentName: maintainForm.equipmentName,
-          maintainType: maintainForm.maintainType,
-          maintainDate: maintainForm.maintainDate,
-          maintainPerson: maintainForm.maintainPerson,
-          costHours: maintainForm.costHours,
-          status: 0,
-          content: maintainForm.content,
-          remark: maintainForm.remark,
-          createTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-')
-        }
-        mockData.value.unshift(newItem)
-        ElMessage.success('新增成功')
-      }
-      
+    const action = isEdit.value ? demoEquipmentMaintain.update(maintainForm) : demoEquipmentMaintain.save(maintainForm)
+    action.then(() => {
+      ElMessage.success(isEdit.value ? '修改成功' : '新增成功')
       dialogVisible.value = false
       submitLoading.value = false
       fetchData()
-    }, 300)
-  } catch (error) {
-    submitLoading.value = false
-  }
+    }).catch(err => {
+      ElMessage.error('操作失败: ' + (err.message || '未知错误'))
+      submitLoading.value = false
+    })
+  })
 }
 
 onMounted(() => {
+  fetchEquipments()
   fetchData()
 })
 </script>
 
 <style scoped>
-.page-container {
-  width: 100%;
-}
-
-.search-card {
-  margin-bottom: 20px;
-}
-
-.table-card {
-  margin-bottom: 20px;
-}
-
+.page-container { width: 100%; }
+.search-card { margin-bottom: 20px; }
+.table-card { margin-bottom: 20px; }
 .table-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
 }
-
 .table-title {
   font-size: 16px;
   font-weight: bold;
   color: #303133;
 }
-
 .pagination-wrapper {
   margin-top: 20px;
   display: flex;

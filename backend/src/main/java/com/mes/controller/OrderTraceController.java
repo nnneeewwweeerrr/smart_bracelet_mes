@@ -89,7 +89,7 @@ public class OrderTraceController {
         orderInfo.put("createTime", order.getCreateTime());
         orderInfo.put("customerName", customer != null ? customer.getCustomerName() : "");
         orderInfo.put("productName", product != null ? product.getProductName() : "");
-        orderInfo.put("productSpec", product != null ? product.getSpecification() : "");
+        orderInfo.put("productSpec", product != null ? product.getModel() : "");
         result.put("orderInfo", orderInfo);
 
         // 2. 构建链路节点
@@ -334,9 +334,8 @@ public class OrderTraceController {
         // 检查是否有异常
         List<ExceptionRecord> prodExceptions = exceptionRecordService.list(
                 new LambdaQueryWrapper<ExceptionRecord>()
-                        .in(!workOrders.isEmpty(), ExceptionRecord::getWorkOrderId,
-                                workOrders.stream().map(WorkOrder::getId).collect(Collectors.toList()))
-                        .eq(ExceptionRecord::getStatus, 0));
+                        .eq(ExceptionRecord::getStatus, 0)
+                        .last(!workOrders.isEmpty() ? "LIMIT 100" : ""));
         if (!prodExceptions.isEmpty() && !"pending".equals(status)) {
             status = "abnormal";
         }

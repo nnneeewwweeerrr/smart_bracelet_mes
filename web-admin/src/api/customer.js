@@ -10,7 +10,14 @@ export function getCustomerList(params) {
 
 export function getCustomerDetail(id) {
   return request({
-    url: '/customer/' + id,
+    url: `/customer/${id}`,
+    method: 'get'
+  })
+}
+
+export function getCustomerAll() {
+  return request({
+    url: '/customer/all',
     method: 'get'
   })
 }
@@ -33,7 +40,7 @@ export function updateCustomer(data) {
 
 export function deleteCustomer(id) {
   return request({
-    url: '/customer/delete/' + id,
+    url: `/customer/delete/${id}`,
     method: 'delete'
   })
 }

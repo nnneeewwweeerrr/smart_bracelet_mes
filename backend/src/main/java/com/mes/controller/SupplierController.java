@@ -10,7 +10,6 @@ import com.mes.service.SupplierInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -31,24 +30,19 @@ public class SupplierController {
                 .eq(status != null, SupplierInfo::getStatus, status)
                 .orderByDesc(SupplierInfo::getCreateTime);
         IPage<SupplierInfo> result = supplierInfoService.page(page, wrapper);
-        result.getRecords().forEach(this::mapFields);
         return Result.success(result);
     }
 
     @GetMapping("/{id}")
     public Result<SupplierInfo> detail(@PathVariable Long id) {
         SupplierInfo info = supplierInfoService.getById(id);
-        if (info != null) {
-            mapFields(info);
-        }
         return Result.success(info);
     }
 
-    private void mapFields(SupplierInfo info) {
-        info.setSupplierNo("SUP" + String.format("%03d", info.getId()));
-        info.setContact(info.getContactName());
-        info.setEmail(info.getContactName() + "@example.com");
-        info.setLevel("B");
+    @GetMapping("/all")
+    public Result<List<SupplierInfo>> listAll() {
+        List<SupplierInfo> list = supplierInfoService.list();
+        return Result.success(list);
     }
 
     @PostMapping("/save")
@@ -57,7 +51,6 @@ public class SupplierController {
         if (supplier.getStatus() == null) {
             supplier.setStatus(1);
         }
-        supplier.setCreateTime(LocalDateTime.now());
         supplierInfoService.save(supplier);
         return Result.success();
     }

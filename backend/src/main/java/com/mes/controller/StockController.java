@@ -48,13 +48,13 @@ public class StockController {
                 Long id = Long.parseLong(materialId);
                 wrapper.eq(StockInfo::getMaterialId, id);
             } catch (NumberFormatException e) {
-                MaterialInfo material = materialInfoService.getOne(new LambdaQueryWrapper<MaterialInfo>().eq(MaterialInfo::getMaterialCode, materialId));
+                MaterialInfo material = materialInfoService.getOne(new LambdaQueryWrapper<MaterialInfo>().eq(MaterialInfo::getMaterialNo, materialId));
                 if (material != null) {
                     wrapper.eq(StockInfo::getMaterialId, material.getId());
                 }
             }
         } else if (materialNo != null && !materialNo.isEmpty()) {
-            MaterialInfo material = materialInfoService.getOne(new LambdaQueryWrapper<MaterialInfo>().eq(MaterialInfo::getMaterialCode, materialNo));
+            MaterialInfo material = materialInfoService.getOne(new LambdaQueryWrapper<MaterialInfo>().eq(MaterialInfo::getMaterialNo, materialNo));
             if (material != null) {
                 wrapper.eq(StockInfo::getMaterialId, material.getId());
             }
@@ -91,15 +91,15 @@ public class StockController {
         MaterialInfo material = materialInfoService.getById(info.getMaterialId());
         WarehouseInfo warehouse = warehouseInfoService.getById(info.getWarehouseId());
         
-        info.setMaterialNo(material != null ? material.getMaterialCode() : "");
+        info.setMaterialNo(material != null ? material.getMaterialNo() : "");
         info.setMaterialName(material != null ? material.getMaterialName() : "");
-        info.setType(material != null ? material.getMaterialType() : "");
-        info.setSpec(material != null ? material.getMaterialCode() : "");
+        info.setType(material != null ? material.getType() : "");
+        info.setSpec(material != null ? material.getMaterialNo() : "");
         info.setUnit(material != null ? material.getUnit() : "");
         info.setWarehouse(warehouse != null ? warehouse.getWarehouseName() : "");
         info.setSafetyStock(material != null ? material.getSafetyStock() : 0);
-        info.setAvgPrice(material != null ? material.getUnitPrice() : BigDecimal.ZERO);
-        BigDecimal unitPrice = material != null ? material.getUnitPrice() : BigDecimal.ZERO;
+        info.setAvgPrice(material != null ? material.getPrice() : BigDecimal.ZERO);
+        BigDecimal unitPrice = material != null ? material.getPrice() : BigDecimal.ZERO;
         info.setTotalValue(unitPrice.multiply(info.getQuantity() != null ? info.getQuantity() : BigDecimal.ZERO));
     }
 

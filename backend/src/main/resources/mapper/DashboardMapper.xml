@@ -63,8 +63,8 @@
     </select>
 
     <select id="getPendingMaintainTasks" resultType="com.mes.vo.TodoItemVO">
-        SELECT id, maintain_no as title, 'equipment_maintain' as type, 'pending' as status, DATE_FORMAT(maintain_date, '%Y-%m-%d %H:%i:%s') as createTime
-        FROM equipment_maintain WHERE (maintain_result IS NULL OR maintain_result = '' OR maintain_result = '待处理') AND maintain_date &gt;= '2026-07-19' ORDER BY maintain_date ASC LIMIT 10
+        SELECT id, maintain_no as title, 'equipment_maintain' as type, 'pending' as status, DATE_FORMAT(plan_date, '%Y-%m-%d %H:%i:%s') as createTime
+        FROM equipment_maintain WHERE (maintain_result IS NULL OR maintain_result = '' OR maintain_result = '待处理') AND plan_date &gt;= CURDATE() ORDER BY plan_date ASC LIMIT 10
     </select>
 
     <select id="getRecentCompletedWorkOrders" resultType="com.mes.vo.TodoItemVO">

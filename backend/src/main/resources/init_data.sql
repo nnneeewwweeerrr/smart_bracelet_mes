@@ -3,36 +3,90 @@
 -- 默认密码（BCrypt加密后）: 123456
 -- ============================================================
 
--- 禁用外键检查，清空所有表数据
+-- 禁用外键检查，清空所有表数据（条件性TRUNCATE，避免表不存在时报错）
 SET FOREIGN_KEY_CHECKS = 0;
 
-TRUNCATE TABLE `ai_chat_history`;
-TRUNCATE TABLE `operation_log`;
-TRUNCATE TABLE `role_permission`;
-TRUNCATE TABLE `sys_permission`;
-TRUNCATE TABLE `sys_dict`;
-TRUNCATE TABLE `production_report`;
-TRUNCATE TABLE `quality_result`;
-TRUNCATE TABLE `quality_task`;
-TRUNCATE TABLE `work_order`;
-TRUNCATE TABLE `stock_out`;
-TRUNCATE TABLE `stock_in`;
-TRUNCATE TABLE `stock_info`;
-TRUNCATE TABLE `purchase_order`;
-TRUNCATE TABLE `order_customer`;
-TRUNCATE TABLE `equipment_maintain`;
-TRUNCATE TABLE `equipment_fault`;
-TRUNCATE TABLE `equipment_info`;
-TRUNCATE TABLE `exception_record`;
-TRUNCATE TABLE `process_info`;
-TRUNCATE TABLE `production_plan`;
-TRUNCATE TABLE `material_info`;
-TRUNCATE TABLE `warehouse_info`;
-TRUNCATE TABLE `supplier_info`;
-TRUNCATE TABLE `product_info`;
-TRUNCATE TABLE `customer_info`;
-TRUNCATE TABLE `sys_user`;
-TRUNCATE TABLE `sys_role`;
+SET @table_exists = 0;
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ai_chat_history';
+IF @table_exists > 0 THEN TRUNCATE TABLE `ai_chat_history`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'operation_log';
+IF @table_exists > 0 THEN TRUNCATE TABLE `operation_log`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'role_permission';
+IF @table_exists > 0 THEN TRUNCATE TABLE `role_permission`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_permission';
+IF @table_exists > 0 THEN TRUNCATE TABLE `sys_permission`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_dict';
+IF @table_exists > 0 THEN TRUNCATE TABLE `sys_dict`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'production_report';
+IF @table_exists > 0 THEN TRUNCATE TABLE `production_report`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quality_result';
+IF @table_exists > 0 THEN TRUNCATE TABLE `quality_result`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quality_task';
+IF @table_exists > 0 THEN TRUNCATE TABLE `quality_task`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'work_order';
+IF @table_exists > 0 THEN TRUNCATE TABLE `work_order`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'stock_out';
+IF @table_exists > 0 THEN TRUNCATE TABLE `stock_out`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'stock_in';
+IF @table_exists > 0 THEN TRUNCATE TABLE `stock_in`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'stock_info';
+IF @table_exists > 0 THEN TRUNCATE TABLE `stock_info`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'purchase_order';
+IF @table_exists > 0 THEN TRUNCATE TABLE `purchase_order`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'order_customer';
+IF @table_exists > 0 THEN TRUNCATE TABLE `order_customer`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'equipment_maintain';
+IF @table_exists > 0 THEN TRUNCATE TABLE `equipment_maintain`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'equipment_fault';
+IF @table_exists > 0 THEN TRUNCATE TABLE `equipment_fault`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'equipment_info';
+IF @table_exists > 0 THEN TRUNCATE TABLE `equipment_info`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'exception_record';
+IF @table_exists > 0 THEN TRUNCATE TABLE `exception_record`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'process_info';
+IF @table_exists > 0 THEN TRUNCATE TABLE `process_info`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'production_plan';
+IF @table_exists > 0 THEN TRUNCATE TABLE `production_plan`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'material_info';
+IF @table_exists > 0 THEN TRUNCATE TABLE `material_info`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'warehouse_info';
+IF @table_exists > 0 THEN TRUNCATE TABLE `warehouse_info`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'supplier_info';
+IF @table_exists > 0 THEN TRUNCATE TABLE `supplier_info`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'product_info';
+IF @table_exists > 0 THEN TRUNCATE TABLE `product_info`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_info';
+IF @table_exists > 0 THEN TRUNCATE TABLE `customer_info`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_user';
+IF @table_exists > 0 THEN TRUNCATE TABLE `sys_user`; END IF;
+
+SELECT COUNT(*) INTO @table_exists FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_role';
+IF @table_exists > 0 THEN TRUNCATE TABLE `sys_role`; END IF;
 
 SET FOREIGN_KEY_CHECKS = 1;
 

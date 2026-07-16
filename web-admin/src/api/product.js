@@ -10,7 +10,14 @@ export function getProductList(params) {
 
 export function getProductDetail(id) {
   return request({
-    url: '/product/' + id,
+    url: `/product/${id}`,
+    method: 'get'
+  })
+}
+
+export function getProductAll() {
+  return request({
+    url: '/product/all',
     method: 'get'
   })
 }
@@ -33,7 +40,7 @@ export function updateProduct(data) {
 
 export function deleteProduct(id) {
   return request({
-    url: '/product/delete/' + id,
+    url: `/product/delete/${id}`,
     method: 'delete'
   })
 }

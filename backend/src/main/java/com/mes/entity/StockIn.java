@@ -9,9 +9,6 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * 入库单
- */
 @Data
 @TableName("stock_in")
 public class StockIn {
@@ -19,42 +16,50 @@ public class StockIn {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String inNo;
+    private String stockInNo;
 
     private Long materialId;
 
+    private String materialNo;
+
+    private String materialName;
+
+    private String spec;
+
+    private String unit;
+
     private Long warehouseId;
 
+    private String warehouse;
+
+    private String batchNo;
+
     private BigDecimal quantity;
+
+    private BigDecimal price;
+
+    private BigDecimal totalAmount;
 
     private String sourceType;
 
     private String sourceNo;
 
-    private Long operatorId;
+    private Long supplierId;
+
+    private String supplierName;
+
+    private String operator;
+
+    private LocalDateTime inDate;
 
     private Integer status;
 
+    private String remark;
+
     private LocalDateTime createTime;
 
-    @TableField(exist = false)
-    private String stockInNo;
+    private LocalDateTime updateTime;
 
     @TableField(exist = false)
-    private String warehouse;
-
-    @TableField(exist = false)
-    private String relatedNo;
-
-    @TableField(exist = false)
-    private String type;
-
-    @TableField(exist = false)
-    private Integer itemCount;
-
-    @TableField(exist = false)
-    private BigDecimal totalQuantity;
-
-    @TableField(exist = false)
-    private BigDecimal totalAmount;
+    private String inNo;
 }

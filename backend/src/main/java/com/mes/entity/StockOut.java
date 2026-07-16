@@ -16,42 +16,52 @@ public class StockOut {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String outNo;
+    private String stockOutNo;
 
     private Long materialId;
 
+    private String materialNo;
+
+    private String materialName;
+
+    private String spec;
+
+    private String unit;
+
     private Long warehouseId;
 
+    private String warehouse;
+
+    private String batchNo;
+
     private BigDecimal quantity;
+
+    private BigDecimal price;
+
+    private BigDecimal totalAmount;
 
     private String targetType;
 
     private String targetNo;
 
-    private Long operatorId;
+    private String workOrderNo;
+
+    private String receiver;
+
+    private String department;
+
+    private String operator;
+
+    private LocalDateTime outDate;
 
     private Integer status;
 
+    private String remark;
+
     private LocalDateTime createTime;
 
-    @TableField(exist = false)
-    private String stockOutNo;
+    private LocalDateTime updateTime;
 
     @TableField(exist = false)
-    private String warehouse;
-
-    @TableField(exist = false)
-    private String relatedNo;
-
-    @TableField(exist = false)
-    private String type;
-
-    @TableField(exist = false)
-    private Integer itemCount;
-
-    @TableField(exist = false)
-    private BigDecimal totalQuantity;
-
-    @TableField(exist = false)
-    private BigDecimal totalAmount;
+    private String outNo;
 }

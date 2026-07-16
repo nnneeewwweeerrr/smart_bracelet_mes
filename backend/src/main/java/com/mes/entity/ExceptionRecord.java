@@ -15,60 +15,59 @@ public class ExceptionRecord {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @TableField("exception_no")
     private String exceptionNo;
 
-    @TableField("task_id")
-    private Long taskId;
-
-    @TableField("exception_type")
     private String exceptionType;
 
-    @TableField("exception_level")
-    private Integer exceptionLevel;
+    private String exceptionLevel;
 
-    @TableField("exception_desc")
-    private String exceptionDesc;
+    private String sourceType;
+
+    private String sourceNo;
+
+    private String workOrderNo;
+
+    private String title;
+
+    private String description;
 
     private String reporter;
 
-    @TableField("report_time")
+    private Long reporterId;
+
     private LocalDateTime reportTime;
 
     private String handler;
 
-    @TableField("handle_content")
-    private String handleContent;
-
-    @TableField("handle_time")
-    private LocalDateTime handleTime;
-
-    @TableField("status")
-    private Integer status;
-
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @TableField("update_time")
-    private LocalDateTime updateTime;
-
-    private Long workOrderId;
-
-    private String description;
-
     private Long handlerId;
 
-    private String handleReport;
+    private LocalDateTime assignTime;
+
+    private String handleContent;
+
+    private LocalDateTime handleTime;
 
     private String handleResult;
 
+    private String causeAnalysis;
+
+    private String preventiveAction;
+
     private String imageUrls;
 
-    private String findProcess;
+    private Integer priority;
 
-    private String findOperator;
+    private Integer status;
 
+    private String remark;
+
+    private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
+
+    @TableField(exist = false)
     private String handlerName;
 
+    @TableField(exist = false)
     private String reporterName;
 }

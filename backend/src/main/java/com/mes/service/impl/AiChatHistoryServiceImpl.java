@@ -17,17 +17,29 @@ public class AiChatHistoryServiceImpl extends ServiceImpl<AiChatHistoryMapper, A
     @Override
     public IPage<AiChatHistory> pageList(Page<AiChatHistory> page, String userId) {
         LambdaQueryWrapper<AiChatHistory> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(userId != null && !userId.isEmpty(), AiChatHistory::getUserId, userId)
-                .orderByDesc(AiChatHistory::getCreateTime);
-        return baseMapper.selectPage(page, wrapper);
+        if (userId != null && !userId.isEmpty()) {
+            try {
+                wrapper.eq(AiChatHistory::getUserId, Long.parseLong(userId));
+            } catch (NumberFormatException e) {
+                wrapper.eq(AiChatHistory::getUserName, userId);
+            }
+        }
+        wrapper.orderByDesc(AiChatHistory::getCreateTime);
+        return page(page, wrapper);
     }
 
     @Override
     public List<AiChatHistory> getRecentHistory(String userId, Integer limit) {
         LambdaQueryWrapper<AiChatHistory> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(userId != null && !userId.isEmpty(), AiChatHistory::getUserId, userId)
-                .orderByDesc(AiChatHistory::getCreateTime)
-                .last("LIMIT " + (limit != null ? limit : 20));
-        return baseMapper.selectList(wrapper);
+        if (userId != null && !userId.isEmpty()) {
+            try {
+                wrapper.eq(AiChatHistory::getUserId, Long.parseLong(userId));
+            } catch (NumberFormatException e) {
+                wrapper.eq(AiChatHistory::getUserName, userId);
+            }
+        }
+        wrapper.orderByDesc(AiChatHistory::getCreateTime);
+        wrapper.last("LIMIT " + (limit != null ? limit : 20));
+        return list(wrapper);
     }
 }

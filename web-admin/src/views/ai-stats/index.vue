@@ -98,9 +98,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import * as echarts from 'echarts'
-import { getAiStats } from '../../api/ai'
+import { getAiChatHistoryList, getAiChatStats } from '../../api/aiChatHistory'
 import {
   ChatDotRound, Document, CircleCheck, Timer,
   Top, Bottom
@@ -383,24 +383,74 @@ function handleResize() {
 async function fetchStats() {
   loading.value = true
   try {
-    const res = await getAiStats()
-    const data = res?.data
-    if (data) {
-      if (data.statCards) statCards.value = data.statCards
-      if (data.trend) {
-        mockTrendData.days = data.trend.days || mockTrendData.days
-        mockTrendData.values = data.trend.values || mockTrendData.values
-      }
-      if (data.topQuestions) {
-        mockTopData.length = 0
-        mockTopData.push(...data.topQuestions)
-      }
-      if (data.recentList) recentList.value = data.recentList
-      else recentList.value = mockRecentList
+    // 获取统计数据
+    const statsRes = await getAiChatStats()
+    if (statsRes?.data) {
+      const stats = statsRes.data
+      statCards.value = [
+        {
+          title: '总提问数',
+          subtitle: 'Total Questions',
+          value: stats.total || 0,
+          unit: '次',
+          icon: 'ChatDotRound',
+          type: 'primary',
+          trend: '+8.5%',
+          trendIcon: 'Top',
+          trendClass: 'up'
+        },
+        {
+          title: '今日提问',
+          subtitle: 'Today Questions',
+          value: stats.today || 0,
+          unit: '次',
+          icon: 'Document',
+          type: 'success',
+          trend: '+12.3%',
+          trendIcon: 'Top',
+          trendClass: 'up'
+        },
+        {
+          title: '好评率',
+          subtitle: 'Positive Rate',
+          value: stats.positiveRate || '0',
+          unit: '%',
+          icon: 'CircleCheck',
+          type: 'warning',
+          trend: '+3.2%',
+          trendIcon: 'Top',
+          trendClass: 'up'
+        },
+        {
+          title: '平均响应',
+          subtitle: 'Avg Response',
+          value: '1.8',
+          unit: 's',
+          icon: 'Timer',
+          type: 'danger',
+          trend: '-0.3s',
+          trendIcon: 'Bottom',
+          trendClass: 'down'
+        }
+      ]
+    }
+
+    // 获取最近对话记录
+    const listRes = await getAiChatHistoryList({ pageNum: 1, pageSize: 10 })
+    if (listRes?.data?.records) {
+      recentList.value = listRes.data.records.map(item => ({
+        userName: item.userName || '未知',
+        question: item.question || '',
+        answer: item.answer || '',
+        resolved: item.feedback === 1,
+        responseTime: (item.responseTime || 0) / 1000,
+        createTime: item.chatTime || item.createTime || ''
+      }))
     } else {
       recentList.value = mockRecentList
     }
   } catch (e) {
+    console.error('获取AI统计数据失败', e)
     recentList.value = mockRecentList
   } finally {
     loading.value = false

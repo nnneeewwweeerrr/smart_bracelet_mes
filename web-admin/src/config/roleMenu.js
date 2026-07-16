@@ -20,7 +20,7 @@ export const roleMenus = {
         { path: 'customer', title: '客户档案', icon: 'User' },
         { path: 'supplier', title: '供应商管理', icon: 'OfficeBuilding' },
         { path: 'material', title: '物料档案', icon: 'Box' },
-        { path: 'product', title: '产品档案', icon: 'Gift' }
+        { path: 'product', title: '产品档案', icon: 'Present' }
       ]
     },
     {
@@ -67,8 +67,10 @@ export const roleMenus = {
       children: [
         { path: 'quality-record', title: '质检记录', icon: 'CircleCheck' },
         { path: 'unqualified', title: '不合格品管理', icon: 'Warning' },
-        { path: 'exception-workbench', title: '异常处理', icon: 'Warning' },
-        { path: 'quality-statistics', title: '质量统计', icon: 'DataLine' }
+        { path: 'exception-workbench', title: '异常处理工作台', icon: 'Warning' },
+        { path: 'exception', title: '异常处理记录', icon: 'WarningFilled' },
+        { path: 'quality-statistics', title: '质量统计', icon: 'DataLine' },
+        { path: 'quality-avatar', title: '质检数字人小智', icon: 'Monitor' }
       ]
     },
     {
@@ -97,7 +99,7 @@ export const roleMenus = {
       children: [
         { path: 'order', title: '订单管理', icon: 'Document' },
         { path: 'customer', title: '客户档案', icon: 'User' },
-        { path: 'product', title: '产品档案', icon: 'Gift' }
+        { path: 'product', title: '产品档案', icon: 'Present' }
       ]
     },
     {
@@ -145,7 +147,7 @@ export const roleMenus = {
       icon: 'Folder',
       children: [
         { path: 'material', title: '物料档案', icon: 'Box' },
-        { path: 'product', title: '产品档案', icon: 'Gift' }
+        { path: 'product', title: '产品档案', icon: 'Present' }
       ]
     },
     { path: 'purchase', title: '采购管理', icon: 'ShoppingCart' }
@@ -178,7 +180,7 @@ export const roleMenus = {
       icon: 'Folder',
       children: [
         { path: 'order', title: '订单管理', icon: 'Document' },
-        { path: 'product', title: '产品档案', icon: 'Gift' }
+        { path: 'product', title: '产品档案', icon: 'Present' }
       ]
     }
   ],
@@ -198,7 +200,7 @@ export const roleMenus = {
       children: [
         { path: 'production-progress', title: '生产进度', icon: 'TrendCharts' },
         { path: 'work-order', title: '生产工单', icon: 'Tickets' },
-        { path: 'product', title: '产品档案', icon: 'Gift' }
+        { path: 'product', title: '产品档案', icon: 'Present' }
       ]
     },
     {

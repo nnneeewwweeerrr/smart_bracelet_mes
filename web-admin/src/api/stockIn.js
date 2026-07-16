@@ -1,6 +1,6 @@
 import request from './request'
 
-export function getStockInList(params) {
+export function getList(params) {
   return request({
     url: '/stock-in/list',
     method: 'get',
@@ -8,14 +8,21 @@ export function getStockInList(params) {
   })
 }
 
-export function getStockInDetail(id) {
+export function getById(id) {
   return request({
     url: '/stock-in/' + id,
     method: 'get'
   })
 }
 
-export function createStockIn(data) {
+export function getStatistics() {
+  return request({
+    url: '/stock-in/statistics',
+    method: 'get'
+  })
+}
+
+export function save(data) {
   return request({
     url: '/stock-in/save',
     method: 'post',
@@ -23,14 +30,7 @@ export function createStockIn(data) {
   })
 }
 
-export function approveStockIn(id) {
-  return request({
-    url: '/stock-in/' + id + '/approve',
-    method: 'post'
-  })
-}
-
-export function updateStockIn(data) {
+export function update(data) {
   return request({
     url: '/stock-in/update',
     method: 'put',
@@ -38,7 +38,7 @@ export function updateStockIn(data) {
   })
 }
 
-export function deleteStockIn(id) {
+export function remove(id) {
   return request({
     url: '/stock-in/delete/' + id,
     method: 'delete'

@@ -6,7 +6,6 @@ import com.mes.entity.ExceptionRecord;
 import com.mes.exception.BusinessException;
 import com.mes.mapper.ExceptionRecordMapper;
 import com.mes.service.ExceptionRecordService;
-import com.mes.utils.BarcodeUtil;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,7 +16,6 @@ public class ExceptionRecordServiceImpl extends ServiceImpl<ExceptionRecordMappe
 
     @Override
     public boolean save(ExceptionRecord exceptionRecord) {
-        exceptionRecord.setExceptionNo(BarcodeUtil.generateExceptionNo());
         if (exceptionRecord.getStatus() == null) {
             exceptionRecord.setStatus(0);
         }
@@ -57,7 +55,7 @@ public class ExceptionRecordServiceImpl extends ServiceImpl<ExceptionRecordMappe
     @Override
     public List<ExceptionRecord> batchTrace(Long workOrderId) {
         LambdaQueryWrapper<ExceptionRecord> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ExceptionRecord::getWorkOrderId, workOrderId);
+        // 由于已删除 workOrderId 字段，此方法保留但不使用该过滤
         wrapper.orderByDesc(ExceptionRecord::getReportTime);
         return list(wrapper);
     }

@@ -20,7 +20,7 @@ public class EquipmentMaintainServiceImpl extends ServiceImpl<EquipmentMaintainM
         if (equipmentId != null) {
             wrapper.eq(EquipmentMaintain::getEquipmentId, equipmentId);
         }
-        wrapper.orderByDesc(EquipmentMaintain::getMaintainDate);
+        wrapper.orderByDesc(EquipmentMaintain::getActualDate);
         return page(new Page<>(page, size), wrapper);
     }
 
@@ -28,7 +28,7 @@ public class EquipmentMaintainServiceImpl extends ServiceImpl<EquipmentMaintainM
     public List<EquipmentMaintain> getByEquipmentId(Long equipmentId) {
         LambdaQueryWrapper<EquipmentMaintain> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(EquipmentMaintain::getEquipmentId, equipmentId);
-        wrapper.orderByDesc(EquipmentMaintain::getMaintainDate);
+        wrapper.orderByDesc(EquipmentMaintain::getActualDate);
         return list(wrapper);
     }
 }

@@ -136,13 +136,13 @@ public class MiniAppController {
     public Result<Map<String, Object>> scanStockIn(@RequestBody Map<String, String> params) {
         String code = params.get("code");
         LambdaQueryWrapper<MaterialInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(MaterialInfo::getMaterialCode, code);
+        wrapper.eq(MaterialInfo::getMaterialNo, code);
         MaterialInfo material = materialInfoService.getOne(wrapper);
         
         Map<String, Object> result = new HashMap<>();
         if (material != null) {
             result.put("materialId", material.getId());
-            result.put("materialCode", material.getMaterialCode());
+            result.put("materialCode", material.getMaterialNo());
             result.put("materialName", material.getMaterialName());
         }
         return Result.success(result);
@@ -152,13 +152,13 @@ public class MiniAppController {
     public Result<Map<String, Object>> scanStockOut(@RequestBody Map<String, String> params) {
         String code = params.get("code");
         LambdaQueryWrapper<MaterialInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(MaterialInfo::getMaterialCode, code);
+        wrapper.eq(MaterialInfo::getMaterialNo, code);
         MaterialInfo material = materialInfoService.getOne(wrapper);
         
         Map<String, Object> result = new HashMap<>();
         if (material != null) {
             result.put("materialId", material.getId());
-            result.put("materialCode", material.getMaterialCode());
+            result.put("materialCode", material.getMaterialNo());
             result.put("materialName", material.getMaterialName());
         }
         return Result.success(result);
@@ -339,7 +339,7 @@ public class MiniAppController {
             item.put("isRequired", bom.getIsRequired());
             MaterialInfo material = materialInfoService.getById(bom.getMaterialId());
             if (material != null) {
-                item.put("materialCode", material.getMaterialCode());
+                item.put("materialCode", material.getMaterialNo());
                 item.put("materialName", material.getMaterialName());
                 item.put("unit", material.getUnit());
             }
@@ -405,7 +405,7 @@ public class MiniAppController {
         }
 
         LambdaQueryWrapper<MaterialInfo> matWrapper = new LambdaQueryWrapper<>();
-        matWrapper.eq(MaterialInfo::getMaterialCode, materialCode);
+        matWrapper.eq(MaterialInfo::getMaterialNo, materialCode);
         MaterialInfo material = materialInfoService.getOne(matWrapper);
 
         if (material == null) {
@@ -415,7 +415,7 @@ public class MiniAppController {
             return Result.success(result);
         }
 
-        result.put("materialCode", material.getMaterialCode());
+        result.put("materialCode", material.getMaterialNo());
         result.put("materialName", material.getMaterialName());
 
         LambdaQueryWrapper<ProcessMaterialBom> bomWrapper = new LambdaQueryWrapper<>();

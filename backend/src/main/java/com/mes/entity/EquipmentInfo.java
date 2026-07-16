@@ -17,43 +17,47 @@ public class EquipmentInfo {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String equipmentCode;
+    private String equipmentNo;
 
     private String equipmentName;
 
     private String equipmentType;
 
-    private Integer status;
+    private String model;
+
+    private String manufacturer;
+
+    private String workshop;
 
     private String location;
 
+    private String manager;
+
+    private String phone;
+
     private LocalDate purchaseDate;
+
+    private LocalDate commissionDate;
+
+    private BigDecimal runningHours;
 
     private LocalDateTime lastMaintainDate;
 
     private LocalDateTime nextMaintainDate;
 
-    private BigDecimal runningHours;
+    private Long currentFaultId;
+
+    private Integer status;
+
+    private String remark;
 
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
 
     @TableField(exist = false)
-    private String equipmentNo;
-
-    @TableField(exist = false)
     private String name;
 
     @TableField(exist = false)
     private String type;
-
-    @TableField(exist = false)
-    private String workshop;
-
-    @TableField(exist = false)
-    private String manager;
-
-    @TableField(exist = false)
-    private String phone;
 }

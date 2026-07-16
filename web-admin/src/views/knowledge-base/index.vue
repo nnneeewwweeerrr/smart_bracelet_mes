@@ -125,7 +125,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Upload, Document, Folder } from '@element-plus/icons-vue'
-import { getDocumentList, uploadDocument, deleteDocumentById, syncKnowledgeBaseApi } from '../../api/knowledge'
+import { getAiKnowledgeList, addAiKnowledge, deleteAiKnowledge, syncAiKnowledge } from '../../api/aiKnowledge'
 
 const documentList = ref([])
 const searchKeyword = ref('')
@@ -169,16 +169,23 @@ function getFileTypeTag(type) {
 
 async function loadDocuments() {
   try {
-    const res = await getDocumentList({
-      current: pagination.value.current,
-      size: pagination.value.size,
-      fileName: searchKeyword.value,
+    const res = await getAiKnowledgeList({
+      pageNum: pagination.value.current,
+      pageSize: pagination.value.size,
+      docName: searchKeyword.value,
       status: statusFilter.value
     })
-    documentList.value = res?.data?.records || []
+    documentList.value = (res?.data?.records || []).map(item => ({
+      ...item,
+      fileName: item.docName,
+      fileType: item.docType?.toLowerCase() || 'other',
+      uploadTime: item.uploadTime,
+      uploadedBy: item.uploader
+    }))
     pagination.value.total = res?.data?.total || 0
   } catch (e) {
     console.error('加载文档失败', e)
+    ElMessage.error('加载文档失败')
   }
 }
 
@@ -189,10 +196,12 @@ async function submitUpload() {
   }
   uploadLoading.value = true
   try {
-    await uploadDocument({
-      fileName: uploadForm.value.fileName,
+    await addAiKnowledge({
+      docName: uploadForm.value.fileName,
+      docType: 'TEXT',
       content: uploadForm.value.content,
-      uploadedBy: 'admin'
+      summary: uploadForm.value.content.substring(0, 200),
+      uploader: JSON.parse(localStorage.getItem('userInfo') || '{}')?.username || 'admin'
     })
     ElMessage.success('上传成功')
     showUploadDialog.value = false
@@ -213,7 +222,7 @@ function viewDocument(row) {
 async function deleteDocument(row) {
   try {
     await ElMessageBox.confirm('确定删除该文档吗？', '提示', { type: 'warning' })
-    await deleteDocumentById(row.id)
+    await deleteAiKnowledge(row.id)
     ElMessage.success('删除成功')
     loadDocuments()
   } catch (e) {
@@ -226,7 +235,7 @@ async function deleteDocument(row) {
 async function syncKnowledgeBase() {
   syncLoading.value = true
   try {
-    await syncKnowledgeBaseApi()
+    await syncAiKnowledge()
     ElMessage.success('同步成功')
     loadDocuments()
   } catch (e) {

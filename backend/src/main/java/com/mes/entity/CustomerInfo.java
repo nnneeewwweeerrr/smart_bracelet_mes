@@ -1,11 +1,11 @@
 package com.mes.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,11 +15,11 @@ public class CustomerInfo {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String customerCode;
+    private String customerNo;
 
     private String customerName;
 
-    private String contactName;
+    private String contact;
 
     private String phone;
 
@@ -27,13 +27,19 @@ public class CustomerInfo {
 
     private String address;
 
+    private String province;
+
+    private String city;
+
+    private String industry;
+
+    private String level;
+
     private Integer status;
+
+    private String remark;
 
     private LocalDateTime createTime;
 
-    @TableField(exist = false)
-    private String customerNo;
-
-    @TableField(exist = false)
-    private String contact;
+    private LocalDateTime updateTime;
 }

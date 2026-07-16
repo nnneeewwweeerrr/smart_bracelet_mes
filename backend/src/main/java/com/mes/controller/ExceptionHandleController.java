@@ -50,14 +50,11 @@ public class ExceptionHandleController {
         }
         record.setStatus(2);
         record.setHandleTime(LocalDateTime.now());
-        if (body.containsKey("handleReport")) {
-            record.setHandleReport(body.get("handleReport").toString());
+        if (body.containsKey("handleContent")) {
+            record.setHandleContent(body.get("handleContent").toString());
         }
         if (body.containsKey("handleResult")) {
             record.setHandleResult(body.get("handleResult").toString());
-        }
-        if (body.containsKey("exceptionLevel")) {
-            record.setExceptionLevel(Integer.valueOf(body.get("exceptionLevel").toString()));
         }
         exceptionRecordService.updateById(record);
         return Result.success();

@@ -218,7 +218,13 @@ const routes = [
         path: 'exception-workbench',
         name: 'ExceptionWorkbench',
         component: () => import('../views/exception-workbench/index.vue'),
-        meta: { title: '异常处理', icon: 'Warning' }
+        meta: { title: '异常处理工作台', icon: 'Warning' }
+      },
+      {
+        path: 'exception',
+        name: 'Exception',
+        component: () => import('../views/exception/index.vue'),
+        meta: { title: '异常处理记录', icon: 'WarningFilled' }
       },
       {
         path: 'system',
@@ -273,6 +279,12 @@ const routes = [
         name: 'QualityStatistics',
         component: () => import('../views/quality-statistics/index.vue'),
         meta: { title: '质量统计', icon: 'DataLine' }
+      },
+      {
+        path: 'quality-avatar',
+        name: 'QualityAvatar',
+        component: () => import('../views/quality-avatar/index.vue'),
+        meta: { title: '质检数字人小智', icon: 'Monitor' }
       },
       {
         path: 'stock-statistics',

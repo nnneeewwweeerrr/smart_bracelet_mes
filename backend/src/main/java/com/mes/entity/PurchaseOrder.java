@@ -6,12 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * 采购单
- */
 @Data
 @TableName("purchase_order")
 public class PurchaseOrder {
@@ -23,7 +19,11 @@ public class PurchaseOrder {
 
     private Long supplierId;
 
+    private String supplierName;
+
     private Long materialId;
+
+    private String materialName;
 
     private Integer quantity;
 
@@ -35,5 +35,9 @@ public class PurchaseOrder {
 
     private LocalDateTime expectedDate;
 
+    private String remark;
+
     private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 }

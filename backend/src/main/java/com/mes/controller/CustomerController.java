@@ -23,36 +23,36 @@ public class CustomerController {
     public Result<IPage<CustomerInfo>> list(@RequestParam(defaultValue = "1") Integer pageNum,
                                              @RequestParam(defaultValue = "10") Integer pageSize,
                                              @RequestParam(required = false) String customerName,
-                                             @RequestParam(required = false) String customerCode,
+                                             @RequestParam(required = false) String customerNo,
                                              @RequestParam(required = false) Integer status) {
         Page<CustomerInfo> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<CustomerInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(customerName != null && !customerName.isEmpty(), CustomerInfo::getCustomerName, customerName)
-                .like(customerCode != null && !customerCode.isEmpty(), CustomerInfo::getCustomerCode, customerCode)
+                .like(customerNo != null && !customerNo.isEmpty(), CustomerInfo::getCustomerNo, customerNo)
                 .eq(status != null, CustomerInfo::getStatus, status)
                 .orderByDesc(CustomerInfo::getCreateTime);
         IPage<CustomerInfo> result = customerInfoService.page(page, wrapper);
-        result.getRecords().forEach(this::mapFields);
         return Result.success(result);
     }
 
     @GetMapping("/{id}")
     public Result<CustomerInfo> detail(@PathVariable Long id) {
         CustomerInfo info = customerInfoService.getById(id);
-        if (info != null) {
-            mapFields(info);
-        }
         return Result.success(info);
     }
 
-    private void mapFields(CustomerInfo info) {
-        info.setCustomerNo(info.getCustomerCode());
-        info.setContact(info.getContactName());
+    @GetMapping("/all")
+    public Result<List<CustomerInfo>> listAll() {
+        List<CustomerInfo> list = customerInfoService.list();
+        return Result.success(list);
     }
 
     @PostMapping("/save")
     @OperationLog(module = "客户档案", type = "新增", description = "新增客户")
     public Result<Void> save(@RequestBody CustomerInfo customerInfo) {
+        if (customerInfo.getStatus() == null) {
+            customerInfo.setStatus(1);
+        }
         customerInfoService.save(customerInfo);
         return Result.success();
     }

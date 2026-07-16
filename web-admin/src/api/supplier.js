@@ -10,7 +10,14 @@ export function getSupplierList(params) {
 
 export function getSupplierDetail(id) {
   return request({
-    url: '/supplier/' + id,
+    url: `/supplier/${id}`,
+    method: 'get'
+  })
+}
+
+export function getSupplierAll() {
+  return request({
+    url: '/supplier/all',
     method: 'get'
   })
 }
@@ -33,7 +40,7 @@ export function updateSupplier(data) {
 
 export function deleteSupplier(id) {
   return request({
-    url: '/supplier/delete/' + id,
+    url: `/supplier/delete/${id}`,
     method: 'delete'
   })
 }

@@ -47,7 +47,7 @@ public class ProductionProgressController {
             ProductInfo product = productInfoService.getById(wo.getProductId());
             if (product != null) {
                 vo.setProductName(product.getProductName());
-                vo.setSpec(product.getSpecification());
+                vo.setSpec(product.getModel());
             }
 
             int finishedQty = calculateFinishedQuantity(wo.getId());

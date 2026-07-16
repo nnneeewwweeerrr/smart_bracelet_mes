@@ -117,7 +117,7 @@ public class WorkOrderController {
             ProductInfo product = productInfoService.getById(wo.getProductId());
             if (product != null) {
                 wo.setProductName(product.getProductName());
-                wo.setSpec(product.getSpecification());
+                wo.setSpec(product.getModel());
             }
         }
 

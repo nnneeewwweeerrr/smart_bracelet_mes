@@ -1,37 +1,76 @@
 <template>
   <div class="page-container">
-    <el-row :gutter="20" class="stat-row">
-      <el-col :span="6" v-for="item in statCards" :key="item.title">
-        <el-card class="stat-card" shadow="hover">
-          <div class="stat-content">
-            <div class="stat-icon" :style="{ backgroundColor: item.color }">
-              <el-icon :size="28"><component :is="item.icon" /></el-icon>
-            </div>
+    <!-- 统计卡片 -->
+    <el-row :gutter="16" class="stats-row">
+      <el-col :span="6">
+        <el-card shadow="never">
+          <div class="stat-item">
+            <div class="stat-icon" style="background: #909399"><el-icon><Document /></el-icon></div>
             <div class="stat-info">
-              <div class="stat-value">{{ item.value }}</div>
-              <div class="stat-label">{{ item.title }}</div>
+              <div class="stat-value">{{ stats.total || 0 }}</div>
+              <div class="stat-label">异常总数</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card shadow="never">
+          <div class="stat-item">
+            <div class="stat-icon" style="background: #e6a23c"><el-icon><Warning /></el-icon></div>
+            <div class="stat-info">
+              <div class="stat-value">{{ stats.pending || 0 }}</div>
+              <div class="stat-label">待处理</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card shadow="never">
+          <div class="stat-item">
+            <div class="stat-icon" style="background: #409eff"><el-icon><Loading /></el-icon></div>
+            <div class="stat-info">
+              <div class="stat-value">{{ stats.processing || 0 }}</div>
+              <div class="stat-label">处理中</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card shadow="never">
+          <div class="stat-item">
+            <div class="stat-icon" style="background: #67c23a"><el-icon><CircleCheck /></el-icon></div>
+            <div class="stat-info">
+              <div class="stat-value">{{ (stats.resolved || 0) + (stats.closed || 0) }}</div>
+              <div class="stat-label">已解决/关闭</div>
             </div>
           </div>
         </el-card>
       </el-col>
     </el-row>
 
+    <!-- 搜索区 -->
     <el-card class="search-card" shadow="never">
       <el-form :model="searchForm" :inline="true">
-        <el-form-item label="异常单号">
-          <el-input v-model="searchForm.exceptionNo" placeholder="请输入异常单号" clearable style="width: 180px" />
-        </el-form-item>
-        <el-form-item label="工单号">
-          <el-input v-model="searchForm.workOrderNo" placeholder="请输入工单号" clearable style="width: 180px" />
+        <el-form-item label="异常编号">
+          <el-input v-model="searchForm.exceptionNo" placeholder="请输入" clearable style="width: 180px" />
         </el-form-item>
         <el-form-item label="异常类型">
-          <el-select v-model="searchForm.exceptionType" placeholder="全部类型" clearable style="width: 140px">
-            <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
+          <el-input v-model="searchForm.exceptionType" placeholder="请输入" clearable style="width: 140px" />
+        </el-form-item>
+        <el-form-item label="级别">
+          <el-select v-model="searchForm.exceptionLevel" placeholder="请选择" clearable style="width: 120px">
+            <el-option label="紧急" value="紧急" />
+            <el-option label="严重" value="严重" />
+            <el-option label="一般" value="一般" />
+            <el-option label="轻微" value="轻微" />
           </el-select>
         </el-form-item>
-        <el-form-item label="处理状态">
-          <el-select v-model="searchForm.status" placeholder="全部状态" clearable style="width: 140px">
-            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+        <el-form-item label="状态">
+          <el-select v-model="searchForm.status" placeholder="请选择" clearable style="width: 120px">
+            <el-option label="待处理" :value="0" />
+            <el-option label="处理中" :value="1" />
+            <el-option label="已解决" :value="2" />
+            <el-option label="已关闭" :value="3" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -41,76 +80,39 @@
       </el-form>
     </el-card>
 
+    <!-- 表格区 -->
     <el-card class="table-card" shadow="never">
       <div class="table-header">
-        <div class="header-left">
-          <span class="table-title">异常记录列表</span>
-          <span class="conn-status" :class="{ connected: wsConnected }">
-            <span class="status-dot"></span>
-            {{ wsConnected ? '实时监听中' : '未连接' }}
-          </span>
-        </div>
-        <div class="header-btns">
-          <el-button type="primary" plain @click="handleAskAi">
-            <el-icon><ChatDotRound /></el-icon>
-            问AI
-          </el-button>
-        </div>
+        <span class="table-title">异常处理工作台</span>
+        <el-button type="primary" @click="handleAdd">
+          <el-icon><Plus /></el-icon> 上报异常
+        </el-button>
       </div>
 
-      <el-table v-loading="loading" :data="tableData" border stripe style="width: 100%" :row-class-name="tableRowClassName">
+      <el-table v-loading="loading" :data="tableData" border stripe style="width: 100%">
         <el-table-column type="index" label="序号" width="60" align="center" />
-        <el-table-column prop="exceptionNo" label="异常单号" width="160" />
-        <el-table-column prop="workOrderNo" label="工单号" width="150" />
-        <el-table-column prop="exceptionType" label="异常类型" width="100" align="center">
+        <el-table-column prop="exceptionNo" label="异常编号" width="150" />
+        <el-table-column prop="title" label="异常标题" min-width="150" />
+        <el-table-column prop="exceptionType" label="类型" width="110" align="center" />
+        <el-table-column prop="exceptionLevel" label="级别" width="90" align="center">
           <template #default="{ row }">
-            <el-tag :type="getTypeTagType(row.exceptionType)" size="small">
-              {{ getTypeText(row.exceptionType) }}
-            </el-tag>
+            <el-tag :type="levelTagType(row.exceptionLevel)">{{ row.exceptionLevel }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="level" label="等级" width="80" align="center">
+        <el-table-column prop="reporter" label="上报人" width="90" />
+        <el-table-column prop="reportTime" label="上报时间" width="160" />
+        <el-table-column prop="handler" label="处理人" width="90" />
+        <el-table-column prop="status" label="状态" width="90" align="center">
           <template #default="{ row }">
-            <el-tag v-if="row.level" :type="getLevelTagType(row.level)" size="small">
-              {{ getLevelText(row.level) }}
-            </el-tag>
-            <span v-else>-</span>
+            <el-tag :type="statusTagType(row.status)">{{ statusText(row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="exceptionDesc" label="异常描述" min-width="180" show-overflow-tooltip />
-        <el-table-column prop="status" label="处理状态" width="100" align="center">
-          <template #default="{ row }">
-            <el-tag :type="getStatusTagType(row.status)" size="small">
-              {{ getStatusText(row.status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="reporter" label="上报人" width="90" align="center" />
-        <el-table-column prop="handler" label="处理人" width="90" align="center">
-          <template #default="{ row }">
-            {{ row.handler || '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="createTime" label="上报时间" width="160" />
         <el-table-column label="操作" width="220" fixed="right" align="center">
           <template #default="{ row }">
-            <el-button type="primary" link @click="handleView(row)">查看</el-button>
-            <el-button
-              type="warning"
-              link
-              @click="handleProcess(row)"
-              :disabled="row.status === 2 || row.status === 3"
-            >
-              处理
-            </el-button>
-            <el-button
-              type="success"
-              link
-              @click="handleClose(row)"
-              :disabled="row.status !== 1"
-            >
-              关闭
-            </el-button>
+            <el-button v-if="row.status === 0" type="primary" link @click="handleStart(row)">开始处理</el-button>
+            <el-button v-if="row.status === 1" type="success" link @click="handleSubmit(row)">提交报告</el-button>
+            <el-button v-if="row.status === 2" type="warning" link @click="handleClose(row)">关闭</el-button>
+            <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -119,7 +121,7 @@
         <el-pagination
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
-          :page-sizes="[10, 20, 50, 100]"
+          :page-sizes="[10, 20, 50]"
           :total="total"
           layout="total, sizes, prev, pager, next, jumper"
           background
@@ -129,378 +131,190 @@
       </div>
     </el-card>
 
-    <el-dialog
-      v-model="detailVisible"
-      title="异常详情"
-      width="700px"
-    >
-      <el-descriptions :column="2" border style="margin-bottom: 20px">
-        <el-descriptions-item label="异常单号">{{ currentException.exceptionNo }}</el-descriptions-item>
-        <el-descriptions-item label="异常类型">
-          <el-tag :type="getTypeTagType(currentException.exceptionType)" size="small">
-            {{ getTypeText(currentException.exceptionType) }}
-          </el-tag>
-        </el-descriptions-item>
-        <el-descriptions-item label="工单号">{{ currentException.workOrderNo }}</el-descriptions-item>
-        <el-descriptions-item label="产品名称">{{ currentException.productName }}</el-descriptions-item>
-        <el-descriptions-item label="上报人">{{ currentException.reporter }}</el-descriptions-item>
-        <el-descriptions-item label="处理人">{{ currentException.handler || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="上报时间" :span="2">{{ currentException.createTime }}</el-descriptions-item>
-        <el-descriptions-item label="异常描述" :span="2">{{ currentException.exceptionDesc }}</el-descriptions-item>
-      </el-descriptions>
-
-      <div v-if="currentException.processRecords && currentException.processRecords.length > 0" class="process-section">
-        <div class="section-title">
-          <el-icon><List /></el-icon>
-          处理记录
-        </div>
-        <el-timeline>
-          <el-timeline-item
-            v-for="(record, index) in currentException.processRecords"
-            :key="index"
-            :timestamp="record.time"
-            :type="index === 0 ? 'primary' : ''"
-          >
-            <div class="timeline-content">
-              <div class="timeline-title">{{ record.action }}</div>
-              <div class="timeline-person">操作人：{{ record.person }}</div>
-              <div v-if="record.remark" class="timeline-remark">{{ record.remark }}</div>
-            </div>
-          </el-timeline-item>
-        </el-timeline>
-      </div>
+    <!-- 上报异常弹窗 -->
+    <el-dialog v-model="dialogVisible" title="上报异常" width="650px" :close-on-click-modal="false">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="异常编号" prop="exceptionNo">
+              <el-input v-model="form.exceptionNo" placeholder="如：EX202607001" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="异常类型" prop="exceptionType">
+              <el-select v-model="form.exceptionType" placeholder="请选择" style="width: 100%">
+                <el-option label="设备异常" value="设备异常" />
+                <el-option label="质量异常" value="质量异常" />
+                <el-option label="工艺异常" value="工艺异常" />
+                <el-option label="物料异常" value="物料异常" />
+                <el-option label="安全异常" value="安全异常" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="异常级别" prop="exceptionLevel">
+              <el-select v-model="form.exceptionLevel" placeholder="请选择" style="width: 100%">
+                <el-option label="紧急" value="紧急" />
+                <el-option label="严重" value="严重" />
+                <el-option label="一般" value="一般" />
+                <el-option label="轻微" value="轻微" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="优先级">
+              <el-input-number v-model="form.priority" :min="1" :max="5" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="异常标题" prop="title">
+              <el-input v-model="form.title" placeholder="请输入异常标题" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="上报人">
+              <el-input v-model="form.reporter" placeholder="请输入上报人" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="来源单号">
+              <el-input v-model="form.sourceNo" placeholder="请输入来源单号" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="异常描述">
+              <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入异常描述" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
       <template #footer>
-        <el-button type="primary" @click="detailVisible = false">关闭</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="submitLoading" @click="handleSubmitAdd">确定</el-button>
       </template>
     </el-dialog>
 
-    <el-dialog
-      v-model="processVisible"
-      title="处理异常"
-      width="600px"
-      :close-on-click-modal="false"
-    >
-      <el-form ref="processFormRef" :model="processForm" :rules="processRules" label-width="110px">
-        <el-form-item label="处理方式" prop="action">
-          <el-radio-group v-model="processForm.action">
-            <el-radio value="处理中">开始处理</el-radio>
-            <el-radio value="已解决">已解决</el-radio>
-          </el-radio-group>
+    <!-- 提交处理报告弹窗 -->
+    <el-dialog v-model="reportVisible" title="提交处理报告" width="550px" :close-on-click-modal="false">
+      <el-form ref="reportFormRef" :model="reportForm" :rules="reportRules" label-width="100px">
+        <el-form-item label="异常编号">
+          <el-input :model-value="reportForm.exceptionNo" disabled />
         </el-form-item>
-        <el-form-item label="处理人" prop="handler">
-          <el-input v-model="processForm.handler" placeholder="请输入处理人" />
+        <el-form-item label="处理内容" prop="handleContent">
+          <el-input v-model="reportForm.handleContent" type="textarea" :rows="3" placeholder="请输入处理内容" />
         </el-form-item>
-        <el-form-item label="异常等级" prop="level">
-          <el-radio-group v-model="processForm.level">
-            <el-radio value="1">一般</el-radio>
-            <el-radio value="2">严重</el-radio>
-            <el-radio value="3">紧急</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="处理指令" prop="instruction">
-          <el-input v-model="processForm.instruction" type="textarea" :rows="2" placeholder="请输入下达的处理指令" />
-        </el-form-item>
-        <el-form-item label="处理报告" prop="remark">
-          <el-input v-model="processForm.remark" type="textarea" :rows="4" placeholder="请详细描述处理过程和结果" />
+        <el-form-item label="处理结果" prop="handleResult">
+          <el-input v-model="reportForm.handleResult" type="textarea" :rows="2" placeholder="请输入处理结果" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="processVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitLoading" @click="handleSubmitProcess">确定</el-button>
+        <el-button @click="reportVisible = false">取消</el-button>
+        <el-button type="primary" :loading="reportLoading" @click="handleSubmitReport">确定</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
-import wsClient from '../../utils/websocket'
-import request from '../../utils/request'
+import { ref, reactive, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { getList as getExceptionList, save as saveException, remove as deleteException, getStatistics } from '@/api/exception'
+import request from '@/api/request'
 
 const loading = ref(false)
 const submitLoading = ref(false)
-const detailVisible = ref(false)
-const processVisible = ref(false)
-const processFormRef = ref(null)
+const dialogVisible = ref(false)
+const formRef = ref(null)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
-const wsConnected = ref(false)
-const newExceptionIds = ref([])
 
-const searchForm = reactive({
+const reportVisible = ref(false)
+const reportLoading = ref(false)
+const reportFormRef = ref(null)
+
+const stats = ref({})
+const searchForm = reactive({ exceptionNo: '', exceptionType: '', exceptionLevel: '', status: '' })
+
+const form = reactive({
   exceptionNo: '',
-  workOrderNo: '',
-  exceptionType: '',
-  status: ''
+  exceptionType: '设备异常',
+  exceptionLevel: '一般',
+  title: '',
+  sourceNo: '',
+  reporter: '',
+  description: '',
+  priority: 3,
+  status: 0
 })
 
-const currentException = reactive({})
-
-const processForm = reactive({
-  id: null,
-  action: '处理中',
-  handler: '',
-  level: '1',
-  instruction: '',
-  remark: ''
-})
-
-const processRules = {
-  action: [
-    { required: true, message: '请选择处理方式', trigger: 'change' }
-  ],
-  handler: [
-    { required: true, message: '请输入处理人', trigger: 'blur' }
-  ],
-  level: [
-    { required: true, message: '请选择异常等级', trigger: 'change' }
-  ]
+const rules = {
+  exceptionNo: [{ required: true, message: '请输入异常编号', trigger: 'blur' }],
+  exceptionType: [{ required: true, message: '请选择异常类型', trigger: 'change' }],
+  exceptionLevel: [{ required: true, message: '请选择异常级别', trigger: 'change' }],
+  title: [{ required: true, message: '请输入异常标题', trigger: 'blur' }]
 }
 
-const typeOptions = [
-  { label: '设备故障', value: 1 },
-  { label: '质量异常', value: 2 },
-  { label: '物料短缺', value: 3 },
-  { label: '工艺问题', value: 4 },
-  { label: '人员异常', value: 5 },
-  { label: '其他', value: 6 }
-]
+const reportForm = reactive({
+  id: null,
+  exceptionNo: '',
+  handleContent: '',
+  handleResult: ''
+})
 
-const statusOptions = [
-  { label: '待处理', value: 0 },
-  { label: '处理中', value: 1 },
-  { label: '已解决', value: 2 },
-  { label: '已关闭', value: 3 }
-]
-
-const levelTextMap = { '1': '一般', '2': '严重', '3': '紧急' }
-const levelTagTypeMap = { '1': 'info', '2': 'warning', '3': 'danger' }
-
-const statCards = ref([
-  { title: '待处理', value: 3, icon: 'Warning', color: '#f1a7b8' },
-  { title: '处理中', value: 5, icon: 'Loading', color: '#fae1a4' },
-  { title: '已解决', value: 12, icon: 'CircleCheck', color: '#83d8cf' },
-  { title: '本月异常', value: 20, icon: 'Document', color: '#93c5dd' }
-])
-
-const mockData = ref([
-  {
-    id: 1,
-    exceptionNo: 'EX-20240115001',
-    workOrderId: 1,
-    workOrderNo: 'WO-2024001',
-    productName: '智能健康手环 Pro',
-    exceptionType: 1,
-    exceptionDesc: 'SMT贴片机01出现告警，贴片精度下降，需要维修',
-    status: 1,
-    level: '2',
-    reporter: '张操作员',
-    handler: '李工程师',
-    createTime: '2024-01-15 09:30:00',
-    processRecords: [
-      { action: '异常上报', person: '张操作员', time: '2024-01-15 09:30:00', remark: 'SMT贴片机01出现告警' },
-      { action: '开始处理', person: '李工程师', time: '2024-01-15 10:00:00', remark: '已到达现场，正在检查设备', level: '严重', instruction: '立即停机检查，更换备用设备' }
-    ]
-  },
-  {
-    id: 2,
-    exceptionNo: 'EX-20240115002',
-    workOrderId: 1,
-    workOrderNo: 'WO-2024001',
-    productName: '智能健康手环 Pro',
-    exceptionType: 2,
-    exceptionDesc: '组装工序发现外观不良率上升，达到5%，需要排查原因',
-    status: 0,
-    level: '1',
-    reporter: '王质检',
-    handler: '',
-    createTime: '2024-01-15 14:20:00',
-    processRecords: [
-      { action: '异常上报', person: '王质检', time: '2024-01-15 14:20:00', remark: '外观不良率5%，超标' }
-    ]
-  },
-  {
-    id: 3,
-    exceptionNo: 'EX-20240114001',
-    workOrderId: 4,
-    workOrderNo: 'WO-2024004',
-    productName: '智能运动手环 Lite',
-    exceptionType: 3,
-    exceptionDesc: '电池物料库存不足，预计下午会缺料停产',
-    status: 1,
-    level: '3',
-    reporter: '赵仓管',
-    handler: '刘采购',
-    createTime: '2024-01-14 10:00:00',
-    processRecords: [
-      { action: '异常上报', person: '赵仓管', time: '2024-01-14 10:00:00', remark: '电池库存仅剩500pcs' },
-      { action: '开始处理', person: '刘采购', time: '2024-01-14 10:30:00', remark: '已联系供应商紧急补货', level: '紧急', instruction: '紧急调货，2小时内到货' }
-    ]
-  },
-  {
-    id: 4,
-    exceptionNo: 'EX-20240114002',
-    workOrderId: 6,
-    workOrderNo: 'WO-2024006',
-    productName: '智能健康手环 Pro',
-    exceptionType: 4,
-    exceptionDesc: '老化测试工序参数需要调整，当前工艺参数不达标',
-    status: 2,
-    level: '1',
-    reporter: '张工程师',
-    handler: '李工艺师',
-    createTime: '2024-01-14 11:30:00',
-    processRecords: [
-      { action: '异常上报', person: '张工程师', time: '2024-01-14 11:30:00', remark: '老化测试参数需优化' },
-      { action: '开始处理', person: '李工艺师', time: '2024-01-14 13:00:00', remark: '正在调整工艺参数', level: '一般', instruction: '优化温度曲线参数' },
-      { action: '问题解决', person: '李工艺师', time: '2024-01-14 16:00:00', remark: '参数已优化，测试通过' }
-    ]
-  },
-  {
-    id: 5,
-    exceptionNo: 'EX-20240113001',
-    workOrderId: 2,
-    workOrderNo: 'WO-2024002',
-    productName: '智能运动手环 Lite',
-    exceptionType: 5,
-    exceptionDesc: '组装线工人请假，人手不足，可能影响产能',
-    status: 3,
-    level: '2',
-    reporter: '王主管',
-    handler: '李主管',
-    createTime: '2024-01-13 08:00:00',
-    processRecords: [
-      { action: '异常上报', person: '王主管', time: '2024-01-13 08:00:00', remark: '2人请假' },
-      { action: '开始处理', person: '李主管', time: '2024-01-13 08:30:00', remark: '已安排其他线支援', level: '严重', instruction: '从B线调2人支援' },
-      { action: '问题解决', person: '李主管', time: '2024-01-13 10:00:00', remark: '人员已到位，产能恢复' },
-      { action: '关闭异常', person: '王主管', time: '2024-01-13 18:00:00', remark: '当日产能达标' }
-    ]
-  },
-  {
-    id: 6,
-    exceptionNo: 'EX-20240113002',
-    workOrderId: 1,
-    workOrderNo: 'WO-2024001',
-    productName: '智能健康手环 Pro',
-    exceptionType: 2,
-    exceptionDesc: '测试工序发现功能异常，屏幕不亮',
-    status: 2,
-    level: '3',
-    reporter: '李质检',
-    handler: '张工程师',
-    createTime: '2024-01-13 15:00:00',
-    processRecords: [
-      { action: '异常上报', person: '李质检', time: '2024-01-13 15:00:00', remark: '3台屏幕不亮' },
-      { action: '开始处理', person: '张工程师', time: '2024-01-13 15:30:00', remark: '正在排查原因', level: '紧急', instruction: '立即停线排查' },
-      { action: '问题解决', person: '张工程师', time: '2024-01-13 17:00:00', remark: 'FPC接触不良，已优化组装工艺' }
-    ]
-  }
-])
+const reportRules = {
+  handleContent: [{ required: true, message: '请输入处理内容', trigger: 'blur' }],
+  handleResult: [{ required: true, message: '请输入处理结果', trigger: 'blur' }]
+}
 
 const tableData = ref([])
 
-function getTypeText(type) {
-  const texts = ['', '设备故障', '质量异常', '物料短缺', '工艺问题', '人员异常', '其他']
-  return texts[type] || '未知'
+function statusText(status) {
+  const map = { 0: '待处理', 1: '处理中', 2: '已解决', 3: '已关闭' }
+  return map[status] || '未知'
 }
 
-function getTypeTagType(type) {
-  const types = ['', 'danger', 'warning', 'info', 'primary', 'warning', 'info']
-  return types[type] || 'info'
+function statusTagType(status) {
+  const map = { 0: 'info', 1: 'warning', 2: 'success', 3: 'success' }
+  return map[status] || 'info'
 }
 
-function getStatusText(status) {
-  const texts = ['待处理', '处理中', '已解决', '已关闭']
-  return texts[status] || '未知'
+function levelTagType(level) {
+  const map = { '紧急': 'danger', '严重': 'danger', '一般': 'warning', '轻微': 'info' }
+  return map[level] || 'info'
 }
 
-function getStatusTagType(status) {
-  const types = ['danger', 'warning', 'success', 'info']
-  return types[status] || 'info'
-}
-
-function getLevelText(level) {
-  return levelTextMap[level] || '-'
-}
-
-function getLevelTagType(level) {
-  return levelTagTypeMap[level] || 'info'
-}
-
-function tableRowClassName({ row }) {
-  if (newExceptionIds.value.includes(row.id)) {
-    return 'new-exception-row'
-  }
-  return ''
-}
-
-function updateStatCards(list) {
-  statCards.value[0].value = list.filter(i => i.status === 0).length
-  statCards.value[1].value = list.filter(i => i.status === 1).length
-  statCards.value[2].value = list.filter(i => i.status === 2).length
-  statCards.value[3].value = list.length
-}
-
-onMounted(() => {
-  fetchData()
-  wsClient.connect()
-  wsConnected.value = true
-  wsClient.on('NEW_EXCEPTION', handleNewException)
-  wsClient.on('EXCEPTION_HANDLED', handleExceptionHandled)
-  wsClient.on('EXCEPTION_RESOLVED', handleExceptionResolved)
-})
-
-onUnmounted(() => {
-  wsClient.off('NEW_EXCEPTION', handleNewException)
-  wsClient.off('EXCEPTION_HANDLED', handleExceptionHandled)
-  wsClient.off('EXCEPTION_RESOLVED', handleExceptionResolved)
-})
-
-async function fetchData() {
+function fetchData() {
   loading.value = true
-  try {
-    const params = {
-      pageNum: currentPage.value,
-      pageSize: pageSize.value
-    }
-    if (searchForm.exceptionNo) params.exceptionNo = searchForm.exceptionNo
-    if (searchForm.exceptionType !== '') params.exceptionType = searchForm.exceptionType
-    if (searchForm.status !== '') params.status = searchForm.status
-    
-    const res = await request.get('/exception/list', { params })
-    if (res.data) {
-      tableData.value = res.data.records || []
-      total.value = res.data.total || 0
-      updateStatCards(res.data.records || [])
-    }
-  } catch (error) {
-    console.error('Fetch exception list failed:', error)
-    tableData.value = []
-    total.value = 0
-  } finally {
+  getExceptionList({
+    pageNum: currentPage.value,
+    pageSize: pageSize.value,
+    ...searchForm
+  }).then(res => {
+    tableData.value = res.data.records || []
+    total.value = res.data.total || 0
+  }).catch(err => {
+    ElMessage.error('加载失败: ' + (err.message || ''))
+  }).finally(() => {
     loading.value = false
-  }
+  })
 }
 
-function handleExceptionHandled(data) {
-  fetchData()
+function fetchStats() {
+  getStatistics().then(res => {
+    stats.value = res.data || {}
+  }).catch(() => {})
 }
 
-function handleExceptionResolved(data) {
-  fetchData()
-}
-
-function handleNewException(data) {
+function handleSearch() {
   currentPage.value = 1
   fetchData()
 }
 
 function handleReset() {
   searchForm.exceptionNo = ''
-  searchForm.workOrderNo = ''
   searchForm.exceptionType = ''
+  searchForm.exceptionLevel = ''
   searchForm.status = ''
   currentPage.value = 1
   fetchData()
@@ -517,237 +331,148 @@ function handleCurrentChange(page) {
   fetchData()
 }
 
-function handleView(row) {
-  Object.assign(currentException, row)
-  detailVisible.value = true
+function handleAdd() {
+  Object.assign(form, {
+    exceptionNo: '', exceptionType: '设备异常', exceptionLevel: '一般',
+    title: '', sourceNo: '', reporter: '', description: '', priority: 3, status: 0
+  })
+  dialogVisible.value = true
 }
 
-function handleAskAi() {
-  let question
-  if (currentException.exceptionNo) {
-    const typeText = getTypeText(currentException.exceptionType)
-    const statusText = getStatusText(currentException.status)
-    question = `生产异常「${currentException.exceptionNo}」需要处理方案。异常类型为「${typeText}」，当前状态「${statusText}」，关联工单「${currentException.workOrderNo}」，产品「${currentException.productName}」。异常描述：${currentException.exceptionDesc}。请给出针对该异常的处理方案和建议。`
-  } else {
-    question = '请介绍生产过程中常见异常（设备故障、质量异常、物料短缺、工艺问题等）的标准处理方案和预防措施。'
-  }
-  window.dispatchEvent(new CustomEvent('ask-ai', { detail: { question } }))
+function handleStart(row) {
+  ElMessageBox.confirm(`确定要开始处理异常「${row.exceptionNo}」吗？`, '提示', { type: 'warning' })
+    .then(() => {
+      request.put(`/exception-handle/start/${row.id}`, { handlerName: row.reporter || '当前用户' }).then(() => {
+        ElMessage.success('已开始处理')
+        fetchData()
+        fetchStats()
+      }).catch(err => ElMessage.error('操作失败: ' + (err.message || '')))
+    }).catch(() => {})
 }
 
-function handleProcess(row) {
-  processForm.id = row.id
-  processForm.action = row.status === 0 ? '处理中' : '已解决'
-  processForm.handler = row.handler || ''
-  processForm.level = row.level || '1'
-  processForm.instruction = ''
-  processForm.remark = ''
-  processVisible.value = true
+function handleSubmit(row) {
+  Object.assign(reportForm, {
+    id: row.id, exceptionNo: row.exceptionNo,
+    handleContent: '', handleResult: ''
+  })
+  reportVisible.value = true
 }
 
-async function handleClose(row) {
-  ElMessageBox.confirm(`确定要关闭异常「${row.exceptionNo}」吗？`, '提示', {
-    confirmButtonText: '确定关闭',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(async () => {
-    try {
-      await request.put(`/exception-handle/close/${row.id}`)
-      ElMessage.success('关闭成功')
-      fetchData()
-    } catch (error) {
-      console.error('Close exception failed:', error)
-    }
-  }).catch(() => {})
+function handleClose(row) {
+  ElMessageBox.confirm(`确定要关闭异常「${row.exceptionNo}」吗？`, '提示', { type: 'warning' })
+    .then(() => {
+      request.put(`/exception-handle/close/${row.id}`).then(() => {
+        ElMessage.success('已关闭')
+        fetchData()
+        fetchStats()
+      }).catch(err => ElMessage.error('操作失败: ' + (err.message || '')))
+    }).catch(() => {})
 }
 
-async function handleSubmitProcess() {
-  if (!processFormRef.value) return
-  
-  try {
-    await processFormRef.value.validate()
+function handleDelete(row) {
+  ElMessageBox.confirm(`确定要删除异常「${row.exceptionNo}」吗？`, '提示', { type: 'warning' })
+    .then(() => {
+      deleteException(row.id).then(() => {
+        ElMessage.success('删除成功')
+        fetchData()
+        fetchStats()
+      }).catch(err => ElMessage.error('删除失败: ' + (err.message || '')))
+    }).catch(() => {})
+}
+
+function handleSubmitAdd() {
+  formRef.value.validate(valid => {
+    if (!valid) return
     submitLoading.value = true
-    
-    const isResolve = processForm.action === '已解决'
-    const url = isResolve ? `/exception-handle/submit/${processForm.id}` : `/exception-handle/start/${processForm.id}`
-    const body = {
-      handlerName: processForm.handler,
-      exceptionLevel: processForm.level,
-      handleReport: processForm.remark
-    }
-    
-    await request.put(url, body)
-    
-    ElMessage.success('处理成功')
-    processVisible.value = false
-    submitLoading.value = false
-    fetchData()
-  } catch (error) {
-    submitLoading.value = false
-  }
+    saveException(form).then(() => {
+      ElMessage.success('上报成功')
+      dialogVisible.value = false
+      fetchData()
+      fetchStats()
+    }).catch(err => {
+      ElMessage.error('操作失败: ' + (err.message || ''))
+    }).finally(() => {
+      submitLoading.value = false
+    })
+  })
 }
+
+function handleSubmitReport() {
+  reportFormRef.value.validate(valid => {
+    if (!valid) return
+    reportLoading.value = true
+    request.put(`/exception-handle/submit/${reportForm.id}`, {
+      handleContent: reportForm.handleContent,
+      handleResult: reportForm.handleResult
+    }).then(() => {
+      ElMessage.success('报告已提交')
+      reportVisible.value = false
+      fetchData()
+      fetchStats()
+    }).catch(err => {
+      ElMessage.error('提交失败: ' + (err.message || ''))
+    }).finally(() => {
+      reportLoading.value = false
+    })
+  })
+}
+
+onMounted(() => {
+  fetchData()
+  fetchStats()
+})
 </script>
 
 <style scoped>
-.page-container {
-  width: 100%;
-}
-
-.stat-row {
-  margin-bottom: 20px;
-}
-
-.stat-card {
-  border-radius: 8px;
-}
-
-.stat-content {
+.page-container { width: 100%; }
+.stats-row { margin-bottom: 20px; }
+.stat-item {
   display: flex;
   align-items: center;
   gap: 16px;
 }
-
 .stat-icon {
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
+  font-size: 22px;
   flex-shrink: 0;
 }
-
 .stat-info {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
-
 .stat-value {
-  font-size: 28px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight: 700;
   color: #303133;
   line-height: 1.2;
 }
-
 .stat-label {
-  font-size: 14px;
+  font-size: 13px;
   color: #909399;
-  margin-top: 4px;
+  margin-top: 2px;
 }
-
-.search-card {
-  margin-bottom: 20px;
-}
-
-.table-card {
-  margin-bottom: 20px;
-}
-
+.search-card { margin-bottom: 20px; }
+.table-card { margin-bottom: 20px; }
 .table-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
 }
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.conn-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #909399;
-}
-
-.conn-status .status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #f1a7b8;
-}
-
-.conn-status.connected {
-  color: #83d8cf;
-}
-
-.conn-status.connected .status-dot {
-  background-color: #83d8cf;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-:deep(.new-exception-row) {
-  animation: flashRow 3s ease-out;
-}
-
-@keyframes flashRow {
-  0% {
-    background-color: rgba(241, 167, 184, 0.2);
-  }
-  100% {
-    background-color: transparent;
-  }
-}
-
-.header-btns {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 .table-title {
   font-size: 16px;
   font-weight: bold;
   color: #303133;
 }
-
 .pagination-wrapper {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
-}
-
-.process-section {
-  margin-top: 10px;
-}
-
-.section-title {
-  font-size: 14px;
-  font-weight: bold;
-  color: #303133;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.timeline-content {
-  padding: 4px 0;
-}
-
-.timeline-title {
-  font-size: 14px;
-  font-weight: bold;
-  color: #303133;
-  margin-bottom: 4px;
-}
-
-.timeline-person {
-  font-size: 13px;
-  color: #909399;
-  margin-bottom: 4px;
-}
-
-.timeline-remark {
-  font-size: 13px;
-  color: #606266;
 }
 </style>

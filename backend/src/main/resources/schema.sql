@@ -341,11 +341,39 @@ CREATE TABLE IF NOT EXISTS `equipment_fault` (
     INDEX `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设备故障记录表';
 
--- ALTER TABLE 兼容已有数据库（continue-on-error=true，重复添加会自动跳过）
-ALTER TABLE `production_plan` ADD COLUMN `plan_name` VARCHAR(100) COMMENT '计划名称';
-ALTER TABLE `production_plan` ADD COLUMN `manager` VARCHAR(50) COMMENT '负责人';
-ALTER TABLE `production_plan` ADD COLUMN `remark` VARCHAR(500) COMMENT '备注';
-ALTER TABLE `work_order` ADD COLUMN `manager` VARCHAR(50) COMMENT '负责人';
-ALTER TABLE `work_order` ADD COLUMN `remark` VARCHAR(500) COMMENT '备注';
-ALTER TABLE `work_order` ADD COLUMN `plan_start_date` DATE COMMENT '计划开始日期';
-ALTER TABLE `work_order` ADD COLUMN `plan_end_date` DATE COMMENT '计划完成日期';
+-- 兼容已有数据库：条件性添加列（避免Navicat执行报错）
+SET @col_exists = 0;
+SELECT COUNT(*) INTO @col_exists FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'production_plan' AND COLUMN_NAME = 'plan_name';
+IF @col_exists = 0 THEN
+    ALTER TABLE `production_plan` ADD COLUMN `plan_name` VARCHAR(100) COMMENT '计划名称';
+END IF;
+
+SELECT COUNT(*) INTO @col_exists FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'production_plan' AND COLUMN_NAME = 'manager';
+IF @col_exists = 0 THEN
+    ALTER TABLE `production_plan` ADD COLUMN `manager` VARCHAR(50) COMMENT '负责人';
+END IF;
+
+SELECT COUNT(*) INTO @col_exists FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'production_plan' AND COLUMN_NAME = 'remark';
+IF @col_exists = 0 THEN
+    ALTER TABLE `production_plan` ADD COLUMN `remark` VARCHAR(500) COMMENT '备注';
+END IF;
+
+SELECT COUNT(*) INTO @col_exists FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'work_order' AND COLUMN_NAME = 'manager';
+IF @col_exists = 0 THEN
+    ALTER TABLE `work_order` ADD COLUMN `manager` VARCHAR(50) COMMENT '负责人';
+END IF;
+
+SELECT COUNT(*) INTO @col_exists FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'work_order' AND COLUMN_NAME = 'remark';
+IF @col_exists = 0 THEN
+    ALTER TABLE `work_order` ADD COLUMN `remark` VARCHAR(500) COMMENT '备注';
+END IF;
+
+SELECT COUNT(*) INTO @col_exists FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'work_order' AND COLUMN_NAME = 'plan_start_date';
+IF @col_exists = 0 THEN
+    ALTER TABLE `work_order` ADD COLUMN `plan_start_date` DATE COMMENT '计划开始日期';
+END IF;
+
+SELECT COUNT(*) INTO @col_exists FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'work_order' AND COLUMN_NAME = 'plan_end_date';
+IF @col_exists = 0 THEN
+    ALTER TABLE `work_order` ADD COLUMN `plan_end_date` DATE COMMENT '计划完成日期';
+END IF;

@@ -10,14 +10,21 @@ export function getMaterialList(params) {
 
 export function getMaterialDetail(id) {
   return request({
-    url: '/material/' + id,
+    url: `/material/${id}`,
+    method: 'get'
+  })
+}
+
+export function getMaterialAll() {
+  return request({
+    url: '/material/all',
     method: 'get'
   })
 }
 
 export function getMaterialByCode(code) {
   return request({
-    url: '/material/code/' + code,
+    url: `/material/code/${code}`,
     method: 'get'
   })
 }
@@ -40,7 +47,7 @@ export function updateMaterial(data) {
 
 export function deleteMaterial(id) {
   return request({
-    url: '/material/delete/' + id,
+    url: `/material/delete/${id}`,
     method: 'delete'
   })
 }

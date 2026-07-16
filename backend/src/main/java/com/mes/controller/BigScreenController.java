@@ -192,14 +192,14 @@ public class BigScreenController {
         Map<String, Object> data = new HashMap<>();
 
         List<EquipmentInfo> equipments = equipmentInfoService.list(
-                new LambdaQueryWrapper<EquipmentInfo>().orderByAsc(EquipmentInfo::getEquipmentCode));
+                new LambdaQueryWrapper<EquipmentInfo>().orderByAsc(EquipmentInfo::getEquipmentNo));
 
         List<Map<String, Object>> deviceList = equipments.stream().map(eq -> {
             Map<String, Object> device = new HashMap<>();
             device.put("name", eq.getEquipmentName());
-            device.put("code", eq.getEquipmentCode());
+            device.put("code", eq.getEquipmentNo());
             device.put("type", eq.getEquipmentType());
-            device.put("status", eq.getStatus()); // 0=停用, 1=运行, 2=维修
+            device.put("status", eq.getStatus()); // 0=停用, 1=运行, 2=维修, 3=报废
             device.put("location", eq.getLocation());
             device.put("runningHours", eq.getRunningHours());
             return device;

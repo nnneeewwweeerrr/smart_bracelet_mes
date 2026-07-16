@@ -14,7 +14,9 @@ public class AiChatHistory {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String userId;
+    private String sessionId;
+
+    private Long userId;
 
     private String userName;
 
@@ -22,9 +24,19 @@ public class AiChatHistory {
 
     private String answer;
 
-    private String context;
+    private String model;
+
+    private Integer responseTime;
+
+    private Integer feedback;
 
     private Integer chatStatus;
+
+    private String context;
+
+    private String scene;
+
+    private LocalDateTime chatTime;
 
     private LocalDateTime createTime;
 }

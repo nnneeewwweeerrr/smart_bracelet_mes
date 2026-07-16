@@ -21,55 +21,51 @@ public class MaterialController {
 
     @GetMapping("/list")
     public Result<IPage<MaterialInfo>> list(@RequestParam(defaultValue = "1") Integer pageNum,
-                                            @RequestParam(defaultValue = "20") Integer pageSize,
+                                            @RequestParam(defaultValue = "10") Integer pageSize,
                                             @RequestParam(required = false) String materialName,
-                                            @RequestParam(required = false) String materialCode,
-                                            @RequestParam(required = false) String materialType,
+                                            @RequestParam(required = false) String materialNo,
+                                            @RequestParam(required = false) String type,
                                             @RequestParam(required = false) String keyword) {
         Page<MaterialInfo> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<MaterialInfo> wrapper = new LambdaQueryWrapper<>();
         if (keyword != null && !keyword.isEmpty()) {
             wrapper.like(MaterialInfo::getMaterialName, keyword)
                     .or()
-                    .like(MaterialInfo::getMaterialCode, keyword);
+                    .like(MaterialInfo::getMaterialNo, keyword);
         } else {
             wrapper.like(materialName != null && !materialName.isEmpty(), MaterialInfo::getMaterialName, materialName)
-                    .like(materialCode != null && !materialCode.isEmpty(), MaterialInfo::getMaterialCode, materialCode);
+                    .like(materialNo != null && !materialNo.isEmpty(), MaterialInfo::getMaterialNo, materialNo);
         }
-        wrapper.eq(materialType != null && !materialType.isEmpty(), MaterialInfo::getMaterialType, materialType);
+        wrapper.eq(type != null && !type.isEmpty(), MaterialInfo::getType, type);
         IPage<MaterialInfo> result = materialInfoService.page(page, wrapper);
-        result.getRecords().forEach(this::mapFields);
         return Result.success(result);
     }
 
     @GetMapping("/{id}")
     public Result<MaterialInfo> detail(@PathVariable Long id) {
         MaterialInfo info = materialInfoService.getById(id);
-        if (info != null) {
-            mapFields(info);
-        }
         return Result.success(info);
     }
 
-    private void mapFields(MaterialInfo info) {
-        info.setMaterialNo(info.getMaterialCode());
-        info.setName(info.getMaterialName());
-        info.setType(info.getMaterialType());
-        info.setPrice(info.getUnitPrice());
-        info.setSpec(info.getMaterialCode());
-        info.setSupplierName("默认供应商");
+    @GetMapping("/all")
+    public Result<List<MaterialInfo>> listAll() {
+        List<MaterialInfo> list = materialInfoService.list();
+        return Result.success(list);
     }
 
     @GetMapping("/code/{code}")
     public Result<MaterialInfo> getByCode(@PathVariable String code) {
         LambdaQueryWrapper<MaterialInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(MaterialInfo::getMaterialCode, code);
+        wrapper.eq(MaterialInfo::getMaterialNo, code);
         return Result.success(materialInfoService.getOne(wrapper));
     }
 
     @PostMapping("/save")
     @OperationLog(module = "物料档案", type = "新增", description = "新增物料")
     public Result<Void> save(@RequestBody MaterialInfo materialInfo) {
+        if (materialInfo.getStatus() == null) {
+            materialInfo.setStatus(1);
+        }
         materialInfoService.save(materialInfo);
         return Result.success();
     }

@@ -10,7 +10,6 @@ import com.mes.service.ProductInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -24,40 +23,36 @@ public class ProductController {
     public Result<IPage<ProductInfo>> list(@RequestParam(defaultValue = "1") Integer pageNum,
                                             @RequestParam(defaultValue = "10") Integer pageSize,
                                             @RequestParam(required = false) String productName,
-                                            @RequestParam(required = false) String productCode,
+                                            @RequestParam(required = false) String productNo,
                                             @RequestParam(required = false) Integer status) {
         Page<ProductInfo> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<ProductInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(productName != null && !productName.isEmpty(), ProductInfo::getProductName, productName)
-                .like(productCode != null && !productCode.isEmpty(), ProductInfo::getProductCode, productCode)
+                .like(productNo != null && !productNo.isEmpty(), ProductInfo::getProductNo, productNo)
                 .eq(status != null, ProductInfo::getStatus, status)
                 .orderByDesc(ProductInfo::getCreateTime);
         IPage<ProductInfo> result = productInfoService.page(page, wrapper);
-        result.getRecords().forEach(this::mapFields);
         return Result.success(result);
     }
 
     @GetMapping("/{id}")
     public Result<ProductInfo> detail(@PathVariable Long id) {
         ProductInfo info = productInfoService.getById(id);
-        if (info != null) {
-            mapFields(info);
-        }
         return Result.success(info);
     }
 
-    private void mapFields(ProductInfo info) {
-        info.setProductNo(info.getProductCode());
-        info.setModel(info.getSpecification());
-        info.setPrice(info.getUnitPrice());
-        info.setCategory(info.getProductType());
-        info.setCost(info.getUnitPrice().multiply(new BigDecimal("0.7")));
-        info.setUnit("台");
+    @GetMapping("/all")
+    public Result<List<ProductInfo>> listAll() {
+        List<ProductInfo> list = productInfoService.list();
+        return Result.success(list);
     }
 
     @PostMapping("/save")
     @OperationLog(module = "产品档案", type = "新增", description = "新增产品")
     public Result<Void> save(@RequestBody ProductInfo productInfo) {
+        if (productInfo.getStatus() == null) {
+            productInfo.setStatus(1);
+        }
         productInfoService.save(productInfo);
         return Result.success();
     }
