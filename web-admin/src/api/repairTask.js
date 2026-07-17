@@ -46,6 +46,29 @@ export function assign(data) {
   })
 }
 
+export function accept(id) {
+  return request({
+    url: '/repair-task/accept/' + id,
+    method: 'post'
+  })
+}
+
+export function complete(id, data) {
+  return request({
+    url: '/repair-task/complete/' + id,
+    method: 'post',
+    data
+  })
+}
+
+export function acceptance(id, data) {
+  return request({
+    url: '/repair-task/acceptance/' + id,
+    method: 'post',
+    data
+  })
+}
+
 export function remove(id) {
   return request({
     url: '/repair-task/delete/' + id,

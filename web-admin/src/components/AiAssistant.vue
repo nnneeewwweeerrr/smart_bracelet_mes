@@ -4,7 +4,14 @@
       <div v-if="isExpanded" class="ai-panel">
         <div class="ai-header">
           <div class="ai-logo">
-            <el-icon :size="20"><Document /></el-icon>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px">
+              <rect x="3" y="11" width="18" height="10" rx="2"/>
+              <circle cx="12" cy="5" r="2"/>
+              <path d="M12 7v4"/>
+              <circle cx="8" cy="15" r="1" fill="currentColor" stroke="none"/>
+              <circle cx="16" cy="15" r="1" fill="currentColor" stroke="none"/>
+              <path d="M9 19h6"/>
+            </svg>
           </div>
           <div class="ai-title">
             <span class="title-text">AI生产助手</span>
@@ -26,7 +33,14 @@
             >
               <div class="chat-avatar">
                 <el-icon v-if="item.role === 'user'" :size="18"><UserFilled /></el-icon>
-                <el-icon v-else :size="18"><Document /></el-icon>
+                <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
+                  <rect x="3" y="11" width="18" height="10" rx="2"/>
+                  <circle cx="12" cy="5" r="2"/>
+                  <path d="M12 7v4"/>
+                  <circle cx="8" cy="15" r="1" fill="currentColor" stroke="none"/>
+                  <circle cx="16" cy="15" r="1" fill="currentColor" stroke="none"/>
+                  <path d="M9 19h6"/>
+                </svg>
               </div>
               <div class="chat-bubble">
                 <div class="chat-content">{{ item.content }}</div>
@@ -101,7 +115,14 @@
     </transition>
 
     <button class="ai-toggle-btn" @click="toggleExpand">
-      <el-icon :size="22"><Document /></el-icon>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px">
+        <rect x="3" y="11" width="18" height="10" rx="2"/>
+        <circle cx="12" cy="5" r="2"/>
+        <path d="M12 7v4"/>
+        <circle cx="8" cy="15" r="1" fill="currentColor" stroke="none"/>
+        <circle cx="16" cy="15" r="1" fill="currentColor" stroke="none"/>
+        <path d="M9 19h6"/>
+      </svg>
       <span v-if="!isExpanded" class="badge">{{ unreadCount }}</span>
     </button>
   </div>
@@ -109,7 +130,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick, reactive } from 'vue'
-import { Document, Warning, CircleCheck, UserFilled, Link, ArrowDown } from '@element-plus/icons-vue'
+import { Warning, CircleCheck, UserFilled, Link, ArrowDown } from '@element-plus/icons-vue'
 import { aiChat, getRecentHistory } from '../api/ai'
 import { useUserStore } from '../stores/user'
 

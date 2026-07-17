@@ -10,7 +10,7 @@ import java.util.Collections;
 public class CodeGenerator {
 
     public static void main(String[] args) {
-        String url = "jdbc:mysql://localhost:3306/smart_bracelet_mes?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false";
+        String url = "jdbc:mysql://localhost:3306/smart_bracelet_mes?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&useSSL=false";
         String username = "root";
         String password = "root";
         String outputDir = System.getProperty("user.dir") + "/src/main/java";

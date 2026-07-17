@@ -41,6 +41,19 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
+            ensureUtf8mb4("smart_bracelet_mes");
+            ensureUtf8mb4("mes_demo");
+        } catch (Exception e) {
+            log.warn("数据库字符集修复失败: {}", e.getMessage());
+        }
+
+        try {
+            repairEquipmentRepairTaskTable();
+        } catch (Exception e) {
+            log.warn("维修任务表结构修复失败: {}", e.getMessage());
+        }
+
+        try {
             initAiChatHistoryTable();
         } catch (Exception e) {
             log.warn("AI对话表初始化失败: {}", e.getMessage());
@@ -71,6 +84,58 @@ public class DataInitializer implements CommandLineRunner {
             }
         } catch (Exception e) {
             log.warn("数据初始化失败: {}", e.getMessage());
+        }
+    }
+
+    private void ensureUtf8mb4(String dbName) throws SQLException {
+        if (dbName == null || dbName.isEmpty()) {
+            return;
+        }
+        try (Connection conn = dataSource.getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("ALTER DATABASE `" + dbName + "` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+            try (ResultSet tables = stmt.executeQuery("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" + dbName + "' AND TABLE_TYPE = 'BASE TABLE'")) {
+                while (tables.next()) {
+                    String tableName = tables.getString(1);
+                    try {
+                        stmt.execute("ALTER TABLE `" + dbName + "`.`" + tableName + "` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+                    } catch (SQLException e) {
+                        log.warn("转换表字符集失败: {}.{} - {}", dbName, tableName, e.getMessage());
+                    }
+                }
+            }
+            log.info("数据库 {} 字符集已统一为 utf8mb4", dbName);
+        }
+    }
+
+    private void repairEquipmentRepairTaskTable() throws SQLException {
+        String[][] alterSqls = {
+            {"fault_id", "ALTER TABLE equipment_repair_task ADD COLUMN fault_id BIGINT COMMENT '关联故障ID' AFTER equipment_name"},
+            {"fault_description", "ALTER TABLE equipment_repair_task ADD COLUMN fault_description VARCHAR(1000) COMMENT '故障详细描述' AFTER fault_desc"},
+            {"repairer_id", "ALTER TABLE equipment_repair_task ADD COLUMN repairer_id BIGINT COMMENT '维修人ID' AFTER assignee"},
+            {"accept_time", "ALTER TABLE equipment_repair_task ADD COLUMN accept_time DATETIME COMMENT '接单时间' AFTER assign_time"},
+            {"repair_content", "ALTER TABLE equipment_repair_task ADD COLUMN repair_content VARCHAR(1000) COMMENT '维修内容' AFTER solution"},
+            {"repair_cost", "ALTER TABLE equipment_repair_task ADD COLUMN repair_cost DECIMAL(10,2) DEFAULT 0 COMMENT '维修费用' AFTER cost"},
+            {"acceptance_result", "ALTER TABLE equipment_repair_task ADD COLUMN acceptance_result VARCHAR(20) COMMENT '验收结果' AFTER status"},
+            {"acceptance_time", "ALTER TABLE equipment_repair_task ADD COLUMN acceptance_time DATETIME COMMENT '验收时间' AFTER acceptance_result"},
+            {"acceptance_by", "ALTER TABLE equipment_repair_task ADD COLUMN acceptance_by VARCHAR(50) COMMENT '验收人' AFTER acceptance_time"}
+        };
+        try (Connection conn = dataSource.getConnection();
+             Statement stmt = conn.createStatement()) {
+            for (String[] alter : alterSqls) {
+                String columnName = alter[0];
+                String sql = alter[1];
+                try {
+                    ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'equipment_repair_task' AND COLUMN_NAME = '" + columnName + "'");
+                    if (rs.next() && rs.getInt(1) == 0) {
+                        stmt.execute(sql);
+                        log.info("添加字段成功: {}", columnName);
+                    }
+                } catch (SQLException e) {
+                    log.warn("添加字段失败: {} - {}", columnName, e.getMessage());
+                }
+            }
+            log.info("维修任务表结构修复完成");
         }
     }
 

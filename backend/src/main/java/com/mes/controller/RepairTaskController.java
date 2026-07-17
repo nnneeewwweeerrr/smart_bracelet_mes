@@ -58,6 +58,7 @@ public class RepairTaskController {
         stats.put("assigned", repairTaskService.count(new LambdaQueryWrapper<EquipmentRepairTask>().eq(EquipmentRepairTask::getStatus, 1)));
         stats.put("repairing", repairTaskService.count(new LambdaQueryWrapper<EquipmentRepairTask>().eq(EquipmentRepairTask::getStatus, 2)));
         stats.put("completed", repairTaskService.count(new LambdaQueryWrapper<EquipmentRepairTask>().eq(EquipmentRepairTask::getStatus, 3)));
+        stats.put("accepted", repairTaskService.count(new LambdaQueryWrapper<EquipmentRepairTask>().eq(EquipmentRepairTask::getStatus, 4)));
         return Result.success(stats);
     }
 
@@ -86,6 +87,52 @@ public class RepairTaskController {
     public Result<Void> assign(@RequestBody EquipmentRepairTask task) {
         task.setStatus(1);
         task.setAssignTime(LocalDateTime.now());
+        repairTaskService.updateById(task);
+        return Result.success();
+    }
+
+    @PostMapping("/accept/{id}")
+    @OperationLog(module = "维修任务", type = "接单", description = "接单")
+    public Result<Void> accept(@PathVariable Long id) {
+        EquipmentRepairTask task = repairTaskService.getById(id);
+        if (task == null) {
+            return Result.error("任务不存在");
+        }
+        task.setStatus(2);
+        task.setAcceptTime(LocalDateTime.now());
+        repairTaskService.updateById(task);
+        return Result.success();
+    }
+
+    @PostMapping("/complete/{id}")
+    @OperationLog(module = "维修任务", type = "完成", description = "完成维修")
+    public Result<Void> complete(@PathVariable Long id, @RequestBody EquipmentRepairTask dto) {
+        EquipmentRepairTask task = repairTaskService.getById(id);
+        if (task == null) {
+            return Result.error("任务不存在");
+        }
+        task.setStatus(3);
+        task.setCompleteTime(LocalDateTime.now());
+        task.setRepairContent(dto.getRepairContent());
+        task.setPartsUsed(dto.getPartsUsed());
+        task.setRepairCost(dto.getRepairCost());
+        task.setRemark(dto.getRemark());
+        repairTaskService.updateById(task);
+        return Result.success();
+    }
+
+    @PostMapping("/acceptance/{id}")
+    @OperationLog(module = "维修任务", type = "验收", description = "验收维修任务")
+    public Result<Void> acceptance(@PathVariable Long id, @RequestBody EquipmentRepairTask dto) {
+        EquipmentRepairTask task = repairTaskService.getById(id);
+        if (task == null) {
+            return Result.error("任务不存在");
+        }
+        task.setStatus(4);
+        task.setAcceptanceResult(dto.getAcceptanceResult());
+        task.setAcceptanceTime(LocalDateTime.now());
+        task.setAcceptanceBy(dto.getAcceptanceBy());
+        task.setRemark(dto.getRemark());
         repairTaskService.updateById(task);
         return Result.success();
     }

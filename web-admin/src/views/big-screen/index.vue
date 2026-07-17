@@ -210,7 +210,6 @@
 import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
-import { getBigScreenData } from '../../api/bigScreen'
 
 const router = useRouter()
 const loading = ref(false)
@@ -281,19 +280,9 @@ function getEqStatusText(status) {
   return '待机'
 }
 
-async function fetchData() {
-  try {
-    const res = await getBigScreenData()
-    if (res && res.data) {
-      screenData.value = res.data
-      nextTick(() => {
-        updateAllCharts()
-      })
-    }
-  } catch (e) {
-    console.log('大屏接口异常，使用默认演示数据')
-    useDefaultData()
-  }
+function fetchData() {
+  // 大屏使用演示数据，不请求后端接口
+  useDefaultData()
 }
 
 function useDefaultData() {
@@ -552,7 +541,6 @@ onMounted(() => {
     fetchData()
   })
 
-  refreshTimer = setInterval(fetchData, 5000)
   window.addEventListener('resize', handleResize)
 })
 

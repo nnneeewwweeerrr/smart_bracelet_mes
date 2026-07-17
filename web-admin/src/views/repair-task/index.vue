@@ -1,38 +1,68 @@
 <template>
-  <div class="page-container">
-    <el-row :gutter="20" class="stat-row">
-      <el-col :span="5" v-for="item in statCards" :key="item.title">
-        <el-card class="stat-card" shadow="hover" @click="handleStatClick(item)">
-          <div class="stat-content">
-            <div class="stat-icon" :style="{ backgroundColor: item.color }">
-              <el-icon :size="24"><component :is="item.icon" /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ item.value }}</div>
-              <div class="stat-label">{{ item.title }}</div>
-            </div>
-          </div>
+  <div class="repair-task-container">
+    <div class="page-header">
+      <h2>维修任务管理</h2>
+      <el-button type="primary" @click="handleAdd">新增维修任务</el-button>
+    </div>
+
+    <!-- 统计卡片 -->
+    <el-row :gutter="16" class="stats-row">
+      <el-col :span="4">
+        <el-card class="stat-card" :body-style="{ padding: '12px' }">
+          <div class="stat-label">全部</div>
+          <div class="stat-value">{{ statistics.total || 0 }}</div>
+        </el-card>
+      </el-col>
+      <el-col :span="4">
+        <el-card class="stat-card stat-pending" :body-style="{ padding: '12px' }">
+          <div class="stat-label">待派工</div>
+          <div class="stat-value">{{ statistics.pending || 0 }}</div>
+        </el-card>
+      </el-col>
+      <el-col :span="4">
+        <el-card class="stat-card stat-assigned" :body-style="{ padding: '12px' }">
+          <div class="stat-label">已派工</div>
+          <div class="stat-value">{{ statistics.assigned || 0 }}</div>
+        </el-card>
+      </el-col>
+      <el-col :span="4">
+        <el-card class="stat-card stat-repairing" :body-style="{ padding: '12px' }">
+          <div class="stat-label">维修中</div>
+          <div class="stat-value">{{ statistics.repairing || 0 }}</div>
+        </el-card>
+      </el-col>
+      <el-col :span="4">
+        <el-card class="stat-card stat-completed" :body-style="{ padding: '12px' }">
+          <div class="stat-label">已完成</div>
+          <div class="stat-value">{{ statistics.completed || 0 }}</div>
+        </el-card>
+      </el-col>
+      <el-col :span="4">
+        <el-card class="stat-card stat-accepted" :body-style="{ padding: '12px' }">
+          <div class="stat-label">已验收</div>
+          <div class="stat-value">{{ statistics.accepted || 0 }}</div>
         </el-card>
       </el-col>
     </el-row>
 
-    <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" :inline="true">
+    <!-- 搜索栏 -->
+    <el-card class="search-card">
+      <el-form :inline="true" :model="searchForm">
         <el-form-item label="任务编号">
-          <el-input v-model="searchForm.taskNo" placeholder="请输入任务编号" clearable style="width: 180px" />
+          <el-input v-model="searchForm.taskNo" placeholder="请输入任务编号" clearable />
         </el-form-item>
-        <el-form-item label="设备编号">
-          <el-input v-model="searchForm.equipmentNo" placeholder="请输入设备编号" clearable style="width: 150px" />
+        <el-form-item label="设备名称">
+          <el-input v-model="searchForm.equipmentName" placeholder="请输入设备名称" clearable />
         </el-form-item>
-        <el-form-item label="优先级">
-          <el-select v-model="searchForm.priority" placeholder="请选择" clearable style="width: 120px">
-            <el-option label="紧急" value="major" />
-            <el-option label="一般" value="minor" />
-            <el-option label="轻微" value="warning" />
+        <el-form-item label="故障类型">
+          <el-select v-model="searchForm.faultType" placeholder="请选择" clearable>
+            <el-option label="机械故障" value="机械故障" />
+            <el-option label="电气故障" value="电气故障" />
+            <el-option label="软件故障" value="软件故障" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择" clearable style="width: 130px">
+          <el-select v-model="searchForm.status" placeholder="请选择" clearable>
             <el-option label="待派工" :value="0" />
             <el-option label="已派工" :value="1" />
             <el-option label="维修中" :value="2" />
@@ -41,245 +71,221 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="loadData">查询</el-button>
+          <el-button @click="resetSearch">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
-    <el-card class="table-card" shadow="never">
-      <div class="table-header">
-        <span class="table-title">维修任务列表</span>
-        <el-button type="primary" @click="handleAdd">
-          <el-icon><Plus /></el-icon>
-          新增任务
-        </el-button>
-      </div>
-
-      <el-table v-loading="loading" :data="tableData" border stripe style="width: 100%">
-        <el-table-column type="index" label="序号" width="60" align="center" />
-        <el-table-column prop="taskNo" label="任务编号" width="170" />
-        <el-table-column prop="equipmentNo" label="设备编号" width="110" />
-        <el-table-column prop="equipmentName" label="设备名称" min-width="140" />
-        <el-table-column prop="priority" label="优先级" width="80" align="center">
+    <!-- 数据表格 -->
+    <el-card>
+      <el-table :data="tableData" v-loading="loading" border>
+        <el-table-column prop="taskNo" label="任务编号" width="130" />
+        <el-table-column prop="equipmentName" label="设备名称" width="140" />
+        <el-table-column prop="faultType" label="故障类型" width="100" />
+        <el-table-column prop="faultLevel" label="故障等级" width="90" />
+        <el-table-column prop="faultDesc" label="故障描述" min-width="180" show-overflow-tooltip />
+        <el-table-column prop="reporter" label="报修人" width="90" />
+        <el-table-column prop="assignee" label="维修人" width="90" />
+        <el-table-column prop="priority" label="优先级" width="80">
           <template #default="{ row }">
-            <el-tag :type="getPriorityTag(row.priority)" size="small">
-              {{ getPriorityText(row.priority) }}
-            </el-tag>
+            <el-tag v-if="row.priority === 1" type="danger">紧急</el-tag>
+            <el-tag v-else-if="row.priority === 2" type="warning">高</el-tag>
+            <el-tag v-else type="info">普通</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="faultDescription" label="故障描述" min-width="180" show-overflow-tooltip />
-        <el-table-column prop="assignee" label="维修人" width="100" />
-        <el-table-column prop="assignTime" label="派工时间" width="160" />
-        <el-table-column prop="status" label="状态" width="100" align="center">
+        <el-table-column prop="status" label="状态" width="90">
           <template #default="{ row }">
-            <el-tag :type="getStatusTag(row.status)" size="small">
-              {{ getStatusText(row.status) }}
-            </el-tag>
+            <el-tag v-if="row.status === 0">待派工</el-tag>
+            <el-tag v-else-if="row.status === 1" type="warning">已派工</el-tag>
+            <el-tag v-else-if="row.status === 2" type="primary">维修中</el-tag>
+            <el-tag v-else-if="row.status === 3" type="success">已完成</el-tag>
+            <el-tag v-else type="info">已验收</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="300" fixed="right" align="center">
+        <el-table-column prop="reportTime" label="报修时间" width="160" />
+        <el-table-column label="操作" width="280" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="handleView(row)">详情</el-button>
-            <el-button v-if="row.status === 0" type="warning" link @click="handleAssign(row)">派工</el-button>
-            <el-button v-if="row.status === 1" type="success" link @click="handleAccept(row)">接单</el-button>
-            <el-button v-if="row.status === 2" type="primary" link @click="handleComplete(row)">完成维修</el-button>
-            <el-button v-if="row.status === 3" type="success" link @click="handleAcceptance(row)">验收</el-button>
-            <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+            <el-button v-if="row.status === 0" type="primary" size="small" @click="handleAssign(row)">派工</el-button>
+            <el-button v-if="row.status === 1" type="primary" size="small" @click="handleAccept(row)">接单</el-button>
+            <el-button v-if="row.status === 2" type="success" size="small" @click="handleComplete(row)">完成</el-button>
+            <el-button v-if="row.status === 3" type="success" size="small" @click="handleAcceptance(row)">验收</el-button>
+            <el-button size="small" @click="handleEdit(row)">编辑</el-button>
+            <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-
-      <div class="pagination-wrapper">
-        <el-pagination
-          v-model:current-page="currentPage"
-          v-model:page-size="pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="total"
-          layout="total, sizes, prev, pager, next, jumper"
-          background
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
+      <el-pagination
+        v-model:current-page="pageNum"
+        v-model:page-size="pageSize"
+        :total="total"
+        :page-sizes="[10, 20, 50]"
+        layout="total, sizes, prev, pager, next"
+        class="pagination"
+        @size-change="loadData"
+        @current-change="loadData"
+      />
     </el-card>
 
-    <el-dialog v-model="detailVisible" title="维修任务详情" width="750px">
-      <el-descriptions :column="2" border>
-        <el-descriptions-item label="任务编号">{{ currentDetail.taskNo }}</el-descriptions-item>
-        <el-descriptions-item label="状态">
-          <el-tag :type="getStatusTag(currentDetail.status)">
-            {{ getStatusText(currentDetail.status) }}
-          </el-tag>
-        </el-descriptions-item>
-        <el-descriptions-item label="设备编号">{{ currentDetail.equipmentNo }}</el-descriptions-item>
-        <el-descriptions-item label="设备名称">{{ currentDetail.equipmentName }}</el-descriptions-item>
-        <el-descriptions-item label="优先级">
-          <el-tag :type="getPriorityTag(currentDetail.priority)">
-            {{ getPriorityText(currentDetail.priority) }}
-          </el-tag>
-        </el-descriptions-item>
-        <el-descriptions-item label="维修费用">{{ currentDetail.repairCost }} 元</el-descriptions-item>
-        <el-descriptions-item label="报修人">{{ currentDetail.reporter }}</el-descriptions-item>
-        <el-descriptions-item label="报修时间">{{ currentDetail.reportTime }}</el-descriptions-item>
-        <el-descriptions-item label="维修人">{{ currentDetail.assignee }}</el-descriptions-item>
-        <el-descriptions-item label="派工时间">{{ currentDetail.assignTime }}</el-descriptions-item>
-        <el-descriptions-item label="接单时间">{{ currentDetail.acceptTime || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="开始时间">{{ currentDetail.startTime || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="完成时间">{{ currentDetail.completeTime || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="验收结果">
-          <el-tag v-if="currentDetail.acceptanceResult === 'pass'" type="success">通过</el-tag>
-          <el-tag v-else-if="currentDetail.acceptanceResult === 'fail'" type="danger">不通过</el-tag>
-          <span v-else>-</span>
-        </el-descriptions-item>
-        <el-descriptions-item label="故障描述" :span="2">{{ currentDetail.faultDescription }}</el-descriptions-item>
-        <el-descriptions-item label="维修内容" :span="2" v-if="currentDetail.repairContent">
-          {{ currentDetail.repairContent }}
-        </el-descriptions-item>
-        <el-descriptions-item label="使用配件" :span="2" v-if="currentDetail.partsUsed">
-          {{ currentDetail.partsUsed }}
-        </el-descriptions-item>
-        <el-descriptions-item label="备注" :span="2">{{ currentDetail.remark || '无' }}</el-descriptions-item>
-      </el-descriptions>
-      <template #footer>
-        <el-button type="primary" @click="detailVisible = false">关闭</el-button>
-      </template>
-    </el-dialog>
-
-    <el-dialog v-model="assignVisible" title="派工" width="500px" :close-on-click-modal="false">
-      <el-form ref="assignFormRef" :model="assignForm" :rules="assignRules" label-width="100px">
-        <el-form-item label="故障ID" v-if="assignForm.faultId">
-          <span>{{ assignForm.faultId }}</span>
+    <!-- 新增/编辑弹窗 -->
+    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px">
+      <el-form :model="form" label-width="100px">
+        <el-form-item label="任务编号">
+          <el-input v-model="form.taskNo" placeholder="系统自动生成" disabled />
         </el-form-item>
-        <el-form-item label="设备" prop="equipmentId">
-          <el-select v-model="assignForm.equipmentId" placeholder="请选择设备" style="width: 100%" filterable>
-            <el-option
-              v-for="item in equipmentList"
-              :key="item.id"
-              :label="`${item.equipmentNo} - ${item.equipmentName}`"
-              :value="item.id"
-            />
+        <el-form-item label="设备编号">
+          <el-input v-model="form.equipmentNo" placeholder="请输入设备编号" />
+        </el-form-item>
+        <el-form-item label="设备名称">
+          <el-input v-model="form.equipmentName" placeholder="请输入设备名称" />
+        </el-form-item>
+        <el-form-item label="故障类型">
+          <el-select v-model="form.faultType" placeholder="请选择">
+            <el-option label="机械故障" value="机械故障" />
+            <el-option label="电气故障" value="电气故障" />
+            <el-option label="软件故障" value="软件故障" />
           </el-select>
         </el-form-item>
-        <el-form-item label="故障描述" prop="faultDescription">
-          <el-input v-model="assignForm.faultDescription" type="textarea" :rows="2" placeholder="请输入故障描述" />
-        </el-form-item>
-        <el-form-item label="优先级" prop="priority">
-          <el-select v-model="assignForm.priority" placeholder="请选择" style="width: 100%">
-            <el-option label="紧急" value="major" />
-            <el-option label="一般" value="minor" />
-            <el-option label="轻微" value="warning" />
+        <el-form-item label="故障等级">
+          <el-select v-model="form.faultLevel" placeholder="请选择">
+            <el-option label="一般" value="一般" />
+            <el-option label="严重" value="严重" />
+            <el-option label="紧急" value="紧急" />
           </el-select>
         </el-form-item>
-        <el-form-item label="维修人员" prop="repairerId">
-          <el-select v-model="assignForm.repairerId" placeholder="请选择维修人员" style="width: 100%">
-            <el-option label="张维修" :value="10" />
-            <el-option label="李维修" :value="11" />
+        <el-form-item label="故障描述">
+          <el-input v-model="form.faultDesc" type="textarea" rows="2" placeholder="请输入故障描述" />
+        </el-form-item>
+        <el-form-item label="详细描述">
+          <el-input v-model="form.faultDescription" type="textarea" rows="2" placeholder="请输入详细描述" />
+        </el-form-item>
+        <el-form-item label="报修人">
+          <el-input v-model="form.reporter" placeholder="请输入报修人" />
+        </el-form-item>
+        <el-form-item label="优先级">
+          <el-select v-model="form.priority" placeholder="请选择">
+            <el-option label="紧急" :value="1" />
+            <el-option label="高" :value="2" />
+            <el-option label="普通" :value="3" />
           </el-select>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input v-model="assignForm.remark" type="textarea" :rows="2" placeholder="请输入备注" />
+          <el-input v-model="form.remark" type="textarea" rows="2" placeholder="请输入备注" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit">确定</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 派工弹窗 -->
+    <el-dialog v-model="assignVisible" title="派工" width="400px">
+      <el-form :model="assignForm" label-width="80px">
+        <el-form-item label="维修人">
+          <el-input v-model="assignForm.assignee" placeholder="请输入维修人姓名" />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="assignVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitLoading" @click="handleAssignSubmit">确定派工</el-button>
+        <el-button type="primary" @click="submitAssign">确定</el-button>
       </template>
     </el-dialog>
 
-    <el-dialog v-model="completeVisible" title="完成维修" width="550px" :close-on-click-modal="false">
-      <el-form ref="completeFormRef" :model="completeForm" :rules="completeRules" label-width="100px">
-        <el-form-item label="维修内容" prop="repairContent">
-          <el-input v-model="completeForm.repairContent" type="textarea" :rows="4" placeholder="请详细描述维修内容" />
+    <!-- 完成弹窗 -->
+    <el-dialog v-model="completeVisible" title="完成维修" width="500px">
+      <el-form :model="completeForm" label-width="100px">
+        <el-form-item label="维修内容">
+          <el-input v-model="completeForm.repairContent" type="textarea" rows="3" placeholder="请输入维修内容" />
         </el-form-item>
         <el-form-item label="使用配件">
-          <el-input v-model="completeForm.partsUsed" placeholder="请输入使用的配件，多个用逗号分隔" />
+          <el-input v-model="completeForm.partsUsed" placeholder="请输入使用配件" />
         </el-form-item>
-        <el-form-item label="维修费用(元)" prop="repairCost">
-          <el-input-number v-model="completeForm.repairCost" :min="0" :precision="2" :step="100" style="width: 100%" />
+        <el-form-item label="维修费用">
+          <el-input-number v-model="completeForm.repairCost" :min="0" :precision="2" />
         </el-form-item>
         <el-form-item label="备注">
-          <el-input v-model="completeForm.remark" type="textarea" :rows="2" placeholder="请输入备注" />
+          <el-input v-model="completeForm.remark" type="textarea" rows="2" placeholder="请输入备注" />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="completeVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitLoading" @click="handleCompleteSubmit">提交完成</el-button>
+        <el-button type="primary" @click="submitComplete">确定</el-button>
       </template>
     </el-dialog>
 
-    <el-dialog v-model="acceptanceVisible" title="验收维修任务" width="500px" :close-on-click-modal="false">
-      <el-form ref="acceptanceFormRef" :model="acceptanceForm" :rules="acceptanceRules" label-width="100px">
-        <el-form-item label="验收结果" prop="acceptanceResult">
-          <el-radio-group v-model="acceptanceForm.acceptanceResult">
-            <el-radio value="pass">通过</el-radio>
-            <el-radio value="fail">不通过</el-radio>
-          </el-radio-group>
+    <!-- 验收弹窗 -->
+    <el-dialog v-model="acceptanceVisible" title="验收" width="400px">
+      <el-form :model="acceptanceForm" label-width="100px">
+        <el-form-item label="验收结果">
+          <el-select v-model="acceptanceForm.acceptanceResult" placeholder="请选择">
+            <el-option label="合格" value="合格" />
+            <el-option label="不合格" value="不合格" />
+          </el-select>
         </el-form-item>
-        <el-form-item label="验收人" prop="acceptanceBy">
-          <el-input v-model="acceptanceForm.acceptanceBy" placeholder="请输入验收人姓名" />
+        <el-form-item label="验收人">
+          <el-input v-model="acceptanceForm.acceptanceBy" placeholder="请输入验收人" />
         </el-form-item>
-        <el-form-item label="验收意见">
-          <el-input v-model="acceptanceForm.remark" type="textarea" :rows="3" placeholder="请输入验收意见" />
+        <el-form-item label="备注">
+          <el-input v-model="acceptanceForm.remark" type="textarea" rows="2" placeholder="请输入备注" />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="acceptanceVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitLoading" @click="handleAcceptanceSubmit">确认验收</el-button>
+        <el-button type="primary" @click="submitAcceptance">确定</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { demoEquipment, demoRepairTask } from '@/api/demo'
-import wsClient from '@/utils/websocket'
+import * as repairTask from '@/api/repairTask'
 
 const loading = ref(false)
-const submitLoading = ref(false)
-const currentPage = ref(1)
-const pageSize = ref(10)
-const total = ref(0)
-
-const detailVisible = ref(false)
-const assignVisible = ref(false)
-const completeVisible = ref(false)
-const acceptanceVisible = ref(false)
-
-const assignFormRef = ref(null)
-const completeFormRef = ref(null)
-const acceptanceFormRef = ref(null)
-
 const tableData = ref([])
-const equipmentList = ref([])
-const currentDetail = ref({})
-
-const statCards = ref([
-  { title: '待派工', value: 0, icon: 'Warning', color: '#f56c6c', status: 0 },
-  { title: '已派工', value: 0, icon: 'Clock', color: '#e6a23c', status: 1 },
-  { title: '维修中', value: 0, icon: 'Tools', color: '#409eff', status: 2 },
-  { title: '已完成', value: 0, icon: 'CircleCheck', color: '#67c23a', status: 3 },
-  { title: '已验收', value: 0, icon: 'SuccessFilled', color: '#909399', status: 4 }
-])
+const total = ref(0)
+const pageNum = ref(1)
+const pageSize = ref(10)
+const statistics = reactive({
+  total: 0,
+  pending: 0,
+  assigned: 0,
+  repairing: 0,
+  completed: 0,
+  accepted: 0
+})
 
 const searchForm = reactive({
   taskNo: '',
-  equipmentNo: '',
-  priority: '',
-  status: null
+  equipmentName: '',
+  faultType: '',
+  status: null,
+  priority: null
 })
 
-const assignForm = reactive({
-  faultId: null,
-  equipmentId: null,
+const dialogVisible = ref(false)
+const dialogTitle = ref('')
+const form = reactive({
+  id: null,
+  taskNo: '',
+  equipmentNo: '',
+  equipmentName: '',
+  faultType: '',
+  faultLevel: '',
+  faultDesc: '',
   faultDescription: '',
-  priority: 'minor',
-  repairerId: null,
+  reporter: '',
+  priority: 2,
+  status: 0,
   remark: ''
 })
 
+const assignVisible = ref(false)
+const assignForm = reactive({ id: null, assignee: '' })
+
+const completeVisible = ref(false)
 const completeForm = reactive({
   id: null,
   repairContent: '',
@@ -288,206 +294,134 @@ const completeForm = reactive({
   remark: ''
 })
 
+const acceptanceVisible = ref(false)
 const acceptanceForm = reactive({
   id: null,
-  acceptanceResult: 'pass',
+  acceptanceResult: '',
   acceptanceBy: '',
   remark: ''
 })
 
-const assignRules = {
-  equipmentId: [{ required: true, message: '请选择设备', trigger: 'change' }],
-  faultDescription: [{ required: true, message: '请输入故障描述', trigger: 'blur' }],
-  priority: [{ required: true, message: '请选择优先级', trigger: 'change' }],
-  repairerId: [{ required: true, message: '请选择维修人员', trigger: 'change' }]
+function resetForm() {
+  Object.assign(form, {
+    id: null,
+    taskNo: '',
+    equipmentNo: '',
+    equipmentName: '',
+    faultType: '',
+    faultLevel: '',
+    faultDesc: '',
+    faultDescription: '',
+    reporter: '',
+    priority: 2,
+    status: 0,
+    remark: ''
+  })
 }
 
-const completeRules = {
-  repairContent: [{ required: true, message: '请输入维修内容', trigger: 'blur' }],
-  repairCost: [{ required: true, message: '请输入维修费用', trigger: 'blur' }]
-}
-
-const acceptanceRules = {
-  acceptanceResult: [{ required: true, message: '请选择验收结果', trigger: 'change' }],
-  acceptanceBy: [{ required: true, message: '请输入验收人', trigger: 'blur' }]
-}
-
-function getPriorityTag(priority) {
-  const map = { major: 'danger', minor: 'warning', warning: 'info' }
-  return map[priority] || 'info'
-}
-
-function getPriorityText(priority) {
-  const map = { major: '紧急', minor: '一般', warning: '轻微' }
-  return map[priority] || priority
-}
-
-function getStatusTag(status) {
-  const map = { 0: 'danger', 1: 'warning', 2: 'primary', 3: 'success', 4: 'info' }
-  return map[status] || 'info'
-}
-
-function getStatusText(status) {
-  const map = { 0: '待派工', 1: '已派工', 2: '维修中', 3: '已完成', 4: '已验收' }
-  return map[status] || '未知'
-}
-
-async function fetchStats() {
+async function loadStatistics() {
   try {
-    const res = await demoRepairTask.getStatistics()
-    if (res.code === 200 && res.data) {
-      statCards.value[0].value = res.data.pending || 0
-      statCards.value[1].value = res.data.assigned || 0
-      statCards.value[2].value = res.data.repairing || 0
-      statCards.value[3].value = res.data.completed || 0
-      statCards.value[4].value = res.data.accepted || 0
+    const res = await repairTask.getStatistics()
+    if (res && res.data) {
+      Object.assign(statistics, res.data)
     }
   } catch (e) {
-    console.error('获取统计失败:', e)
+    console.error('统计加载失败', e)
   }
 }
 
-async function fetchData() {
+async function loadData() {
   loading.value = true
   try {
     const params = {
-      pageNum: currentPage.value,
-      pageSize: pageSize.value,
-      taskNo: searchForm.taskNo || undefined,
-      priority: searchForm.priority || undefined,
-      status: searchForm.status !== null ? searchForm.status : undefined
+      pageNum: pageNum.value,
+      pageSize: pageSize.value
     }
-    const res = await demoRepairTask.getList(params)
-    if (res.code === 200) {
-      tableData.value = res.data.records || res.data.list || []
+    if (searchForm.taskNo) params.taskNo = searchForm.taskNo
+    if (searchForm.equipmentName) params.equipmentName = searchForm.equipmentName
+    if (searchForm.faultType) params.faultType = searchForm.faultType
+    if (searchForm.status !== null && searchForm.status !== '') params.status = searchForm.status
+    if (searchForm.priority !== null && searchForm.priority !== '') params.priority = searchForm.priority
+
+    const res = await repairTask.getList(params)
+    if (res && res.data) {
+      tableData.value = res.data.records || []
       total.value = res.data.total || 0
     }
   } catch (e) {
-    ElMessage.error('加载数据失败')
+    console.error('数据加载失败', e)
   } finally {
     loading.value = false
   }
 }
 
-async function fetchEquipment() {
-  try {
-    const res = await demoEquipment.getAll()
-    if (res.code === 200) {
-      equipmentList.value = res.data || []
-    }
-  } catch (e) {
-    console.error('加载设备列表失败:', e)
-  }
-}
-
-function handleSearch() {
-  currentPage.value = 1
-  fetchData()
-}
-
-function handleReset() {
+function resetSearch() {
   searchForm.taskNo = ''
-  searchForm.equipmentNo = ''
-  searchForm.priority = ''
+  searchForm.equipmentName = ''
+  searchForm.faultType = ''
   searchForm.status = null
-  currentPage.value = 1
-  fetchData()
-}
-
-function handleSizeChange(size) {
-  pageSize.value = size
-  currentPage.value = 1
-  fetchData()
-}
-
-function handleCurrentChange(page) {
-  currentPage.value = page
-  fetchData()
-}
-
-function handleStatClick(item) {
-  searchForm.status = item.status !== undefined ? item.status : null
-  currentPage.value = 1
-  fetchData()
-}
-
-async function handleView(row) {
-  try {
-    const res = await demoRepairTask.getById(row.id)
-    if (res.code === 200) {
-      currentDetail.value = res.data || {}
-      detailVisible.value = true
-    }
-  } catch (e) {
-    ElMessage.error('获取详情失败')
-  }
+  searchForm.priority = null
+  pageNum.value = 1
+  loadData()
 }
 
 function handleAdd() {
-  assignForm.faultId = null
-  assignForm.equipmentId = null
-  assignForm.faultDescription = ''
-  assignForm.priority = 'minor'
-  assignForm.repairerId = null
-  assignForm.remark = ''
-  assignVisible.value = true
+  resetForm()
+  dialogTitle.value = '新增维修任务'
+  dialogVisible.value = true
+}
+
+function handleEdit(row) {
+  resetForm()
+  dialogTitle.value = '编辑维修任务'
+  Object.assign(form, row)
+  dialogVisible.value = true
+}
+
+async function handleSubmit() {
+  try {
+    if (form.id) {
+      await repairTask.update(form)
+      ElMessage.success('修改成功')
+    } else {
+      await repairTask.save(form)
+      ElMessage.success('新增成功')
+    }
+    dialogVisible.value = false
+    loadData()
+    loadStatistics()
+  } catch (e) {
+    ElMessage.error('操作失败')
+  }
 }
 
 function handleAssign(row) {
-  assignForm.faultId = row.faultId || null
-  assignForm.equipmentId = row.equipmentId
-  assignForm.faultDescription = row.faultDescription || row.faultDesc || ''
-  assignForm.priority = row.priority || 'minor'
-  assignForm.repairerId = row.repairerId || null
-  assignForm.remark = ''
+  assignForm.id = row.id
+  assignForm.assignee = ''
   assignVisible.value = true
 }
 
-async function handleAssignSubmit() {
-  if (!assignFormRef.value) return
+async function submitAssign() {
   try {
-    await assignFormRef.value.validate()
-    submitLoading.value = true
-    const res = await demoRepairTask.save({
-      faultId: assignForm.faultId,
-      equipmentId: assignForm.equipmentId,
-      faultDescription: assignForm.faultDescription,
-      priority: assignForm.priority,
-      assignee: assignForm.repairerId === 10 ? '张维修' : '李维修',
-      remark: assignForm.remark
-    })
-    if (res.code === 200) {
-      ElMessage.success('派工成功')
-      assignVisible.value = false
-      fetchData()
-      fetchStats()
-    } else {
-      ElMessage.error(res.message || '派工失败')
-    }
+    await repairTask.assign({ id: assignForm.id, assignee: assignForm.assignee })
+    ElMessage.success('派工成功')
+    assignVisible.value = false
+    loadData()
+    loadStatistics()
   } catch (e) {
-    if (e !== false) {
-      ElMessage.error('派工失败')
-    }
-  } finally {
-    submitLoading.value = false
+    ElMessage.error('派工失败')
   }
 }
 
 async function handleAccept(row) {
   try {
-    await ElMessageBox.confirm('确定要接单吗？', '确认接单', { type: 'info' })
-    const res = await demoRepairTask.accept(row.id)
-    if (res.code === 200) {
-      ElMessage.success('接单成功')
-      fetchData()
-      fetchStats()
-    } else {
-      ElMessage.error(res.message || '接单失败')
-    }
+    await ElMessageBox.confirm('确认接单？', '提示', { type: 'warning' })
+    await repairTask.accept(row.id)
+    ElMessage.success('接单成功')
+    loadData()
+    loadStatistics()
   } catch (e) {
-    if (e !== 'cancel') {
-      ElMessage.error('接单失败')
-    }
+    if (e !== 'cancel') ElMessage.error('接单失败')
   }
 }
 
@@ -500,143 +434,106 @@ function handleComplete(row) {
   completeVisible.value = true
 }
 
-async function handleCompleteSubmit() {
-  if (!completeFormRef.value) return
+async function submitComplete() {
   try {
-    await completeFormRef.value.validate()
-    submitLoading.value = true
-    const res = await demoRepairTask.complete(completeForm.id, {
+    await repairTask.complete(completeForm.id, {
       repairContent: completeForm.repairContent,
       partsUsed: completeForm.partsUsed,
       repairCost: completeForm.repairCost,
       remark: completeForm.remark
     })
-    if (res.code === 200) {
-      ElMessage.success('提交成功')
-      completeVisible.value = false
-      fetchData()
-      fetchStats()
-    } else {
-      ElMessage.error(res.message || '提交失败')
-    }
+    ElMessage.success('完成维修')
+    completeVisible.value = false
+    loadData()
+    loadStatistics()
   } catch (e) {
-    if (e !== false) {
-      ElMessage.error('提交失败')
-    }
-  } finally {
-    submitLoading.value = false
+    ElMessage.error('操作失败')
   }
 }
 
 function handleAcceptance(row) {
   acceptanceForm.id = row.id
-  acceptanceForm.acceptanceResult = 'pass'
+  acceptanceForm.acceptanceResult = ''
   acceptanceForm.acceptanceBy = ''
   acceptanceForm.remark = ''
   acceptanceVisible.value = true
 }
 
-async function handleAcceptanceSubmit() {
-  if (!acceptanceFormRef.value) return
+async function submitAcceptance() {
   try {
-    await acceptanceFormRef.value.validate()
-    submitLoading.value = true
-    const res = await demoRepairTask.acceptance(acceptanceForm.id, {
+    await repairTask.acceptance(acceptanceForm.id, {
       acceptanceResult: acceptanceForm.acceptanceResult,
       acceptanceBy: acceptanceForm.acceptanceBy,
       remark: acceptanceForm.remark
     })
-    if (res.code === 200) {
-      ElMessage.success('验收完成')
-      acceptanceVisible.value = false
-      fetchData()
-      fetchStats()
-    } else {
-      ElMessage.error(res.message || '验收失败')
-    }
+    ElMessage.success('验收成功')
+    acceptanceVisible.value = false
+    loadData()
+    loadStatistics()
   } catch (e) {
-    if (e !== false) {
-      ElMessage.error('验收失败')
-    }
-  } finally {
-    submitLoading.value = false
+    ElMessage.error('验收失败')
   }
 }
 
 async function handleDelete(row) {
   try {
-    await ElMessageBox.confirm(`确定要删除任务「${row.taskNo}」吗？`, '提示', { type: 'warning' })
-    const res = await demoRepairTask.remove(row.id)
-    if (res.code === 200) {
-      ElMessage.success('删除成功')
-      fetchData()
-      fetchStats()
-    } else {
-      ElMessage.error(res.message || '删除失败')
-    }
+    await ElMessageBox.confirm('确认删除该维修任务？', '提示', { type: 'warning' })
+    await repairTask.remove(row.id)
+    ElMessage.success('删除成功')
+    loadData()
+    loadStatistics()
   } catch (e) {
-    if (e !== 'cancel') {
-      ElMessage.error('删除失败')
-    }
+    if (e !== 'cancel') ElMessage.error('删除失败')
   }
 }
 
-function handleNewRepair(payload) {
-  ElMessage.warning(`新维修报工：${payload.equipmentName} - ${payload.faultDesc}`)
-  fetchData()
-  fetchStats()
-}
-
-function handleRepairUpdate(payload) {
-  ElMessage.info(`维修状态更新：${payload.taskNo} - ${payload.statusText}`)
-  fetchData()
-  fetchStats()
-}
-
-function handleMaintainCreated(payload) {
-  ElMessage.success(`维保记录生成：${payload.equipmentName} - ${payload.maintainNo}`)
-  fetchData()
-  fetchStats()
-}
-
 onMounted(() => {
-  fetchEquipment()
-  fetchStats()
-  fetchData()
-  wsClient.on('NEW_REPAIR', handleNewRepair)
-  wsClient.on('REPAIR_UPDATE', handleRepairUpdate)
-  wsClient.on('MAINTAIN_CREATED', handleMaintainCreated)
-})
-
-onUnmounted(() => {
-  wsClient.off('NEW_REPAIR', handleNewRepair)
-  wsClient.off('REPAIR_UPDATE', handleRepairUpdate)
-  wsClient.off('MAINTAIN_CREATED', handleMaintainCreated)
+  loadData()
+  loadStatistics()
 })
 </script>
 
 <style scoped>
-.page-container { width: 100%; }
-.stat-row { margin-bottom: 20px; }
-.stat-card { border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-.stat-content { display: flex; align-items: center; gap: 14px; }
-.stat-icon {
-  width: 52px; height: 52px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; flex-shrink: 0;
+.repair-task-container {
+  padding: 20px;
 }
-.stat-info { flex: 1; }
-.stat-value { font-size: 26px; font-weight: bold; color: #303133; line-height: 1.2; }
-.stat-label { font-size: 14px; color: #909399; margin-top: 4px; }
-.search-card { margin-bottom: 20px; }
-.table-card { margin-bottom: 20px; }
-.table-header {
-  display: flex; align-items: center; justify-content: space-between;
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
-.table-title { font-size: 16px; font-weight: bold; color: #303133; }
-.pagination-wrapper {
-  margin-top: 20px; display: flex; justify-content: flex-end;
+.page-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.stats-row {
+  margin-bottom: 20px;
+}
+.stat-card {
+  text-align: center;
+  border-radius: 8px;
+}
+.stat-label {
+  font-size: 13px;
+  color: #909399;
+  margin-bottom: 6px;
+}
+.stat-value {
+  font-size: 22px;
+  font-weight: 600;
+  color: #303133;
+}
+.stat-pending .stat-value { color: #f56c6c; }
+.stat-assigned .stat-value { color: #e6a23c; }
+.stat-repairing .stat-value { color: #409eff; }
+.stat-completed .stat-value { color: #67c23a; }
+.stat-accepted .stat-value { color: #909399; }
+.search-card {
+  margin-bottom: 20px;
+}
+.pagination {
+  margin-top: 16px;
+  justify-content: flex-end;
 }
 </style>
