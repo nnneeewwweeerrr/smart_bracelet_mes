@@ -1,6 +1,6 @@
 import { getToken, getUser, logout } from './auth'
 
-const BASE_URL = 'http://47.105.66.12/api'
+const BASE_URL = 'http://localhost:8080/api'
 
 function request(options) {
   return new Promise((resolve, reject) => {
