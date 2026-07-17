@@ -164,9 +164,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { demoStockIn } from '@/api/demo'
+import wsClient from '@/utils/websocket'
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -288,8 +289,18 @@ function handleSubmit() {
   })
 }
 
+function handleStockInPush(payload) {
+  ElMessage.success(`新入库：${payload.materialName} ${payload.quantity}件，${payload.warehouseName}`)
+  fetchData()
+}
+
 onMounted(() => {
   fetchData()
+  wsClient.on('STOCK_IN', handleStockInPush)
+})
+
+onUnmounted(() => {
+  wsClient.off('STOCK_IN', handleStockInPush)
 })
 </script>
 

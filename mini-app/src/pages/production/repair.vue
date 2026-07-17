@@ -30,42 +30,42 @@
         <view class="card-status-bar" :class="`status-${item.status}`"></view>
         <view class="card-content">
           <view class="card-header">
-            <view class="header-left">
-              <text class="repair-no">{{ item.repairNo }}</text>
-              <text class="sn-code">{{ item.snCode }}</text>
-            </view>
-            <view class="status-badge" :class="`badge-${item.statusTag}`">
-              <view class="status-dot"></view>
-              <text class="status-text">{{ item.statusText }}</text>
-            </view>
-          </view>
-          
-          <view class="card-body">
-            <view class="defect-row">
-              <view class="defect-tag">
-                <text class="tag-icon">⚠️</text>
-                <text class="tag-text">{{ item.defectType }}</text>
+              <view class="header-left">
+                <text class="repair-no">{{ item.taskNo }}</text>
+                <text class="sn-code">{{ item.equipmentNo }}</text>
+              </view>
+              <view class="status-badge" :class="`badge-${getStatusTag(item.status)}`">
+                <view class="status-dot"></view>
+                <text class="status-text">{{ getStatusText(item.status) }}</text>
               </view>
             </view>
-            <view class="desc-row">
-              <text class="desc-text">{{ item.defectDesc }}</text>
+            
+            <view class="card-body">
+              <view class="defect-row">
+                <view class="defect-tag">
+                  <text class="tag-icon">⚠️</text>
+                  <text class="tag-text">{{ item.faultType || item.priority || '设备故障' }}</text>
+                </view>
+              </view>
+              <view class="desc-row">
+                <text class="desc-text">{{ item.faultDesc || item.faultDescription }}</text>
+              </view>
             </view>
-          </view>
-          
-          <view class="card-footer">
-            <view class="footer-item">
-              <text class="footer-icon">👤</text>
-              <text class="footer-text">{{ item.findOperator }}</text>
+            
+            <view class="card-footer">
+              <view class="footer-item">
+                <text class="footer-icon">👤</text>
+                <text class="footer-text">{{ item.reporter }}</text>
+              </view>
+              <view class="footer-item">
+                <text class="footer-icon">📍</text>
+                <text class="footer-text">{{ item.equipmentName }}</text>
+              </view>
+              <view class="footer-item">
+                <text class="footer-icon">🕐</text>
+                <text class="footer-text">{{ item.createTime || item.reportTime }}</text>
+              </view>
             </view>
-            <view class="footer-item">
-              <text class="footer-icon">📍</text>
-              <text class="footer-text">{{ item.findProcess }}</text>
-            </view>
-            <view class="footer-item">
-              <text class="footer-icon">🕐</text>
-              <text class="footer-text">{{ item.createTime }}</text>
-            </view>
-          </view>
           
           <view class="card-action">
             <text class="action-text">查看详情</text>
@@ -94,11 +94,11 @@
         <view class="detail-header">
           <view class="header-left">
             <text class="detail-title">维修详情</text>
-            <text class="detail-no">{{ currentRepair.repairNo }}</text>
+            <text class="detail-no">{{ currentRepair.taskNo }}</text>
           </view>
-          <view class="status-badge-large" :class="`badge-${currentRepair.statusTag}`">
+          <view class="status-badge-large" :class="`badge-${getStatusTag(currentRepair.status)}`">
             <view class="status-dot"></view>
-            <text class="status-text">{{ currentRepair.statusText }}</text>
+            <text class="status-text">{{ getStatusText(currentRepair.status) }}</text>
           </view>
         </view>
 
@@ -106,48 +106,48 @@
           <view class="info-card">
             <view class="card-label">基本信息</view>
             <view class="info-row-sn">
-              <text class="info-label">产品SN码</text>
-              <text class="info-value-sn">{{ currentRepair.snCode }}</text>
+              <text class="info-label">任务编号</text>
+              <text class="info-value-sn">{{ currentRepair.taskNo }}</text>
             </view>
             <view class="info-row">
-              <text class="info-label">产品型号</text>
-              <text class="info-value">{{ currentRepair.productModel }}</text>
+              <text class="info-label">设备编号</text>
+              <text class="info-value">{{ currentRepair.equipmentNo }}</text>
             </view>
             <view class="info-row">
-              <text class="info-label">工单编号</text>
-              <text class="info-value">{{ currentRepair.workOrderNo }}</text>
+              <text class="info-label">设备名称</text>
+              <text class="info-value">{{ currentRepair.equipmentName }}</text>
             </view>
             <view class="info-row">
-              <text class="info-label">生产批次</text>
-              <text class="info-value">{{ currentRepair.batchNo }}</text>
+              <text class="info-label">优先级</text>
+              <text class="info-value">{{ getPriorityText(currentRepair.priority) }}</text>
             </view>
             <view class="info-row">
               <text class="info-label">创建时间</text>
-              <text class="info-value">{{ currentRepair.createTime }}</text>
+              <text class="info-value">{{ currentRepair.createTime || currentRepair.reportTime }}</text>
             </view>
           </view>
 
           <view class="defect-card">
             <view class="card-header-row">
-              <view class="card-label">不良信息</view>
+              <view class="card-label">故障信息</view>
               <view class="defect-type-tag">
                 <text class="tag-icon">⚠️</text>
-                <text class="tag-text">{{ currentRepair.defectType }}</text>
+                <text class="tag-text">{{ currentRepair.faultType || currentRepair.priority || '设备故障' }}</text>
               </view>
             </view>
             <view class="defect-desc-box">
-              <text class="defect-desc">{{ currentRepair.defectDesc }}</text>
+              <text class="defect-desc">{{ currentRepair.faultDesc || currentRepair.faultDescription }}</text>
             </view>
             <view class="defect-meta">
               <view class="meta-item">
                 <text class="meta-icon">📍</text>
-                <text class="meta-label">发现工序</text>
-                <text class="meta-value">{{ currentRepair.findProcess }}</text>
+                <text class="meta-label">设备位置</text>
+                <text class="meta-value">{{ currentRepair.equipmentName }}</text>
               </view>
               <view class="meta-item">
                 <text class="meta-icon">👤</text>
-                <text class="meta-label">发现人</text>
-                <text class="meta-value">{{ currentRepair.findOperator }}</text>
+                <text class="meta-label">报修人</text>
+                <text class="meta-value">{{ currentRepair.reporter }}</text>
               </view>
             </view>
           </view>
@@ -218,9 +218,14 @@
           </view>
         </scroll-view>
 
-        <view class="detail-footer" v-if="currentRepair.status === 1">
+        <view class="detail-footer" v-if="currentRepair.status === 0">
           <u-button type="primary" @click="startRepair" customStyle="flex:1; height: 80rpx; border-radius: 40rpx;">
             领取维修
+          </u-button>
+        </view>
+        <view class="detail-footer" v-if="currentRepair.status === 1">
+          <u-button type="warning" @click="handleStartRepair" customStyle="flex:1; height: 80rpx; border-radius: 40rpx;">
+            开始维修
           </u-button>
         </view>
         <view class="detail-footer" v-if="currentRepair.status === 2">
@@ -230,7 +235,7 @@
         </view>
         <view class="detail-footer" v-if="currentRepair.status === 3">
           <u-button type="warning" @click="startRecheck" customStyle="flex:1; height: 80rpx; border-radius: 40rpx;">
-            开始复测
+            开始验收
           </u-button>
         </view>
       </view>
@@ -244,39 +249,29 @@
 
         <scroll-view scroll-y class="form-scroll">
           <u-form :model="repairForm" labelPosition="left" labelWidth="180rpx">
-            <u-form-item label="产品SN码">
-              <u-input v-model="repairForm.snCode" placeholder="扫码或输入SN码" @click="scanSnCode"></u-input>
+            <u-form-item label="设备编号">
+              <u-input v-model="repairForm.equipmentNo" placeholder="输入设备编号" @click="scanSnCode"></u-input>
             </u-form-item>
-            <u-form-item label="产品型号">
-              <u-input v-model="repairForm.productModel" placeholder="输入产品型号"></u-input>
+            <u-form-item label="设备名称">
+              <u-input v-model="repairForm.equipmentName" placeholder="输入设备名称"></u-input>
             </u-form-item>
-            <u-form-item label="不良类型">
-              <u-input v-model="repairForm.defectType" placeholder="如：屏幕划痕、焊接不良"></u-input>
+            <u-form-item label="故障类型">
+              <u-input v-model="repairForm.faultType" placeholder="如：设备过热、运行异常"></u-input>
             </u-form-item>
-            <u-form-item label="不良描述">
-              <u-textarea v-model="repairForm.defectDesc" placeholder="详细描述不良现象"></u-textarea>
+            <u-form-item label="故障描述">
+              <u-textarea v-model="repairForm.faultDesc" placeholder="详细描述故障现象"></u-textarea>
             </u-form-item>
-            <u-form-item label="发现工序">
-              <u-input v-model="repairForm.findProcess" placeholder="如：功能测试"></u-input>
+            <u-form-item label="优先级">
+              <u-radio-group :value="repairForm.priority" @change="(val) => repairForm.priority = val">
+                <u-radio label="紧急" value="major"></u-radio>
+                <u-radio label="一般" value="minor"></u-radio>
+                <u-radio label="轻微" value="warning"></u-radio>
+              </u-radio-group>
             </u-form-item>
-            <u-form-item label="发现人">
-              <u-input v-model="repairForm.findOperator" placeholder="输入发现人"></u-input>
+            <u-form-item label="报修人">
+              <u-input v-model="repairForm.reporter" placeholder="输入报修人"></u-input>
             </u-form-item>
           </u-form>
-
-          <view class="photo-section">
-            <text class="photo-label">上传不良照片</text>
-            <view class="photo-upload">
-              <view class="upload-item" v-for="(photo, idx) in repairForm.defectPhotos" :key="idx">
-                <image :src="photo" mode="aspectFill" class="upload-image"></image>
-                <view class="upload-delete" @click="removePhoto(idx)">✕</view>
-              </view>
-              <view class="upload-btn" @click="choosePhoto" v-if="repairForm.defectPhotos.length < 3">
-                <text class="upload-icon">+</text>
-                <text class="upload-text">拍照</text>
-              </view>
-            </view>
-          </view>
         </scroll-view>
 
         <view class="form-footer">
@@ -295,14 +290,17 @@
 
         <scroll-view scroll-y class="form-scroll">
           <u-form :model="finishForm" labelPosition="left" labelWidth="180rpx">
-            <u-form-item label="维修措施">
-              <u-textarea v-model="finishForm.repairAction" placeholder="描述采取的维修措施"></u-textarea>
+            <u-form-item label="维修内容">
+              <u-textarea v-model="finishForm.repairContent" placeholder="描述采取的维修措施"></u-textarea>
             </u-form-item>
-            <u-form-item label="更换部件">
-              <u-input v-model="finishForm.replacedParts" placeholder="如：更换心率传感器"></u-input>
+            <u-form-item label="使用配件">
+              <u-input v-model="finishForm.partsUsed" placeholder="如：更换传感器"></u-input>
             </u-form-item>
-            <u-form-item label="维修备注">
-              <u-textarea v-model="finishForm.repairNote" placeholder="其他维修备注"></u-textarea>
+            <u-form-item label="维修费用">
+              <u-input type="number" v-model="finishForm.repairCost" placeholder="输入维修费用"></u-input>
+            </u-form-item>
+            <u-form-item label="备注">
+              <u-textarea v-model="finishForm.remark" placeholder="其他备注"></u-textarea>
             </u-form-item>
           </u-form>
         </scroll-view>
@@ -323,14 +321,17 @@
 
         <scroll-view scroll-y class="form-scroll">
           <u-form :model="recheckForm" labelPosition="left" labelWidth="180rpx">
-            <u-form-item label="复测结果">
-              <u-radio-group :value="recheckForm.recheckResult" @change="onRecheckResultChange">
-                <u-radio label="合格" value="pass"></u-radio>
-                <u-radio label="不合格" value="fail"></u-radio>
+            <u-form-item label="验收结果">
+              <u-radio-group :value="recheckForm.acceptanceResult" @change="onRecheckResultChange">
+                <u-radio label="通过" value="pass"></u-radio>
+                <u-radio label="不通过" value="fail"></u-radio>
               </u-radio-group>
             </u-form-item>
-            <u-form-item label="复测结论">
-              <u-textarea v-model="recheckForm.recheckConclusion" placeholder="描述复测结果"></u-textarea>
+            <u-form-item label="验收人">
+              <u-input v-model="recheckForm.acceptanceBy" placeholder="输入验收人"></u-input>
+            </u-form-item>
+            <u-form-item label="验收意见">
+              <u-textarea v-model="recheckForm.remark" placeholder="描述验收结果"></u-textarea>
             </u-form-item>
           </u-form>
         </scroll-view>
@@ -349,7 +350,7 @@
 <script>
 import { scanCode } from '@/utils/scan'
 import DynamicBackground from '@/components/DynamicBackground'
-import { getRepairList, getRepairDetail, createRepair, startRepair, finishRepair, recheckRepair } from '@/api/repair'
+import { getRepairList, getRepairDetail, createRepair, acceptRepair, startRepair, finishRepair, recheckRepair } from '@/api/repair'
 
 export default {
   components: {
@@ -361,10 +362,11 @@ export default {
       currentStatus: 0,
       statusList: [
         { name: '全部', value: '' },
-        { name: '待维修', value: '1' },
+        { name: '待处理', value: '0' },
+        { name: '已接单', value: '1' },
         { name: '维修中', value: '2' },
-        { name: '待复测', value: '3' },
-        { name: '已闭环', value: '4' }
+        { name: '待验收', value: '3' },
+        { name: '已验收', value: '4' }
       ],
       searched: false,
       repairList: [],
@@ -372,19 +374,21 @@ export default {
       currentRepair: {},
       repairFormVisible: false,
       repairForm: {
-        snCode: '',
-        productModel: '',
-        defectType: '',
-        defectDesc: '',
-        findProcess: '',
-        findOperator: '',
-        defectPhotos: []
+        taskNo: '',
+        equipmentNo: '',
+        equipmentName: '',
+        faultDesc: '',
+        faultType: '',
+        priority: 'minor',
+        reporter: '',
+        assignee: ''
       },
       finishFormVisible: false,
       finishForm: {
-        repairAction: '',
-        replacedParts: '',
-        repairNote: ''
+        repairContent: '',
+        partsUsed: '',
+        repairCost: 0,
+        remark: ''
       },
       recheckFormVisible: false,
       recheckForm: {
@@ -420,108 +424,30 @@ export default {
 
       uni.showLoading({ title: '搜索中...' })
       try {
-        const list = await getRepairList({ keyword: this.searchKey })
+        const res = await getRepairList({ taskNo: this.searchKey })
         uni.hideLoading()
+        const list = res.data?.records || res.data || []
         if (list.length > 0) {
           this.viewDetail(list[0])
         } else {
-          const mockItem = this.getMockRepair(this.searchKey)
-          if (mockItem) {
-            this.viewDetail(mockItem)
-          } else {
-            uni.showToast({ title: '未找到对应工单', icon: 'none' })
-          }
+          uni.showToast({ title: '未找到对应工单', icon: 'none' })
         }
       } catch {
         uni.hideLoading()
-        const mockItem = this.getMockRepair(this.searchKey)
-        if (mockItem) {
-          this.viewDetail(mockItem)
-        } else {
-          uni.showToast({ title: '搜索失败', icon: 'none' })
-        }
+        uni.showToast({ title: '搜索失败', icon: 'none' })
       }
     },
-    getMockRepair(code) {
-      const mockItems = {
-        'RP202607150001': { 
-          id: 1, 
-          repairNo: 'RP202607150001', 
-          snCode: 'SN202607150001',
-          productModel: '智能手环 X1 Pro',
-          defectType: '蓝牙连接异常',
-          defectDesc: '蓝牙无法连接手机，搜索不到设备',
-          findProcess: '功能测试',
-          findOperator: '张三',
-          createTime: '2026-07-15 10:30',
-          status: 1,
-          statusTag: 'pending',
-          statusText: '待维修',
-          repairRecords: [],
-          recheckResult: null
-        },
-        'RP202607150002': { 
-          id: 2, 
-          repairNo: 'RP202607150002', 
-          snCode: 'SN202607150002',
-          productModel: '智能手环 X1 Pro',
-          defectType: '心率传感器故障',
-          defectDesc: '心率测量值异常，波动过大',
-          findProcess: '功能测试',
-          findOperator: '李四',
-          createTime: '2026-07-15 11:20',
-          status: 2,
-          statusTag: 'repairing',
-          statusText: '维修中',
-          repairRecords: [{
-            repairTime: '2026-07-15 14:00',
-            repairPerson: '王五',
-            repairAction: '更换心率传感器',
-            replacedParts: '心率传感器 IC-0001',
-            repairResult: 'repaired'
-          }],
-          recheckResult: null
-        },
-        'SN202607150001': { 
-          id: 3, 
-          repairNo: 'RP202607150001', 
-          snCode: 'SN202607150001',
-          productModel: '智能手环 X1 Pro',
-          defectType: '蓝牙连接异常',
-          defectDesc: '蓝牙无法连接手机，搜索不到设备',
-          findProcess: '功能测试',
-          findOperator: '张三',
-          createTime: '2026-07-15 10:30',
-          status: 1,
-          statusTag: 'pending',
-          statusText: '待维修',
-          repairRecords: [],
-          recheckResult: null
-        },
-        'SN202607150002': { 
-          id: 4, 
-          repairNo: 'RP202607150002', 
-          snCode: 'SN202607150002',
-          productModel: '智能手环 X1 Pro',
-          defectType: '心率传感器故障',
-          defectDesc: '心率测量值异常，波动过大',
-          findProcess: '功能测试',
-          findOperator: '李四',
-          createTime: '2026-07-15 11:20',
-          status: 2,
-          statusTag: 'repairing',
-          statusText: '维修中',
-          repairRecords: [{
-            repairTime: '2026-07-15 14:00',
-            repairPerson: '王五',
-            repairAction: '更换心率传感器',
-            replacedParts: '心率传感器 IC-0001',
-            repairResult: 'repaired'
-          }],
-          recheckResult: null
-        }
-      }
-      return mockItems[code] || null
+    getStatusTag(status) {
+      const map = { 0: 'error', 1: 'warning', 2: 'primary', 3: 'success', 4: 'success' }
+      return map[status] || 'info'
+    },
+    getStatusText(status) {
+      const map = { 0: '待处理', 1: '已接单', 2: '维修中', 3: '待验收', 4: '已验收' }
+      return map[status] || '未知'
+    },
+    getPriorityText(priority) {
+      const map = { major: '紧急', minor: '一般', warning: '轻微' }
+      return map[priority] || priority || '一般'
     },
     onStatusChange({ index }) {
       this.currentStatus = index
@@ -532,15 +458,16 @@ export default {
       try {
         const status = this.statusList[this.currentStatus].value
         const params = status ? { status: Number(status) } : {}
-        this.repairList = await getRepairList(params) || []
+        const res = await getRepairList(params)
+        this.repairList = res.data?.records || res.data || []
       } catch {
         this.repairList = []
       }
     },
     async viewDetail(item) {
       try {
-        const detail = await getRepairDetail(item.id)
-        this.currentRepair = detail
+        const res = await getRepairDetail(item.id)
+        this.currentRepair = res.data || item
       } catch {
         this.currentRepair = item
       }
@@ -548,44 +475,31 @@ export default {
     },
     createRepair() {
       this.repairForm = {
-        snCode: '',
-        productModel: '',
-        defectType: '',
-        defectDesc: '',
-        findProcess: '',
-        findOperator: '',
-        defectPhotos: []
+        taskNo: '',
+        equipmentNo: '',
+        equipmentName: '',
+        faultDesc: '',
+        faultType: '',
+        priority: 'minor',
+        reporter: '',
+        assignee: ''
       }
       this.repairFormVisible = true
     },
     async scanSnCode() {
       try {
         const code = await scanCode()
-        this.repairForm.snCode = code
+        this.repairForm.equipmentNo = code
       } catch {
       }
     },
-    choosePhoto() {
-      uni.chooseImage({
-        count: 3 - this.repairForm.defectPhotos.length,
-        success: (res) => {
-          this.repairForm.defectPhotos = [...this.repairForm.defectPhotos, ...res.tempFilePaths]
-        }
-      })
-    },
-    removePhoto(index) {
-      this.repairForm.defectPhotos.splice(index, 1)
-    },
-    previewImage(url) {
-      uni.previewImage({ urls: this.currentRepair.defectPhotos, current: url })
-    },
     async submitRepair() {
-      if (!this.repairForm.snCode) {
-        uni.showToast({ title: '请输入SN码', icon: 'none' })
+      if (!this.repairForm.equipmentNo) {
+        uni.showToast({ title: '请输入设备编号', icon: 'none' })
         return
       }
-      if (!this.repairForm.defectType) {
-        uni.showToast({ title: '请输入不良类型', icon: 'none' })
+      if (!this.repairForm.faultDesc) {
+        uni.showToast({ title: '请输入故障描述', icon: 'none' })
         return
       }
 
@@ -607,8 +521,26 @@ export default {
         success: async (res) => {
           if (res.confirm) {
             try {
-              await startRepair(this.currentRepair.id)
+              await acceptRepair(this.currentRepair.id)
               uni.showToast({ title: '已领取维修', icon: 'success' })
+              this.loadData()
+              this.detailVisible = false
+            } catch {
+              uni.showToast({ title: '操作失败', icon: 'none' })
+            }
+          }
+        }
+      })
+    },
+    async handleStartRepair() {
+      uni.showModal({
+        title: '确认开始维修',
+        content: '确认开始维修此设备？',
+        success: async (res) => {
+          if (res.confirm) {
+            try {
+              await startRepair(this.currentRepair.id)
+              uni.showToast({ title: '已开始维修', icon: 'success' })
               this.loadData()
               this.detailVisible = false
             } catch {
@@ -620,15 +552,16 @@ export default {
     },
     finishRepair() {
       this.finishForm = {
-        repairAction: '',
-        replacedParts: '',
-        repairNote: ''
+        repairContent: '',
+        partsUsed: '',
+        repairCost: 0,
+        remark: ''
       }
       this.finishFormVisible = true
     },
     async submitFinish() {
-      if (!this.finishForm.repairAction) {
-        uni.showToast({ title: '请输入维修措施', icon: 'none' })
+      if (!this.finishForm.repairContent) {
+        uni.showToast({ title: '请输入维修内容', icon: 'none' })
         return
       }
 
@@ -646,21 +579,22 @@ export default {
     },
     startRecheck() {
       this.recheckForm = {
-        recheckResult: '',
-        recheckConclusion: ''
+        acceptanceResult: 'pass',
+        acceptanceBy: '',
+        remark: ''
       }
       this.recheckFormVisible = true
     },
     onRecheckResultChange(val) {
-      this.recheckForm.recheckResult = val
+      this.recheckForm.acceptanceResult = val
     },
     async submitRecheck() {
-      if (!this.recheckForm.recheckResult) {
-        uni.showToast({ title: '请选择复测结果', icon: 'none' })
+      if (!this.recheckForm.acceptanceResult) {
+        uni.showToast({ title: '请选择验收结果', icon: 'none' })
         return
       }
-      if (!this.recheckForm.recheckConclusion) {
-        uni.showToast({ title: '请输入复测结论', icon: 'none' })
+      if (!this.recheckForm.acceptanceBy) {
+        uni.showToast({ title: '请输入验收人', icon: 'none' })
         return
       }
 
@@ -669,7 +603,7 @@ export default {
         await recheckRepair(this.currentRepair.id, this.recheckForm)
         this.rechecking = false
         this.recheckFormVisible = false
-        uni.showToast({ title: '复测完成', icon: 'success' })
+        uni.showToast({ title: '验收完成', icon: 'success' })
         this.loadData()
         this.detailVisible = false
       } catch {

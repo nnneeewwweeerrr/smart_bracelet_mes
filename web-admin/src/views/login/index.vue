@@ -222,7 +222,7 @@
 
                   <div class="tip-bar">
                     <el-icon :size="12"><InfoFilled /></el-icon>
-                    <span>注册成功后默认角色为订单员</span>
+                    <span>注册成功后默认角色为生产工人</span>
                   </div>
                 </div>
               </div>

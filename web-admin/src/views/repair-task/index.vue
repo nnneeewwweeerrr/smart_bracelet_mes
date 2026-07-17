@@ -232,9 +232,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { demoEquipment, demoRepairTask } from '@/api/demo'
+import wsClient from '@/utils/websocket'
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -580,10 +581,37 @@ async function handleDelete(row) {
   }
 }
 
+function handleNewRepair(payload) {
+  ElMessage.warning(`新维修报工：${payload.equipmentName} - ${payload.faultDesc}`)
+  fetchData()
+  fetchStats()
+}
+
+function handleRepairUpdate(payload) {
+  ElMessage.info(`维修状态更新：${payload.taskNo} - ${payload.statusText}`)
+  fetchData()
+  fetchStats()
+}
+
+function handleMaintainCreated(payload) {
+  ElMessage.success(`维保记录生成：${payload.equipmentName} - ${payload.maintainNo}`)
+  fetchData()
+  fetchStats()
+}
+
 onMounted(() => {
   fetchEquipment()
   fetchStats()
   fetchData()
+  wsClient.on('NEW_REPAIR', handleNewRepair)
+  wsClient.on('REPAIR_UPDATE', handleRepairUpdate)
+  wsClient.on('MAINTAIN_CREATED', handleMaintainCreated)
+})
+
+onUnmounted(() => {
+  wsClient.off('NEW_REPAIR', handleNewRepair)
+  wsClient.off('REPAIR_UPDATE', handleRepairUpdate)
+  wsClient.off('MAINTAIN_CREATED', handleMaintainCreated)
 })
 </script>
 

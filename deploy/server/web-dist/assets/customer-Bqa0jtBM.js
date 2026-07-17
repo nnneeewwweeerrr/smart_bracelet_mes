@@ -1,0 +1,1 @@
+import{y as t}from"./index-B4mkkY3O.js";function u(e){return t({url:"/customer/list",method:"get",params:e})}function o(e){return t({url:"/customer/save",method:"post",data:e})}function s(e){return t({url:"/customer/update",method:"put",data:e})}function m(e){return t({url:`/customer/delete/${e}`,method:"delete"})}export{o as c,m as d,u as g,s as u};

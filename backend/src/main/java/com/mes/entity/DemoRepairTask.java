@@ -30,6 +30,8 @@ public class DemoRepairTask {
 
     private String faultDescription;
 
+    private String reporter;
+
     private Integer priority;
 
     private Long repairerId;

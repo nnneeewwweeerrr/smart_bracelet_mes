@@ -38,7 +38,7 @@ export function deleteProductionPlan(id) {
   })
 }
 
-export function approveProductionPlan(id) {
+export function startProductionPlan(id) {
   return request({
     url: '/production-plan/start/' + id,
     method: 'put'

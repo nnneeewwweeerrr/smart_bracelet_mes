@@ -1,0 +1,1 @@
+import{K as e}from"./index-Ba7KM6Ae.js";function a(t){return e({url:"/ai/chat",method:"post",data:t})}function o(t){return e({url:"/ai/history/recent",method:"get",params:t})}function i(){return e({url:"/ai/stats",method:"get"})}export{a,i as b,o as g};

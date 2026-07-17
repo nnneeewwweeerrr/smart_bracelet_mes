@@ -10,6 +10,7 @@ import com.mes.entity.DemoEquipmentMaintain;
 import com.mes.service.DemoRepairTaskService;
 import com.mes.service.DemoEquipmentFaultService;
 import com.mes.service.DemoEquipmentMaintainService;
+import com.mes.websocket.WebSocketPushService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,9 @@ public class DemoRepairTaskController {
 
     @Autowired
     private DemoEquipmentMaintainService demoEquipmentMaintainService;
+
+    @Autowired
+    private WebSocketPushService webSocketPushService;
 
     @GetMapping("/list")
     public Result<IPage<DemoRepairTask>> list(@RequestParam(defaultValue = "1") Integer pageNum,
@@ -93,6 +97,9 @@ public class DemoRepairTaskController {
             task.setAssignTime(LocalDateTime.now());
         }
         demoRepairTaskService.save(task);
+
+        webSocketPushService.pushNewRepair(task.getId(), task.getTaskNo(), task.getEquipmentNo(), task.getEquipmentName(), task.getFaultDesc(), task.getReporter());
+
         return Result.success();
     }
 
@@ -119,6 +126,8 @@ public class DemoRepairTaskController {
         task.setStatus(1);
         demoRepairTaskService.updateById(task);
 
+        webSocketPushService.pushRepairUpdate(task.getId(), task.getTaskNo(), 1, "已接单", task.getAssignee(), "接单");
+
         return Result.success();
     }
 
@@ -132,6 +141,8 @@ public class DemoRepairTaskController {
         task.setStartTime(LocalDateTime.now());
         task.setStatus(2);
         demoRepairTaskService.updateById(task);
+
+        webSocketPushService.pushRepairUpdate(task.getId(), task.getTaskNo(), 2, "维修中", task.getAssignee(), "开始维修");
 
         DemoEquipmentFault fault = demoEquipmentFaultService.getById(task.getFaultId());
         if (fault != null) {
@@ -159,6 +170,8 @@ public class DemoRepairTaskController {
         }
         task.setStatus(3);
         demoRepairTaskService.updateById(task);
+
+        webSocketPushService.pushRepairUpdate(task.getId(), task.getTaskNo(), 3, "待验收", task.getAssignee(), "完成维修");
 
         DemoEquipmentFault fault = demoEquipmentFaultService.getById(task.getFaultId());
         if (fault != null) {
@@ -211,7 +224,11 @@ public class DemoRepairTaskController {
             maintain.setRelatedTaskId(id);
             maintain.setStatus(2);
             demoEquipmentMaintainService.save(maintain);
+
+            webSocketPushService.pushMaintainCreated(maintain.getId(), maintain.getMaintainNo(), maintain.getEquipmentNo(), maintain.getEquipmentName(), maintain.getMaintainType());
         }
+
+        webSocketPushService.pushRepairUpdate(task.getId(), task.getTaskNo(), "pass".equals(result) ? 4 : 2, "pass".equals(result) ? "已验收" : "维修中", task.getAssignee(), "验收");
 
         return Result.success();
     }

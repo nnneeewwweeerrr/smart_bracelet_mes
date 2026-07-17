@@ -8,6 +8,7 @@ import com.mes.entity.DemoStockIn;
 import com.mes.entity.DemoStock;
 import com.mes.service.DemoStockInService;
 import com.mes.service.DemoStockService;
+import com.mes.websocket.WebSocketPushService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,9 @@ public class DemoStockInController {
 
     @Autowired
     private DemoStockService demoStockService;
+
+    @Autowired
+    private WebSocketPushService webSocketPushService;
 
     @GetMapping("/list")
     public Result<IPage<DemoStockIn>> list(@RequestParam(defaultValue = "1") Integer pageNum,
@@ -182,6 +186,8 @@ public class DemoStockInController {
         stockIn.setScanCode(scanCode);
         stockIn.setStatus(1);
         demoStockInService.save(stockIn);
+
+        webSocketPushService.pushStockIn(stockIn.getId(), stockIn.getStockInNo(), materialNo, materialName, quantity, warehouseName, operator);
 
         if (materialId != null) {
             LambdaQueryWrapper<DemoStock> wrapper = new LambdaQueryWrapper<>();

@@ -1,0 +1,1 @@
+import{y as t}from"./index-BMgknQxa.js";function r(e){return t({url:"/material/list",method:"get",params:e})}function u(e){return t({url:"/material/save",method:"post",data:e})}function l(e){return t({url:"/material/update",method:"put",data:e})}function i(e){return t({url:"/material/delete/"+e,method:"delete"})}export{u as c,i as d,r as g,l as u};

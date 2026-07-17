@@ -27,3 +27,7 @@ export const remove = (id) => {
 export const getStatistics = () => {
   return request.get('/equipment/statistics')
 }
+
+export const getStatusList = () => {
+  return request.get('/equipment/all')
+}

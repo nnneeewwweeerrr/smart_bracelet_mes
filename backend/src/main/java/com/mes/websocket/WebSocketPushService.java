@@ -66,4 +66,56 @@ public class WebSocketPushService {
         payload.put("reportTime", java.time.LocalDateTime.now().toString());
         pushExceptionMessage("PROGRESS_UPDATE", payload);
     }
+
+    public void pushNewRepair(Long taskId, String taskNo, String equipmentNo, String equipmentName, String faultDesc, String reporter) {
+        ObjectNode payload = objectMapper.createObjectNode();
+        payload.put("id", taskId);
+        payload.put("taskNo", taskNo);
+        payload.put("equipmentNo", equipmentNo);
+        payload.put("equipmentName", equipmentName);
+        payload.put("faultDesc", faultDesc);
+        payload.put("reporter", reporter);
+        payload.put("status", 0);
+        payload.put("statusText", "待处理");
+        payload.put("createTime", java.time.LocalDateTime.now().toString());
+        pushExceptionMessage("NEW_REPAIR", payload);
+    }
+
+    public void pushRepairUpdate(Long taskId, String taskNo, Integer status, String statusText, String assignee, String operation) {
+        ObjectNode payload = objectMapper.createObjectNode();
+        payload.put("id", taskId);
+        payload.put("taskNo", taskNo);
+        payload.put("status", status);
+        payload.put("statusText", statusText);
+        payload.put("assignee", assignee != null ? assignee : "");
+        payload.put("operation", operation);
+        payload.put("updateTime", java.time.LocalDateTime.now().toString());
+        pushExceptionMessage("REPAIR_UPDATE", payload);
+    }
+
+    public void pushMaintainCreated(Long maintainId, String maintainNo, String equipmentNo, String equipmentName, String maintainType) {
+        ObjectNode payload = objectMapper.createObjectNode();
+        payload.put("id", maintainId);
+        payload.put("maintainNo", maintainNo);
+        payload.put("equipmentNo", equipmentNo);
+        payload.put("equipmentName", equipmentName);
+        payload.put("maintainType", maintainType);
+        payload.put("createTime", java.time.LocalDateTime.now().toString());
+        pushExceptionMessage("MAINTAIN_CREATED", payload);
+    }
+
+    public void pushStockIn(Long stockInId, String stockInNo, String materialNo, String materialName, Integer quantity, String warehouseName, String operator) {
+        ObjectNode payload = objectMapper.createObjectNode();
+        payload.put("id", stockInId);
+        payload.put("stockInNo", stockInNo);
+        payload.put("materialNo", materialNo);
+        payload.put("materialName", materialName);
+        payload.put("quantity", quantity);
+        payload.put("warehouseName", warehouseName);
+        payload.put("operator", operator);
+        payload.put("status", 1);
+        payload.put("statusText", "已完成");
+        payload.put("inDate", java.time.LocalDateTime.now().toString());
+        pushExceptionMessage("STOCK_IN", payload);
+    }
 }

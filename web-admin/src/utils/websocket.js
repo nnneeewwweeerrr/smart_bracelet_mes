@@ -121,10 +121,14 @@ class WebSocketClient {
     if (this.mockTimer) clearInterval(this.mockTimer)
     this.mockTimer = setInterval(() => {
       const rand = Math.random()
-      if (rand < 0.4) {
+      if (rand < 0.3) {
         this.mockExceptionPush()
-      } else if (rand < 0.9) {
+      } else if (rand < 0.6) {
         this.mockProgressPush()
+      } else if (rand < 0.8) {
+        this.mockRepairPush()
+      } else {
+        this.mockStockInPush()
       }
     }, 8000)
   }
@@ -200,6 +204,74 @@ class WebSocketClient {
     }
 
     this.handleMessage({ type: 'PROGRESS_UPDATE', payload: data })
+  }
+
+  mockRepairPush() {
+    const equipments = ['EQ-001 焊接机', 'EQ-002 贴片机', 'EQ-003 测试设备']
+    const faults = ['设备过热报警', '运行噪音异常', '精度偏差', '无法启动']
+    const workers = ['张工人', '李工人', '王工人']
+
+    const now = new Date()
+    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '')
+    const taskNo = 'RT-' + dateStr + String(Math.floor(Math.random() * 900) + 100)
+
+    const data = {
+      id: Date.now(),
+      taskNo,
+      equipmentNo: equipments[Math.floor(Math.random() * equipments.length)].split(' ')[0],
+      equipmentName: equipments[Math.floor(Math.random() * equipments.length)],
+      faultDesc: faults[Math.floor(Math.random() * faults.length)],
+      reporter: workers[Math.floor(Math.random() * workers.length)],
+      status: 0,
+      statusText: '待处理',
+      createTime: now.toLocaleString('zh-CN', { hour12: false })
+    }
+
+    this.handleMessage({ type: 'NEW_REPAIR', payload: data })
+
+    ElNotification({
+      title: '新维修报工',
+      message: `【${data.equipmentName}】${data.faultDesc}`,
+      type: 'error',
+      duration: 5000,
+      onClick: () => {
+        window.dispatchEvent(new CustomEvent('navigate-to-repair'))
+      }
+    })
+  }
+
+  mockStockInPush() {
+    const materials = ['ML-001 电池', 'ML-002 屏幕', 'ML-003 主板', 'ML-004 外壳']
+    const warehouses = ['一号仓库', '二号仓库']
+    const operators = ['赵仓管', '孙仓管']
+
+    const now = new Date()
+    const stockInNo = 'IN' + now.getTime()
+
+    const data = {
+      id: Date.now(),
+      stockInNo,
+      materialNo: materials[Math.floor(Math.random() * materials.length)].split(' ')[0],
+      materialName: materials[Math.floor(Math.random() * materials.length)].split(' ')[1],
+      quantity: Math.floor(Math.random() * 100) + 10,
+      warehouseName: warehouses[Math.floor(Math.random() * warehouses.length)],
+      operator: operators[Math.floor(Math.random() * operators.length)],
+      status: 1,
+      statusText: '已完成',
+      inDate: now.toLocaleString('zh-CN', { hour12: false })
+    }
+
+    this.handleMessage({ type: 'STOCK_IN', payload: data })
+
+    ElNotification({
+      title: '新入库记录',
+      message: `【${data.materialName}】入库 ${data.quantity} 件，仓库：${data.warehouseName}`,
+      type: 'success',
+      duration: 5000,
+      onClick: () => {
+        window.dispatchEvent(new CustomEvent('navigate-to-stock-in'))
+      }
+    })
   }
 
   simulateException() {
